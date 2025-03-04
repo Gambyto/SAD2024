@@ -108,6 +108,45 @@
                 </div>
             </div>
             
+            <h4> Datos especiales</h4>
+            
+            <div class="empleados__content" style="display: flex; gap: 1rem;">
+            <div class="sex_selector">
+                <label for="validationCustom15" class="form-label g1">Discapacidad</label>
+                <div class="form-check">
+                <input type="radio" name="Select-discapacidad" value="Y" class="form-check-input g2" id="validationFormCheck4" name="radio-stacked" required>
+                <label class="form-check-label" for="validationFormCheck4"> Sí </label>
+                </div>
+                <div class="form-check mb-3 g3">
+                <input type="radio" name="Select-discapacidad" value="N" class="form-check-input" id="validationFormCheck5" name="radio-stacked" required checked>
+                <label class="form-check-label" for="validationFormCheck5"> No </label>
+                </div>
+            </div>
+
+            <div class="a1" id="discapacidad-selectores">
+                <label for="validationCustom16" class="form-label">Tipo de discapacidad</label>
+                <select class="form-select" name="tipo-discapacidad" id="validationCustom16" required>
+                <option value="Ninguna" selected>Ninguna</option>
+                </select>
+                <div class="invalid-feedback">
+                Seleccione un tipo de discapacidad.
+                </div>
+            </div>
+
+            <div class="a1" id="afeccion-selectores">
+                <label for="validationCustom17" class="form-label">Afección</label>
+                <div id="afeccion-select">
+                    <select class="form-select" name="afeccion" id="validationCustom17" required>
+                    <option value="No aplica" selected>No aplica</option>
+                    </select>
+                </div>
+                <div class="invalid-feedback">
+                    Seleccione una afección.
+                </div>
+                </div>
+            </div>
+            
+
             <h4> Datos laborales</h4>
             
             <div class="empleados__content" style="display: flex; gap: 1rem;">
@@ -235,4 +274,107 @@ function filtrarCargos() {
 
 // Agregar el evento de cambio al select de departamento
 departamentoSelect.addEventListener('change', filtrarCargos);
+
+
+
+
+const radioSi = document.getElementById('validationFormCheck4');
+const radioNo = document.getElementById('validationFormCheck5');
+const discapacidadSelectores = document.getElementById('discapacidad-selectores');
+const afeccionSelectores = document.getElementById('afeccion-selectores');
+const tipoDiscapacidadSelect = document.getElementById('validationCustom16');
+const afeccionSelect = document.getElementById('validationCustom17');
+
+radioSi.addEventListener('change', () => {
+  if (radioSi.checked) {
+    tipoDiscapacidadSelect.innerHTML = '';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Ninguna">Ninguna</option>';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Física">Física</option>';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Mental">Mental</option>';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Sensorial">Sensorial</option>';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Salud mental">Salud mental</option>';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Otro">Otro</option>';
+
+    afeccionSelect.innerHTML = '';
+    afeccionSelect.innerHTML += '<option value="Ninguna">Ninguna</option>';
+  }
+});
+
+radioNo.addEventListener('change', () => {
+  if (radioNo.checked) {
+    tipoDiscapacidadSelect.innerHTML = '';
+    tipoDiscapacidadSelect.innerHTML += '<option value="Ninguna" selected>Ninguna</option>';
+
+    afeccionSelect.innerHTML = '';
+    afeccionSelect.innerHTML += '<option value="Ninguna" selected>Ninguna</option>';
+  }
+});
+
+tipoDiscapacidadSelect.addEventListener('change', () => {
+  const tipoDiscapacidad = tipoDiscapacidadSelect.value;
+  const opciones = {
+    'Física': [
+      'Parálisis Cerebral',
+      'Esclerosis Múltiple',
+      'Distrofia Muscular',
+      'Lesión de la Médula Espinal',
+      'Amputación',
+      'Síndrome de Fatiga Crónica',
+      'Enfermedad de Células Falciformes',
+      'Fibrosis Quística',
+      'Accidente Cerebrovascular',
+      'Síndrome del Túnel Carpiano',
+      'Trastornos de Dolor Crónico',
+      'Parálisis de Bell',
+      'Paraplejía Espástica Hereditaria',
+      'Espina Bífida'
+    ],
+    'Mental': [
+      'Autismo',
+      'Síndrome de Down',
+      'Discapacidad Intelectual',
+      'Retraso Mental',
+      'Síndrome de X Frágil',
+      'Síndrome de Klinefelter',
+      'Síndrome de Turner',
+      'Síndrome de Williams',
+      'Síndrome de Prader-Willi',
+      'Trastorno de Aprendizaje No Verbal',
+      'Dislexia',
+      'Discalculia'
+    ],
+    'Sensorial': [
+      'Ceguera',
+      'Discapacidad Visual',
+      'Sordera',
+      'Discapacidad Auditiva',
+      'Trastornos del Procesamiento Auditivo'
+    ],
+    'Salud mental': [
+      'Depresión',
+      'Ansiedad',
+      'Trastorno Bipolar',
+      'Esquizofrenia',
+      'Trastorno Obsesivo-Compulsivo'
+    ],
+    'Otro': [
+      'Especificar'
+    ]
+  };
+
+  if (tipoDiscapacidad === 'Otro') {
+    document.getElementById('afeccion-select').innerHTML = '';
+    document.getElementById('afeccion-select').innerHTML += '<input type="text" name="afeccion" class="form-control" id="validationCustom17" required>';
+  } else {
+    document.getElementById('afeccion-select').innerHTML = '<select class="form-select" name="afeccion" id="validationCustom17" required><option value="No aplica" selected>No aplica</option></select>';
+    if (opciones[tipoDiscapacidad]) {
+      opciones[tipoDiscapacidad].forEach(afeccion => {
+        const option = document.createElement('option');
+        option.value = afeccion;
+        option.textContent = afeccion;
+        document.getElementById('validationCustom17').appendChild(option);
+      });
+    }
+  }
+});
         </script>

@@ -14,6 +14,8 @@ $cargo = $_POST['cargo'] ?? null;
 $ingreso = $_POST['ingreso'];
 $sueldo = $_POST['sueldo'];
 $edad= $_POST['edad'];
+$type_invalid_person= $_POST['tipo-discapacidad'];
+$afeccion= $_POST['afeccion'];
 		
 $F_ingreso = date('Y-m-d', strtotime($ingreso));
 
@@ -89,7 +91,7 @@ if (!empty($cedula) && !empty($nombre) && !empty($apellido) &&
 				$cargo,
 				$F_ingreso,
 				$sueldo,
-					$edad)){
+					$edad, $type_invalid_person, $afeccion)){
 						$message = 'Empleado registrado con exito';
 						ob_start();
 						include_once '../../View/Components/True_alerts.php';

@@ -1,0 +1,48 @@
+[33mcommit b1f517b13f54306a1a7a48c5901b0a275ebe9e15[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Gabriel Rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 21:10:19 2025 -0400
+
+    prueba 2 vercel
+
+[33mcommit a1c19a828823bea55ad9128739547c165cf26fff[m
+Author: Gabriel Rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 21:06:34 2025 -0400
+
+    Prueba para servidor vercel
+
+[33mcommit 8598094fd9326bb5675eb92f138ebe298ef45c76[m
+Author: Gabriel Rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 17:42:38 2025 -0400
+
+    Concluir fusión y reorganizar archivos
+
+[33mcommit 11c2d0f5bbc8928f26419c453a60370bba7e99b3[m
+Merge: 92f6ba7 67cf9c8
+Author: Gabriel Rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 17:32:19 2025 -0400
+
+    Concluir fusión y eliminar index.html
+
+[33mcommit 92f6ba711080829b3cb6421213228836878b29b5[m
+Author: Gabriel Rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 17:13:42 2025 -0400
+
+    Actualización con codigo vercel
+
+[33mcommit 67cf9c87bb62da7046642510f49aa1d2b1454afa[m
+Author: Gabriel Rojas <155413920+Gambyto@users.noreply.github.com>
+Date:   Sat Mar 1 16:48:35 2025 -0400
+
+    Delete index.html
+
+[33mcommit 1dbc9baaecab8a8bd43b106e590b385e8448720d[m
+Author: Gabriel rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 15:22:44 2025 -0400
+
+    Cambio en la bd
+
+[33mcommit c3c6e5cf5601be7950d1c66365bc36b065ab7bde[m
+Author: Gabriel rojas <angelgrojasr0303@gmail.com>
+Date:   Sat Mar 1 15:07:31 2025 -0400
+
+    Aporte SAD2024: tiene errores en algúnos indicadores

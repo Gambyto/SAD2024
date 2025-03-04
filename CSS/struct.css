@@ -206,7 +206,8 @@
   
   .empleados .form-1{
     grid-area: form;
-    
+    height: 100%;
+    overflow-y: scroll;
     border-radius: .5rem;
   }
   .form-1 .empleados__content{
@@ -422,7 +423,7 @@
       grid-area: kpi1;
       display: grid;
       grid-template-areas: 
-      'kpie1 kpie5 kpie2' 
+      'kpie1 kpie4 kpie2' 
       'kpie3 kpie4 kpie2';
       grid-template-columns: 1fr 1fr .7fr;
       grid-template-rows: 1fr 1fr;
@@ -434,7 +435,6 @@
     .ke2{ grid-area: kpie2;}
     .ke3{ grid-area: kpie3;}
     .ke4{ grid-area: kpie4;}
-    .ke5{ grid-area: kpie5;}
 
     .k2{
       grid-area: kpi2;
@@ -549,3 +549,37 @@
     }
 
 
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 10px;
+      background-color: #eaeaea;
+      border-radius: 10px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background-color: #b5b3b3;
+      border-radius: 10px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #888;
+    }
+    
+    ::-webkit-scrollbar-button {
+      background-color: #ccc;
+      border-radius: 10px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    ::-webkit-scrollbar-button:hover {
+      background-color: #888;
+    }
+    
+    ::-webkit-scrollbar-corner {
+      background-color: #eae8e8;
+      border-radius: 10px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }

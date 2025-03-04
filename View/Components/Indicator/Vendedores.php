@@ -14,8 +14,8 @@
     $totalcomiciones = array_sum($comisiones);
     $comisionmax = $Nomina->MAX_Vendedores($comisiones);
 
-    $comi_max = $comisionmax['t_comiciones'];
-    $vendedor_max = $comisionmax['vendedor_nombre'];
+    $comi_max = $comisionmax['t_comiciones'] ?? 0;
+    $vendedor_max = $comisionmax['vendedor_nombre'] ?? 'No hay datos';
 
     $meses = array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
     'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');

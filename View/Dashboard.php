@@ -21,8 +21,9 @@ use PhpParser\Node\Expr\Include_;
                 <div class="kpi-s ke3">
                     <?php include_once '../View/Components/Indicator/solicitudes.php';?>
                 </div>
-                <div class="kpi-s ke4"></div>
-                <div class="kpi-s ke5"></div>
+                <div class="kpi-s ke4">
+                    <?php include_once '../View/Components/Indicator/discapacidad.php';?>
+                </div>
             </div>
             <div class="k2">
                 <h2 class="Name"> Finanzas </h2>

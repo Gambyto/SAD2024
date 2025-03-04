@@ -165,6 +165,18 @@ class Empleado extends connect
   		return $data;
 	}
 
+	public function Discapacidad()
+{
+    $query = "SELECT discapacidad, COUNT(*) as cantidad FROM empleados WHERE estado = '1' GROUP BY discapacidad";
+    $result = $this->connect_db()->query($query);
+
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
 	public function  PromedioPrestamos()
 	{
 		$query="SELECT COUNT(DISTINCT(cedula_FK)) AS empleados_prestamos 
@@ -210,10 +222,10 @@ class Empleado extends connect
 	}
 
 	public function Create_Empleado($cedula,$nombre,$apellido,$direccion,$correo,$sexo,
-	$tlf,$second_tlf,$departamento,$cargo,$F_ingreso,$sueldo,$edad)
+	$tlf,$second_tlf,$departamento,$cargo,$F_ingreso,$sueldo,$edad,$discapacidad, $afeccion)
 	{
-		$query="INSERT INTO empleados(`cedula`, `nombre`, `apellido`, `direccion`, `correo`,`sexo`, `edad`, `tlf`, `second_tlf`, `departamento`, `cargo`, `f_ingreso`, `sueldo`, `estado`) 
-				VALUES ('$cedula','$nombre','$apellido','$direccion','$correo','$sexo','$edad','$tlf','$second_tlf','$departamento','$cargo','$F_ingreso','$sueldo','1')";
+		$query="INSERT INTO empleados(`cedula`, `nombre`, `apellido`, `direccion`, `correo`,`sexo`, `edad`, `tlf`, `second_tlf`, `departamento`, `cargo`, `f_ingreso`,`afeccion`, `discapacidad`, `sueldo`, `estado`) 
+				VALUES ('$cedula','$nombre','$apellido','$direccion','$correo','$sexo','$edad','$tlf','$second_tlf','$departamento','$cargo','$F_ingreso','$afeccion','$discapacidad','$sueldo','1')";
 
 		if ($result= $this->connect_db()->query($query)){
 			return true;
@@ -349,7 +361,7 @@ class Nomina extends connect
 					  WHERE nomina.estado = 1
 					  AND MONTH(nomina.fecha) = $mes
 					  AND YEAR(nomina.fecha) = $anio
-					  AND FLOOR((DAYOFMONTH(nomina.fecha) - 1) / 7) + 1 = $semana";
+					  AND FLOOR((DAY(nomina.fecha) - 1) / 7) + 1 = $semana";
 			$result = $this->connect_db()->query($query);
 			$row = mysqli_fetch_assoc($result);
 			// Guardar el total de la semana en el arreglo
