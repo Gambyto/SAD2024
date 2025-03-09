@@ -330,8 +330,10 @@ class Nomina extends connect
 
 	// Validar edad
 	$edad = $this->calcularEdad($fechaNacimiento);
-	if ($edad < 18 || $edad > 100) {
+	if ($edad < 18) {
 		return "La edad debe ser mayor a 18 años";
+	}elseif ($edad > 100) {
+		return "La edad no puede ser mayor a 100 años";
 	}
 
 	// Validar fecha de ingreso

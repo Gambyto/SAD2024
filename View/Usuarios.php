@@ -1,5 +1,5 @@
 <?php include_once 'Components/Header.php';?>
-    <a onclick="openModal()" class="btn btn-danger"> Usuarios inabilitados  
+    <a onclick="Modal()" class="btn btn-danger"> Usuarios inabilitados  
     <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  
     stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-off">
     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -101,6 +101,9 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        function Modal() {
+        $('#Modal').modal('show');
+    }
         function openModal() {
         $('#empleadoModal').modal('show');
     }
@@ -193,4 +196,3 @@
         </form>
     </main>
     
-<?php include_once 'Components/Footer.php';?>
