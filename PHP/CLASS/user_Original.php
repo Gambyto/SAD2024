@@ -450,42 +450,45 @@ class Nomina extends connect
 	}
 
 	public function Search_Nomina($fecha = null, $cedula = null)
-	{
-		$query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, 
-					empleados.sueldo, nomina.sueldosem, prestamos.descuento AS desc2, 
-					cuentas_por_pagar.descuento AS desc1, 
-					(nomina.bonificaciones + nomina.comisiones) AS asignaciones, 
-					nomina.neto, TRUNCATE (nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs,
-					 tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha, nomina.estado
+{
+    $query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, 
+                empleados.sueldo, nomina.sueldosem, prestamos.descuento AS desc2, 
+                cuentas_por_pagar.descuento AS desc1, 
+                (nomina.bonificaciones + nomina.comisiones) AS asignaciones, 
+                nomina.neto, TRUNCATE (nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs,
+                tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha, nomina.estado
 
-			FROM nomina JOIN empleados ON nomina.cedula_FK = empleados.cedula
-			JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa 
-            LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
-			LEFT JOIN prestamos ON nomina.prestamos = prestamos.id_prestamos
+        FROM nomina JOIN empleados ON nomina.cedula_FK = empleados.cedula
+        JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa 
+        LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
+        LEFT JOIN prestamos ON nomina.prestamos = prestamos.id_prestamos
 
-			WHERE nomina.estado = 1 ORDER BY nomina.fecha DESC";
+        WHERE nomina.estado = 1";
 
-			if ($fecha) {
-	        $query .= " AND DATE_FORMAT(nomina.fecha, '%Y-%m') = '$fecha'";
-	    	}
+    $conditions = array();
 
-		    if ($cedula) {
-		        if ($fecha) {
-		            $query .= " AND";
-		        } else {
-		            $query .= " WHERE";
-		        }
-		        $query .= " empleados.cedula = '$cedula'";
-		    }
-  		
-  		$result = $this->connect_db()->query($query);
+    if ($fecha) {
+        $conditions[] = "DATE_FORMAT(nomina.fecha, '%Y-%m') = '$fecha'";
+    }
 
-  		$data = array();
-  		while ($row = mysqli_fetch_assoc($result)) {
-    	$data[] = $row;
-  		}
-  		return $data;
-	}
+    if ($cedula) {
+        $conditions[] = "empleados.cedula = '$cedula'";
+    }
+
+    if (!empty($conditions)) {
+        $query .= " AND " . implode(" AND ", $conditions);
+    }
+
+    $query .= " ORDER BY nomina.fecha DESC";
+
+    $result = $this->connect_db()->query($query);
+
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
 
 	public function GetID_nomina($ID)
 	{

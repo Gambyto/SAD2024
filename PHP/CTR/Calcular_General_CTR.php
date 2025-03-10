@@ -16,10 +16,15 @@ switch ($op) {
         $totalDeducciones = isset($_POST['totalDeducciones']) ? floatval($_POST['totalDeducciones']) : 0;
         $totalAsignaciones = isset($_POST['totalAsignaciones']) ? floatval($_POST['totalAsignaciones']) : 0;
         
-        if ($totalDeducciones > ($sueldoSemanal + $totalAsignaciones)) {
-            $message = 'Error: el total de ducciones es mayor al sueldo, se habilitara la edición de prestamo';
+        if ($totalDeducciones >= ($sueldoSemanal + $totalAsignaciones)) {
             ob_start();
-            include_once '../../View/Components/alerts.php';
+            if ($totalDeducciones > $sueldoSemanal) {
+                $message = 'Error: el total de ducciones es mayor al sueldo, se habilitara la edición de prestamo';
+                include_once '../../View/Components/alerts.php';
+            } else {
+                $message = 'Advertencia: el neto a pagar son 0$ puede guardar el pago o modificar las deducciones';
+                include_once '../../View/Components/alertsW.php';
+            }
             $html = ob_get_clean();
             $response = array('message' => $message, 'html' => $html);
             echo json_encode($response);

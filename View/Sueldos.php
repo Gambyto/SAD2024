@@ -350,41 +350,55 @@ $(document).ready(function() {
 </script>
 
 <script>
+/**
+ * Función para calcular el neto a pagar de un empleado.
+ */
 function Calcular() {
     // Obtener valores de los campos
-    const sueldoSemanal = parseFloat($('#sueldoS').val()) || 0;
-    const totalDeducciones = parseFloat($('#deduc').val()) || 0;
-    const totalAsignaciones = parseFloat($('#asig').val()) || 0;
+    const sueldoSemanal = parseFloat($('#sueldoS').val());
+    const totalDeducciones = parseFloat($('#deduc').val());
+    const totalAsignaciones = parseFloat($('#asig').val());
+
+
 
     // Enviar datos al servidor mediante AJAX
     $.ajax({
-        url: '../PHP/CTR/Calcular_General_CTR.php', // Cambia esta URL a tu script PHP
+        url: '../PHP/CTR/Calcular_General_CTR.php',
         type: 'POST',
-        data: { op: 1,
+        data: {
+            op: 1,
             sueldoSemanal: sueldoSemanal,
             totalDeducciones: totalDeducciones,
             totalAsignaciones: totalAsignaciones
         },
         success: function(response) {
             if (response) {
-                var data = JSON.parse(response);
-                if (data.html) {
-                    $('#alerts').html(data.html);
-                    $('#prestamo').prop('readonly', false); // Retirar readonly de prestamo
-                } else {
-                    $('#netoPagar').text('$ ' + data.netoPagar.toFixed(2)); // Actualizar neto a pagar
-                    $('#Netodiv').val(data.netoPagar.toFixed(2)); // Actualizar neto a pagar
-                    $('#netoPagarBs').text('Bs ' + (data.netoPagar * data.tasaBCV).toFixed(2)); // Actualizar en Bs
+                try {
+                    const data = JSON.parse(response);
+                    if (data.html) {
+                        console.log(response);
+                        $('#alerts').html(data.html);
+                        $('#prestamo').prop('readonly', false); // Retirar readonly de prestamo
+                    } else {
+                        console.log(response);
+                        $('#netoPagar').text('$ ' + data.netoPagar.toFixed(2)); // Actualizar neto a pagar
+                        $('#Netodiv').val(data.netoPagar.toFixed(2)); // Actualizar neto a pagar
+                        $('#netoPagarBs').text('Bs ' + (data.netoPagar * data.tasaBCV).toFixed(2)); // Actualizar en Bs
+                    }
+                } catch (error) {
+                    console.error('Error al parsear la respuesta:', error);
+                    alert('Error al calcular el Neto a Pagar. Intente nuevamente.');
                 }
             } else {
                 alert('Error al calcular el Neto a Pagar. Intente nuevamente.');
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('Error al enviar la solicitud:', error);
             alert('Error al calcular el Neto a Pagar. Intente nuevamente.');
         }
     });
-};
+}
 
     function Guardar(){
         // Recoger todos los datos del formulario usando serialize
