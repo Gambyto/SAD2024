@@ -264,12 +264,14 @@ function buscarEmpleado(cedula) {
 
                     //rellenar datos de prestamos 
                     if (datos.prestamos && datos.prestamos.id_prestamos != null) {
-                        var descuento = datos.prestamos.descuento;
-                        var monto_desc = datos.prestamos.monto_desc;
+                        let descuento = parseFloat(datos.prestamos.descuento);
+                        let monto_desc = parseFloat(datos.prestamos.monto_desc);
                         if(descuento < monto_desc){
-                            $('#prestamo').val(datos.prestamos.monto_desc);
+                            $('#prestamo').val(descuento);
+                            console.log('entro');
                         }else{
-                            $('#prestamo').val(datos.prestamos.descuento);
+                            console.log('entro2');
+                            $('#prestamo').val(monto_desc);
                         }
                         $('#id_prestamo').val(datos.prestamos.id_prestamos);
                     }else{
@@ -358,8 +360,6 @@ function Calcular() {
     const sueldoSemanal = parseFloat($('#sueldoS').val());
     const totalDeducciones = parseFloat($('#deduc').val());
     const totalAsignaciones = parseFloat($('#asig').val());
-
-
 
     // Enviar datos al servidor mediante AJAX
     $.ajax({

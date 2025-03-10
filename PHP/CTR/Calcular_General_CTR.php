@@ -19,8 +19,8 @@ switch ($op) {
         if ($totalDeducciones >= ($sueldoSemanal + $totalAsignaciones)) {
             ob_start();
             if ($totalDeducciones > $sueldoSemanal) {
-                $message = 'Error: el total de ducciones es mayor al sueldo, se habilitara la edición de prestamo';
-                include_once '../../View/Components/alerts.php';
+                $message = 'Advertencia: el total de ducciones es mayor al sueldo, se habilitara la edición de prestamo';
+                include_once '../../View/Components/alertsW.php';
             } else {
                 $message = 'Advertencia: el neto a pagar son 0$ puede guardar el pago o modificar las deducciones';
                 include_once '../../View/Components/alertsW.php';
@@ -41,7 +41,7 @@ switch ($op) {
         break;
     
     case 2: //Vacaciones
-        if (isset($_POST) && isset($_POST['sueldo'])) {
+        if (!empty($_POST['sueldo'])) {
             
             if (!empty($_POST['vacacionesini'])) {
                 $Vacacionesini = isset($_POST['vacacionesini']) ? $_POST['vacacionesini'] : $Vacacionesini; 
@@ -82,15 +82,23 @@ switch ($op) {
                     'pendientes' => $_POST['pendientes']
                 );
             }else{
-                $response = array(
-                    'error' => 'No se inserto la fecha de inicio'
-                );
+                $message = 'Error: No se inserto la fecha de inicio';
+                ob_start();
+                include_once '../../View/Components/alerts.php';
+                $html = ob_get_clean();
+                $response = array('message' => $message, 'html' => $html);
+                echo json_encode($response);
+                exit;
             }
 
         }else{
-            $response = array(
-                'error' => 'No se encontraron datos para calcular las vacaciones'
-            );
+            $message = 'Error: No se encontraron datos para calcular las vacaciones';
+            ob_start();
+            include_once '../../View/Components/alerts.php';
+            $html = ob_get_clean();
+            $response = array('message' => $message, 'html' => $html);
+            echo json_encode($response);
+            exit;
         }
         break;
 

@@ -3,6 +3,8 @@
 </header>
 
     <main>
+    <div id="alerts"></div>
+
         <form action="" class="form" id="form">
             <div class="block Name">
                 <h2>vacaciones</h2>
@@ -277,8 +279,12 @@ function Calcular() {
                 var totalpendientes = data.pendientes * sueldo;
                 console.log(data);
 				
-				$('#Dvacaciones').val(data.Dvacaciones);
-				$('#Vacacionesfin').val(data.Vacacionesfin);
+                if(data.html){
+                    $('#alerts').html(data.html);
+                }else{
+
+                    $('#Dvacaciones').val(data.Dvacaciones);
+                    $('#Vacacionesfin').val(data.Vacacionesfin);
 				$('#inilaboral').val(data.laboral);
 				$('#servicio').val(data.servicio);
 				$('#monto').val(data.Monto.toFixed(2));
@@ -292,19 +298,20 @@ function Calcular() {
                 $('#T_findesemana').text(data.FinSemana || 0);
                 $('#finsemana').val(data.FinSemana || 0);
                 $('#T_pweekend').text(data.pweekend.toFixed(2) + '$' || '0.00 $');
-               
+                
 				$('#T_feriado').text(data.feriado || 0);
                 $('#T_totalferiado').text(totalferiado.toFixed(2) + '$' || '0.00 $');
-
+                
                 $('#T_pendientes').text(data.pendientes || 0);
                 $('#T_totalpendiente').text(totalpendientes.toFixed(2) + '$' || '0.00 $');
-
+                
                 $('#T_utilidades').text(data.utilidades || 0);
                 $('#T_totalutilidades').text(totalutilidades.toFixed(2) + '$' || '0.00 $');
-
+                
                 $('#T_inceV').text('-' + data.ince.toFixed(2) + '$' || '- 0.00 $');
                 $('#T_monto').text(data.Monto.toFixed(2) + '$' || '0.00 $');
-
+                
+            }
 
             } catch (e) {
                 console.error("Error al procesar la respuesta JSON:", e);
@@ -327,9 +334,10 @@ function Calcular() {
             type: 'POST',
             data: formData,
             success: function(response) {
+                const data = JSON.parse(response);
                 if (response) {
-                    alert(response);
-                    // Limpiar el formulario o realizar otra acción
+                    console.log(response);
+                    $('#alerts').html(data.html);
                     $('#')[0].reset(); // Limpiar el formulario
                 } else {
                     alert(response);
