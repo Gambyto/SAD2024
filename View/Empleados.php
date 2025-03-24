@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 <?php if (isset($_SESSION['TasaBCV'])) { ?>
 	<a href="PlantillaPDF/Nomina-general.php" class="btn btn-danger" target="_blank"> Nomina General  
@@ -28,15 +28,15 @@
                     <div>
                         <label for="validationCustom01" class="form-label">Nombre</label>
                         <input type="text" name="nombre" class="form-control" 
-                        id="validationCustom01" required 
-                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-Z]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
+                        id="validationCustom01" maxlength="30" required 
+                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
                     </div>
-                    
+
                     <div>
                         <label for="validationCustom02" class="form-label">Apellido</label>
                         <input type="text" name="apellido" class="form-control" 
-                        id="validationCustom02" required 
-                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-Z]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
+                        id="validationCustom02" maxlength="30" required 
+                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
                     </div>
                     
 
@@ -239,7 +239,7 @@
        
 
         <script>
-            // Obtener los selects de departamento y cargo
+// Obtener los selects de departamento y cargo
 const departamentoSelect = document.getElementById('validationCustom09');
 const cargoSelect = document.getElementById('validationCustom10');
 

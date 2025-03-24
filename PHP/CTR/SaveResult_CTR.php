@@ -421,6 +421,49 @@ switch ($op) {
             }
         }
         break;
+
+    case '10': // Caso para insertar nuevos usuarios
+        if (empty($cedula)) {
+            $message = 'Error: Complete todos los campos';
+            ob_start();
+            include_once '../../View/Components/alerts.php';
+            $html = ob_get_clean();
+            $response = array('message' => $message, 'html' => $html);
+            echo json_encode($response);
+            exit;
+        }else{
+            if ($Empleado->validate_DNI($cedula)) {
+                    $usuario = getPostValue('username','null');
+                    $contrasena = getPostValue('pass','null');
+                    $tipo = getPostValue('tipo','null');
+                    
+                    if ($User->Update_User($usuario,$contrasena,$cedula,$tipo)) {
+                        $message = 'Usuario actualizado';
+                        ob_start();
+                        include_once '../../View/Components/True_alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html);
+                        echo json_encode($response);
+                    }else{
+                        $message = 'Error: Algo salio mal';
+                        ob_start();
+                        include_once '../../View/Components/alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html);
+                        echo json_encode($response);
+                        exit;
+                    }
+                }else{
+                $message = 'Error: No es una cédula válida';
+                ob_start();
+                include_once '../../View/Components/alerts.php';
+                $html = ob_get_clean();
+                $response = array('message' => $message, 'html' => $html);
+                echo json_encode($response);
+                exit;
+            }
+        }
+        break;
    
 
     break;

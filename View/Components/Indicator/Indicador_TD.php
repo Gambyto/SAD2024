@@ -1,4 +1,5 @@
-<?php // Obtener datos iniciales (sin filtro)
+<?php
+// Obtener datos iniciales (sin filtro)
 $meses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 
@@ -6,9 +7,12 @@ $mesActual = date('m');
 $anioActual = date('Y');
 
 $datosDiarios = $Nomina->TasaDolar('diario', $mesActual, $anioActual);
-$fechasDiarias = array();
-$valoresDiarios = array();
 
+// Inicializar arrays vacíos
+$fechasDiarias = [];
+$valoresDiarios = [];
+
+// Procesar datos diarios
 foreach ($datosDiarios as $dato) {
     $fechasDiarias[] = date("d-m", strtotime($dato['fecha']));
     $valoresDiarios[] = $dato['tasa_del_dia'];
@@ -17,15 +21,23 @@ foreach ($datosDiarios as $dato) {
 // Invertir el orden de los datos
 $fechasDiarias = array_reverse($fechasDiarias);
 $valoresDiarios = array_reverse($valoresDiarios);
- 
-$mesActual = $meses[$mesActual-1];
-// Calcular la tasa más alta y el promedio de la tasa en el mes
-$tasaMasAlta = max($valoresDiarios);
-$promedioTasa = array_sum($valoresDiarios) / count($valoresDiarios);
-?>
-    <canvas id="graficoDiario" width="400" height="200"></canvas>
 
-    <script>
+// Obtener el mes actual
+$mesActual = $meses[$mesActual-1];
+
+// Calcular la tasa más alta y el promedio de la tasa en el mes
+if (!empty($valoresDiarios)) {
+    $tasaMasAlta = max($valoresDiarios);
+    $promedioTasa = array_sum($valoresDiarios) / count($valoresDiarios);
+} else {
+    $tasaMasAlta = null;
+    $promedioTasa = null;
+}
+?>
+
+<canvas id="graficoDiario" width="400" height="200"></canvas>
+
+<script>
 // Inicializar el gráfico
 const ctxDiario = document.getElementById('graficoDiario').getContext('2d');
 
@@ -61,4 +73,4 @@ const graficoDiario = new Chart(ctxDiario, {
         }
     }
 });
-    </script>
+</script>

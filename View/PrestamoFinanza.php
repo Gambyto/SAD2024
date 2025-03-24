@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 <?php if (isset($_SESSION['TasaBCV'])) { ?>
     <div style="display: flex; gap:1rem;">
 
@@ -41,7 +41,7 @@
     </a>
 
     <a onclick="openModal()"
-        class="btn btn-primary"> Historico de prestamos  
+        class="btn btn-primary"> Historico de préstamos  
         <svg  xmlns="http://www.w3.org/2000/svg"  
         viewBox="0 0 24 24"  
         fill="none"  
@@ -72,20 +72,24 @@
         <form id="form"
         method="POST" class="empleados needs-validation" novalidate>
             <div class="block Name">
-                <h2> Prestamos </h2>
+                <h2> Préstamos </h2>
         </div>
 
         <div class="block form-1">
-            <h4> Registrar prestamos</h4>
+            <h4> Registrar préstamos</h4>
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
                     <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
+                    <input type="text" class="form-control" id="nombre" name="nombre" required 
+                    readonly
+                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
 
                 <div>
                     <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="apellido" name="apellido" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
+                    <input type="text" class="form-control" id="apellido" name="apellido" required
+                    readonly
+                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
 
                 <div>

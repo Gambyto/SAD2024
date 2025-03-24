@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 </header>
 
@@ -117,14 +117,16 @@
 				</div>
 
 				<div class="empleados__content">
-					<label> Utilidades:</label>
-						<div class="input-group input-group-sm mb-3">
-		  					<input type="text" class="form-control" aria-label="Sizing example input" 
-							aria-describedby="inputGroup-sizing-sm" name="Utilidades" id="Utilidades"
-                            maxlength="2" 
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-						</div>
-				</div>
+                    <label> Utilidades:</label>
+                    <div class="input-group input-group-sm mb-3">
+                        <select class="form-control" name="Utilidades" id="Utilidades">
+                            <option value="">Seleccione una opción</option>
+                            <option value="30">30</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                        </select>
+                    </div>
+                </div>
 
 				<div class="empleados__content">
 					<label> Días pendientes:</label>

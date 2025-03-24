@@ -51,7 +51,7 @@ try {
         $respuesta['datos'] .= '<th scope="col">' . $dato['fecha'] . '</th>';
         $respuesta['datos'] .= '<th scope="col">' . $dato['date_limit'] . '</th>';
         $respuesta['datos'] .= '<th scope="col">
-        <button name="btn2" class="btn btn-outline-primary" onclick="return confirmar(\'' . $dato['id_prestamos'] . '\')">
+        <button name="btn2" class="btn btn-outline-primary" onclick="">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
             <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
             <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>

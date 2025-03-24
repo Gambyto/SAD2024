@@ -38,8 +38,8 @@
     
     <div class="indicator__body">
         <small class="text-body-secondary">Tiempo de servicio</small>
-        <h5 class="text-body-primary"><?php echo $year .' Años '. $day .' días'; ?></h5>
-        <small class="text-body-secondary"> Comparado con: <?php echo $Ayear .' Años '. $Aday .' días'; ?></small>
+        <h5 class="text-body-primary"><?php echo $year .' Años '. $day .' meses'; ?></h5>
+        <small class="text-body-secondary"> Comparado con: <?php echo $Ayear .' Años '. $Aday .' meses'; ?></small>
     </div>
 
 </div>

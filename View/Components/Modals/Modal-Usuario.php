@@ -31,7 +31,7 @@
                 
                 <div class="empleados__content" style="display: flex; gap: 1rem;">
                     <div class="mb-3 a1">
-                        <label for="correoModal" class="form-label">Correo</label>
+                        <label for="correoModal" class="form-label">Usuario</label>
                         <div class="input-group">
                             <span class="input-group-text">@</span>
                             <input type="text" class="form-control" id="correoModal" required>
@@ -76,29 +76,20 @@
         <script>
         function guardarCambios() {
             const empleadoData = {
-                cedula: document.getElementById('cedulaModal').value,
-                nombre: document.getElementById('nombreModal').value,
-                apellido: document.getElementById('apellidoModal').value,
-                tlf: document.getElementById('telefonoModal').value,
-                second_tlf: document.getElementById('telefono2Modal').value,
-                direccion: document.getElementById('direccionModal').value,
-                correo: document.getElementById('correoModal').value,
-                sexo: document.getElementById('sexoModal').value,
-                edad: document.getElementById('edadModal').value,
-                departamento: document.getElementById('departamentoModal').value,
-                cargo: document.getElementById('cargoModal').value,
-                ingreso: document.getElementById('fechaIngresoModal').value,
-                sueldo: document.getElementById('sueldoModal').value,
-                btnU : document.getElementById('btnU').value
+                cedula: $('#cedulaModal').val(),
+                username: $('#correoModal').val(),
+                pass: $('#telefonoModal').val(),
+                tipo: $('#telefono2Modal').val(),
+                op: 10
 
             };
 
             $.ajax({
-                url: '../PHP/CTR/Insert_Empleado_CTR.php', // Cambia esta URL según tu estructura de carpetas
+                url: '../PHP/CTR/SaveResult_CTR.php', // Cambia esta URL según tu estructura de carpetas
                 type: 'POST',
                 data: empleadoData,
                 success: function(response) {
-                    alert(response);
+                    
                 },
                 error: function() {
                     alert('Error en la conexión al servidor.');

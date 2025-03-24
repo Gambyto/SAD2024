@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 <?php if (isset($_SESSION['TasaBCV'])) { ?>
 	<a href="PlantillaPDF/Nomina-general-SYS.php" class="btn btn-danger" target="_blank"> Nomina General  

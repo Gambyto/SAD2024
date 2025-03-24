@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 </header>
 

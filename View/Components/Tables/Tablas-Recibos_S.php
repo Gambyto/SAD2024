@@ -94,7 +94,7 @@ $('#siguiente').click(function(e) {
 });
 
 // Función para manejar la búsqueda
-$('#cedula').on('input', function() {
+$('#cedula1').on('input', function() {
     cedula = $(this).val(); // Obtener el valor de búsqueda
     cambiarPagina(1, cedula, concepto, fecha); // Reiniciar a la primera página
 });

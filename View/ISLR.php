@@ -1,13 +1,14 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 </header>
 
     <main>
+    <div id="alerts"></div>
         <form action="" id="form">
         <div class="form">
 
             <div class="block Name">
-                <h2>Retención de Inpuestos Sobre la Renta (ISLR)</h2>
+                <h2>Retención de Impuestos Sobre la Renta (ISLR)</h2>
                 <?php /*
                 <div class="search-box">
                     <div class="row">
@@ -164,7 +165,7 @@ function buscarEmpleado(cedula) {
                     $('#apellido').val(datos.apellido);
                     $('#cargo').val(datos.cargo);
                     $('#sueldo').val(datos.sueldo);
-                    $('#sueldobs').val(datos.sueldobs);
+                    $('#sueldobs').val(datos.sueldobs.toFixed(2));
                 } else {
                     // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                     $('#cedula1').val('');
@@ -213,10 +214,13 @@ function Calcular() {
             try {
                 const data = JSON.parse(response);
                 console.log(data);
-
-                // Asignar valores desde la respuesta del servidor
-                $('#aporte').text('$' + data.Monto.toFixed(2));
-                $('#aporte1').val(data.Monto.toFixed(2));
+                if (data.html) {
+                    $('#alerts').html(data.html);
+                }else{
+                    // Asignar valores desde la respuesta del servidor
+                    $('#aporte').text('Bs ' + data.Monto.toFixed(2));
+                    $('#aporte1').val(data.Monto.toFixed(2));
+                }
 
             } catch (e) {
                 console.error("Error al procesar la respuesta JSON:", e);
@@ -238,8 +242,10 @@ function Calcular() {
             type: 'POST',
             data: formData,
             success: function(response) {
+                const data = JSON.parse(response);
+                console.log(data);
                 if (response) {
-                    alert(response);
+                    $('#alerts').html(data.html);
                     // Limpiar el formulario o realizar otra acción
                     $('#nominaForm')[0].reset(); // Limpiar el formulario
                 } else {

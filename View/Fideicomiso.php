@@ -1,4 +1,4 @@
-<?php include_once 'Components/Header.php';?>
+<?php require 'Components/Header.php';?>
 
 <?php if (isset($_SESSION['TasaBCV'])) { ?>
     <a href="PlantillaPDF/Fideicomiso.php" class="btn btn-danger" target="_blank"> Fideicomiso General  
@@ -11,6 +11,7 @@
 </header>
 
     <main>
+    <div id="alerts"></div>
         <form id="form">
             <div class="form">
 
@@ -202,8 +203,8 @@
                 <p id="anticipobs">Bs 0.00</p>
                 
 			</div>
-            <input type="text" id="fideicomiso1" name="fideicomiso1">
-            <input type="text" id="anticipo1" name="anticipo1">
+            <input type="hidden" id="fideicomiso1" name="fideicomiso1">
+            <input type="hidden" id="anticipo1" name="anticipo1">
             <input type="hidden" id="op" name="op" value="3">
         </div>
     </form>
@@ -269,7 +270,7 @@ function buscarEmpleado(cedula) {
 
 </script>
 
-<script>
+<script> 
 function Calcular() {
     var sueldo = $('#sueldo').val(); // Obtener el sueldo
     var cedula = $('#cedula1').val(); // Obtener la cédula
@@ -288,7 +289,12 @@ function Calcular() {
             try {
                 const data = JSON.parse(response);
                 console.log(data);
-
+                
+                if (data.html) {
+                    // Mostrar mensaje de error
+                    $('#alerts').html(data.html);
+                }
+                else  {
                 // Asignar valores desde la respuesta del servidor
                 $('#Tutilidad').val(data.Tutilidad);
                 $('#alicuotaU').val(data.alicuotaU);
@@ -300,15 +306,16 @@ function Calcular() {
                 $('#Dvacaciones').val(data.Dvacaciones);
                 $('#Tdias').val(data.Tdias);
                 $('#Tservicio').val(data.Tservicio);
-
+                
                 // Actualizar los valores de fideicomiso y anticipo
                 $('#fideicomiso1').val(data.fideicomiso.toFixed(2));
                 $('#anticipo1').val(data.anticipo.toFixed(2));
-
+                
                 $('#fideicomiso').text('$ ' + data.fideicomiso.toFixed(2));
                 $('#anticipo').text('$ ' + data.anticipo.toFixed(2));
                 $('#anticipobs').text('Bs ' + (data.anticipo * data.tasaBCV).toFixed(2));
                 $('#fideicomisobs').text('Bs ' + (data.fideicomiso * data.tasaBCV).toFixed(2));
+            }
             } catch (e) {
                 console.error("Error al procesar la respuesta JSON:", e);
                 alert('Error al procesar la respuesta del servidor. Intente nuevamente.');
@@ -329,9 +336,9 @@ function Calcular() {
             type: 'POST',
             data: formData,
             success: function(response) {
+                const data = JSON.parse(response);
                 if (response) {
-                    alert(response);
-                    // Limpiar el formulario o realizar otra acción
+                    $('#alerts').html(data.html);
                     $('#nominaForm')[0].reset(); // Limpiar el formulario
                 } else {
                     alert('Error al guardar los datos. Intente nuevamente.');

@@ -104,7 +104,7 @@ switch ($op) {
 
     case 3: //Fideicomisos
         // Obtener los datos enviados por AJAX
-        if (isset($_POST) && isset($_POST['sueldo'])) {
+        if (!empty($_POST['sueldo'])) {
         $Tutilidad = 90/360;
         $alicuotaU = (($_POST['sueldo'] * 0.33) * 90) / 360;
 
@@ -146,15 +146,20 @@ switch ($op) {
             'tasaBCV' => $tasaBCV
         );
     } else {
-        // Manejar el caso en que $dato no esté definido
-        $response = array('error' => 'Datos del empleado no encontrados.');
+        $message = 'Error: No se encontraron datos para calcular el aporte al fideicomiso';
+        ob_start();
+        include_once '../../View/Components/alerts.php';
+        $html = ob_get_clean();
+        $response = array('message' => $message, 'html' => $html);
+        echo json_encode($response);
+        exit;
     }
     break;
 
     case 4: //ISLR
         // Obtener los datos enviados por AJAX
-        if (isset($_POST) && isset($_POST['sueldo'])) {
-            if (isset($_POST['reten'])) {
+        if (!empty($_POST['sueldo'])) {
+            if (!empty($_POST['reten'])) {
                 $aporte = $_POST['reten'];
 
                 $Monto = (($_POST['sueldo'] * $_SESSION['TasaBCV']) * $aporte) / 100;
@@ -163,12 +168,24 @@ switch ($op) {
                     'Monto' => $Monto
                 );
             } else{
-                $response = array('Error' => 'Error: No se ha ingresado el porcentaje a retener');
+                $message = 'Error: No se a ingresado el porcentaje a retener';
+                ob_start();
+                include_once '../../View/Components/alerts.php';
+                $html = ob_get_clean();
+                $response = array('message' => $message, 'html' => $html);
+                echo json_encode($response);
+                exit;
             }
-        } else {
-            // Manejar el caso en que $dato no esté definido
-            $response = array('error' => 'Datos del empleado no encontrados.');
+            }else {
+            $message = 'Error: No se encontraron datos para calcular el aporte el aporte a los impuestos';
+            ob_start();
+            include_once '../../View/Components/alerts.php';
+            $html = ob_get_clean();
+            $response = array('message' => $message, 'html' => $html);
+            echo json_encode($response);
+            exit;
         }
+        
     break;
 
     case 5: // Prestamos Financieros

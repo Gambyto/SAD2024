@@ -344,11 +344,11 @@ class Nomina extends connect
 	}
 
 	// Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
-	$fecha30DiasAtras = clone $fechaHoy;
-	$fecha30DiasAtras->modify("-30 days");
-	if ($fechaIngresoDate < $fecha30DiasAtras) {
-		return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
-	}
+	//$fecha30DiasAtras = clone $fechaHoy;
+	//$fecha30DiasAtras->modify("-30 days");
+	//if ($fechaIngresoDate < $fecha30DiasAtras) {
+	//	return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
+	//}
 
 	return null; // Si no hay errores, devuelve null
 	}
@@ -697,7 +697,7 @@ class Nomina extends connect
 
 	function ConvertTimeService($valorDecimal) {
 		$anios = floor($valorDecimal); // Obtener la parte entera (años)
-		$dias = round(($valorDecimal - $anios) * 365); // Obtener la parte decimal (días)
+		$dias = round(($valorDecimal - $anios) * 12); // Obtener la parte decimal (días)
 	
 		return array($anios, $dias);
 	}
@@ -1081,7 +1081,16 @@ public function Total_Prestamos() {
 	}
 
 public function Balance_Prestamos() {
-		$query = "SELECT * FROM `vista_balance_prestamos` ORDER BY anio DESC";
+		$query = "SELECT 
+						anio,
+						SUM(monto_total_prestado) AS total_prestado,
+						SUM(monto_total_reembolsado) AS total_reembolsado
+					FROM 
+						vista_balance_prestamos
+					GROUP BY 
+						anio
+					ORDER BY 
+						anio DESC";
   		
   		$result = $this->connect_db()->query($query);
 
@@ -1094,7 +1103,7 @@ public function Balance_Prestamos() {
 
 
 public function View_Promedio_Prestamos(){
-		$query = "SELECT * FROM `vista_promedio_prestamos` ORDER BY año DESC ";
+		$query = "SELECT * FROM `vista_promedio_prestamos` ORDER BY año DESC, mes DESC";
   		
   		$result = $this->connect_db()->query($query);
   		$data = array();

@@ -16,11 +16,11 @@ $mes_old = $meses[$mes_old-1];
 
 $valoresDiarios_old = array_reverse($valoresDiarios_old);
 
-$promedioTasa_old = array_sum($valoresDiarios_old) / count($valoresDiarios_old);
+$promedioTasa_old = (count($valoresDiarios_old) != 0) ? array_sum($valoresDiarios_old) / count($valoresDiarios_old) : 0;
 $promedioTasa_old = number_format($promedioTasa_old, 2);
 $promedioTasa = number_format($promedioTasa, 2);
 
-$average = (($promedioTasa - $promedioTasa_old) / $promedioTasa) * 100 ;
+$average = ($promedioTasa != 0 && $promedioTasa_old != 0) ? (($promedioTasa - $promedioTasa_old) / $promedioTasa) * 100 : 0;
 $average = number_format($average, 2);
 ?>
 
@@ -47,7 +47,7 @@ $average = number_format($average, 2);
     <div class="indicator__body">
         <small class="text-body-secondary">Promedio de la tasa de cambio del dólar </small>
         <h5 class="text-body-primary"><?php
-        echo $promedioTasa. ' Bs. En '. $mesActual. ' - '. $anioActual; 
+        echo $promedioTasa . ' Bs. En '. $mesActual. ' - '. $anioActual; 
         ?></h5>
         <small class="text-body-secondary"> Comparado con: <?php echo $promedioTasa_old. ' Bs. En '. $mes_old. ' - '.$anio_old; ?></small>
     </div>
