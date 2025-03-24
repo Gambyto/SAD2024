@@ -391,9 +391,9 @@
       display: grid;
       grid-template-areas: 
       'name'
-      'kpi1'
+      'kpi3'
       'kpi2'
-      'kpi3';
+      'kpi1';
       grid-template-columns: 1fr;
       grid-template-rows: .1fr 1fr 1fr 1fr;
       gap: .5rem;
@@ -440,11 +440,10 @@
       grid-area: kpi2;
       display: grid;
       grid-template-areas: 
-      'subt subt subt subt'
       'kpif1 kpif1 kpif2 kpif2'
       'kpif3 kpif4 kpif5 kpif6';
       grid-template-columns: 1fr 1fr 1fr 1fr;
-      grid-template-rows: .1fr 1fr .24fr;
+      grid-template-rows: 1fr .24fr;
       gap: .5rem;
       border-radius: 1rem;
     }

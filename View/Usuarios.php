@@ -22,6 +22,17 @@
             <h4> Registrar usuarios</h4>
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input type="text" class="form-control" id="cedula" 
+                    name="cedula" 
+                    required 
+                    pattern="\d{8}" maxlength="8" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    onkeyup="buscarUsuario(this.value)">
+                    <input type="hidden" name="cedula1" id="cedula1">
+                </div>
+                
+                <div>
                     <label for="nombre" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required 
                     oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" readonly>
@@ -33,16 +44,6 @@
                     oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" readonly>
                 </div>
 
-                <div>
-                    <label for="cedula" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="cedula" 
-                    name="cedula" 
-                    required 
-                    pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                    onkeyup="buscarUsuario(this.value)">
-                    <input type="hidden" name="cedula1" id="cedula1">
-                </div>
             </div>
            
             <div class="empleados__content">

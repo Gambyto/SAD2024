@@ -79,6 +79,18 @@
             <h4> Registrar préstamos</h4>
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input type="text" class="form-control" id="cedula" 
+                    name="cedula" 
+                    required 
+                    pattern="\d{8}" maxlength="8" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    onkeyup="buscarUsuario(this.value)">
+
+                    <input type="hidden" name="cedula1" id="cedula1">
+                </div>
+
+                <div>
                     <label for="nombre" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required 
                     readonly
@@ -92,17 +104,6 @@
                     oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
 
-                <div>
-                    <label for="cedula" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="cedula" 
-                    name="cedula" 
-                    required 
-                    pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                    onkeyup="buscarUsuario(this.value)">
-
-                    <input type="hidden" name="cedula1" id="cedula1">
-                </div>
             </div>
            
             <div class="empleados__content" style="display: flex; gap: 1rem;">
@@ -123,7 +124,7 @@
             <div class="a1">
                 <label for="cuotas" class="form-label">Cuotas</label>
                 <select class="form-control" id="cuotas" name="cuotas"
-                onchange="updateCampos()"" 
+                onchange="updateCampos()"
                 required>
                     <option value="">Seleccione una opción</option>
                 </select>
@@ -168,6 +169,7 @@
                 <label for="info" class="form-label">Descripción</label>
                 <input type="text" class="form-control" name="info" id="info">
                 <input type="hidden" id="op" name="op" value="7">
+                <input type="hidden" id="f_ingreso" name="f_ingreso"> 
             </div>
         
             <div class="col-12">
@@ -225,6 +227,7 @@
                         $('#nombre').val(datos.nombre);
                         $('#cedula1').val(datos.cedula);
                         $('#apellido').val(datos.apellido);
+                        $('#f_ingreso').val(datos.f_ingreso);
                     } else {
                         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                         $('#nombre').val('');
@@ -243,7 +246,7 @@
         }
     }
 
-    function updateCuotas(monto) {
+   function updateCuotas(monto) {
     const cuotasSelect = document.getElementById('cuotas');
     cuotasSelect.innerHTML = '';
 
@@ -260,6 +263,10 @@
         cuotasRange.options.forEach(option => {
             cuotasSelect.innerHTML += `<option value="${option}">${option}</option>`;
         });
+        // Selecciona la primera opción por defecto
+        cuotasSelect.value = cuotasRange.options[0];
+        // Llama a la función updateCampos() para actualizar los campos
+        updateCampos();
     }
 }
 

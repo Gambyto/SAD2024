@@ -26,7 +26,6 @@ use PhpParser\Node\Expr\Include_;
                 </div>
             </div>
             <div class="k2">
-                <h2 class="Name"> Finanzas </h2>
                 <div class="kpi-l kf1 indicator_l">
                     <?php include_once '../View/Components/Indicator/MedidorPagos.php';?>
                 </div>
