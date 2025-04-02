@@ -307,7 +307,7 @@ switch ($op) {
                 $concepto = getPostValue('info','null');
 
                 if ($diferenciaEnMeses  <= 5) {
-                    $message = 'Error: El empleado no posee suficiente antiguedad';
+                    $message = 'Error: El empleado posee menos de 6 meses en la empresa';
                     ob_start();
                     include_once '../../View/Components/alerts.php';
                     $html = ob_get_clean();

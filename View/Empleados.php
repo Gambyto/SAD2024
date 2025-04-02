@@ -14,7 +14,7 @@
         <div class="empleados">
 
             <div class="block Name">
-                <h2> Empleados </h2>
+                <h2> Empleados </h2> 
             </div>
             
             <form class="needs-validation block form-1" id="FormEmpleado" method="POST" novalidate>
@@ -214,6 +214,8 @@
                     <button class="btn btn-outline-danger" type="reset">Cancelar</button>
                 </div>
                 
+                <script src="../JS/Rellenar_campos_de_Empleados.js"></script>
+                <script src="../JS/Validate_Empleado.js"></script>
                 <script src="../JS/validation-empleado.js"></script>
                 <script src="../JS/phonenumbervalidate.js"></script>
                 <script src="../JS/Validate-decimalnumber.js"></script>
@@ -238,7 +240,17 @@
         
        
 
-        <script>
+        <script>            
+const cedulaInput = document.getElementById('validationCustom03');
+
+cedulaInput.addEventListener('input', function() {
+    const cedula = this.value;
+    if (cedula.length === 8) {
+        buscarEmpleado(cedula);
+    }
+});
+
+
 // Obtener los selects de departamento y cargo
 const departamentoSelect = document.getElementById('validationCustom09');
 const cargoSelect = document.getElementById('validationCustom10');

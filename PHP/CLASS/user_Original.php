@@ -207,7 +207,7 @@ class Empleado extends connect
       			return $data;
       		}
 	}
-	
+	 
 	public function validate_DNI($cedula)
 	{
 		$query="SELECT * FROM empleados WHERE cedula='$cedula'";
@@ -236,12 +236,13 @@ class Empleado extends connect
 	}
 
 	public function Update_Empleado($cedula,$nombre,$apellido,$direccion,$correo,$sexo,$tlf,
-									$second_tlf,$departamento,$cargo,$F_ingreso,$sueldo,$edad)
+									$second_tlf,$departamento,$cargo,$F_ingreso,$sueldo,$edad,$discapacidad, $afeccion)
 	{
 		$query="UPDATE `empleados` SET `cedula`='$cedula',`nombre`='$nombre',`apellido`='$apellido',`direccion`='$direccion',
 				`correo`='$correo',`sexo`='$sexo',`edad`='$edad',`tlf`='$tlf',`second_tlf`='$second_tlf',
-				`departamento`='$departamento',`cargo`='$cargo',`f_ingreso`='$F_ingreso',`sueldo`='$sueldo'
-
+				`departamento`='$departamento',`cargo`='$cargo',`f_ingreso`='$F_ingreso',`sueldo`='$sueldo', 
+				`afeccion` = '$afeccion', `discapacidad` = '$discapacidad',`estado`='1' 
+				
 				WHERE cedula = '$cedula'";
   		if ($result= $this->connect_db()->query($query)){
   				return true;

@@ -402,7 +402,7 @@
     .indicator_button{
       position: absolute;
       width: 10rem;
-      bottom: 26.3rem;
+      bottom: -28.3rem;
       left: 25rem;
 
       display: flex;

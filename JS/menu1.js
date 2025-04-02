@@ -1,11 +1,19 @@
+const sidebar = document.querySelector(".sidebar");
+const expandBtn = document.querySelector(".expand-btn");
 
+sidebar.addEventListener("click", () => {
+  document.body.classList.remove("collapsed");
+});
 
-const expand_btn = document.querySelector(".expand-btn");
-
-let activeIndex;
-
-expand_btn.addEventListener("click", () => {
+expandBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
   document.body.classList.toggle("collapsed");
+});
+
+document.addEventListener("click", (e) => {
+  if (!sidebar.contains(e.target) && !expandBtn.contains(e.target)) {
+    document.body.classList.add("collapsed");
+  }
 });
 
 const current = window.location.href;
