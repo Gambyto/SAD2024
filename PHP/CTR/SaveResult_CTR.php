@@ -114,22 +114,28 @@ switch ($op) {
             echo json_encode($response);
             exit;
         }else {
-            $Dvacaciones = getPostValue('Dvacaciones','null'); //
-            $vacacionesini = getPostValue('Vacacionesini','null'); //
-            $vacacionesfin = getPostValue('Vacacionesfin','null'); //
-            $laboral = getPostValue('inilaboral','null'); //
-            $findesemana = getPostValue('finsemana',0); //
-            $sueldod = getPostValue('sueldoD',0); //
-            $monto = getPostValue('monto',0); //
-            $ince = getPostValue('ince',0); //
+            $Dvacaciones = getPostValue('Dvacaciones','null'); 
+            $vacacionesini = getPostValue('Vacacionesini','null'); 
+            $vacacionesfin = getPostValue('Vacacionesfin','null'); 
+            $laboral = getPostValue('inilaboral','null'); 
+            $findesemana = getPostValue('finsemana',0); 
+            $sueldod = getPostValue('sueldoD',0); 
+            $monto = getPostValue('monto',0); 
+            $ince = getPostValue('ince',0); 
 
-            $feriado = getPostValue('feriados',0); //
-            $pendiente = getPostValue('pendientes',0); //
-            $utilidad = getPostValue('utilidades',0); //
-            $Tservicio = getPostValue('servicio',0); //
+            $feriado = getPostValue('feriados',0); 
+            $pendiente = getPostValue('pendientes',0); 
+            $utilidad = getPostValue('utilidades',0); 
+            $Tservicio = getPostValue('servicio',0); 
             
             if(empty($monto)){
-                echo 'Error: No se ha calculado el monto de las vacaciones';
+                    $message = 'Error: No se ha calculado el monto de las vacaciones';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
             }else{
                 if($Nomina->Vacation_Insert($Dvacaciones,$utilidad,$Tservicio,$vacacionesini,$vacacionesfin,
                 $laboral,$findesemana,$pendiente,$feriado,$sueldod,$cedula,$monto,$ince)){

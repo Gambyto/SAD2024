@@ -160,7 +160,7 @@ ob_start();
 				
 				<td>Sueldo Semanal</td>
 				<td></td>
-				<td style="text-align: right;"><?=$dato['sueldosem'] * $dato['TasaBCV']?> $</td>
+				<td style="text-align: right;"><?=$dato['sueldosem'] * $dato['TasaBCV']?> Bs.</td>
 				<td></td>			
 		
 
@@ -170,7 +170,7 @@ ob_start();
 				
 				<td>Bonificaciones</td>
 				<td></td>
-				<td style="text-align: right;"><?=$dato['bonificaciones'] * $dato['TasaBCV']?> $</td>
+				<td style="text-align: right;"><?=$dato['bonificaciones'] * $dato['TasaBCV']?> Bs.</td>
 				<td></td>			
 			
 
@@ -181,7 +181,7 @@ ob_start();
 				
 				<td> Comisiones </td>
 				<td></td>
-				<td style="text-align: right;"><?=$dato['comisiones'] *$dato['TasaBCV']?> $</td>
+				<td style="text-align: right;"><?=$dato['comisiones'] *$dato['TasaBCV']?> Bs.</td>
 				<td></td>			
 			
 
@@ -192,14 +192,14 @@ ob_start();
 				<td>Prestamos y cuentas por pagar</td>
 				<td></td>
 				<td></td>			
-				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> $</td>
+				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> Bs.</td>
 			
 
 			</tr>
 			<tr>
 			    <th id="TT" colspan="2">Totales</th>
-				<td style="text-align: right;"><?=($dato['sueldosem'] + $dato['bonificaciones'] + $dato['comisiones']) * $dato['TasaBCV']?> $</td>
-				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> $</td>
+				<td style="text-align: right;"><?=($dato['sueldosem'] + $dato['bonificaciones'] + $dato['comisiones']) * $dato['TasaBCV']?> Bs.</td>
+				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> Bs.</td>
 			</tr>
 			<tr>
 				<th id="NP" colspan="4">NETO PAGAR:  <?=$dato['netobs']?> Bs.</th>

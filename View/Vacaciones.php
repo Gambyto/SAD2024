@@ -120,7 +120,7 @@
                     <label> Utilidades:</label>
                     <div class="input-group input-group-sm mb-3">
                         <select class="form-control" name="Utilidades" id="Utilidades">
-                            <option value="">Seleccione una opción</option>
+                            <option value="0">0</option>
                             <option value="30">30</option>
                             <option value="60">60</option>
                             <option value="90">90</option>

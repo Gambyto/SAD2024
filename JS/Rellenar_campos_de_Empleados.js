@@ -38,16 +38,79 @@ function rellenarFormulario(datos) {
         $('#validationCustom11').val(datos.f_ingreso);
         $('#validationCustom12').val(datos.sueldo);
         
-        // Rellenar campos de información especial
-        if (datos.discapacidad !== 'Ninguna') {
-            $('#validationFormCheck4').prop('checked', true);
-            $('#validationCustom16').val(datos.discapacidad).change();
-            $('#validationCustom17').val(datos.afeccion).change();
-        } else {
-            $('#validationFormCheck5').prop('checked', true);
-            $('#validationCustom16').val('Ninguna').change();
-            $('#validationCustom17').val('No aplica').change();
+       // Rellenar campos de información especial
+if (datos.discapacidad !== 'Ninguna') {
+    $('#validationFormCheck4').prop('checked', true);
+    radioSi.dispatchEvent(new Event('change')); // Generar el HTML dinámicamente
+    setTimeout(() => {
+        const tipoDiscapacidad = datos.discapacidad;
+        const opciones = {
+            'Física': [
+                'Parálisis Cerebral',
+                'Esclerosis Múltiple',
+                'Distrofia Muscular',
+                'Lesión de la Médula Espinal',
+                'Amputación',
+                'Síndrome de Fatiga Crónica',
+                'Enfermedad de Células Falciformes',
+                'Fibrosis Quística',
+                'Accidente Cerebrovascular',
+                'Síndrome del Túnel Carpiano',
+                'Trastornos de Dolor Crónico',
+                'Parálisis de Bell',
+                'Paraplejía Espástica Hereditaria',
+                'Espina Bífida'
+            ],
+            'Mental': [
+                'Autismo',
+                'Síndrome de Down',
+                'Discapacidad Intelectual',
+                'Retraso Mental',
+                'Síndrome de X Frágil',
+                'Síndrome de Klinefelter',
+                'Síndrome de Turner',
+                'Síndrome de Williams',
+                'Síndrome de Prader-Willi',
+                'Trastorno de Aprendizaje No Verbal',
+                'Dislexia',
+                'Discalculia'
+            ],
+            'Sensorial': [
+                'Ceguera',
+                'Discapacidad Visual',
+                'Sordera',
+                'Discapacidad Auditiva',
+                'Trastornos del Procesamiento Auditivo'
+            ],
+            'Salud mental': [
+                'Depresión',
+                'Ansiedad',
+                'Trastorno Bipolar',
+                'Esquizofrenia',
+                'Trastorno Obsesivo-Compulsivo'
+            ],
+            'Otro': [
+                'Especificar'
+            ]
+        };
+
+        if (opciones[tipoDiscapacidad]) {
+            opciones[tipoDiscapacidad].forEach(afeccion => {
+                const option = document.createElement('option');
+                option.value = afeccion;
+                option.textContent = afeccion;
+                document.getElementById('validationCustom17').appendChild(option);
+            });
         }
+
+        $('#validationCustom16').val(tipoDiscapacidad).change();
+        $('#validationCustom17').val(datos.afeccion).change();
+    }, 100); // Esperar un poco para que el HTML esté generado correctamente
+} else {
+    $('#validationFormCheck5').prop('checked', true);
+    $('#validationCustom16').val('Ninguna').change();
+    $('#validationCustom17').val('No aplica').change();
+}
         
         // Rellenar campos de información de sexo
         if (datos.sexo === 'H') {

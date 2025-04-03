@@ -168,6 +168,10 @@
         cuotasRange.options.forEach(option => {
             cuotasSelect.innerHTML += `<option value="${option}">${option}</option>`;
         });
+        // Selecciona la primera opción por defecto
+        cuotasSelect.value = cuotasRange.options[0];
+        // Llama a la función updateCampos() para actualizar los campos
+        updateCampos();
     }
 }
 
@@ -245,7 +249,7 @@ function Guardar(){
             data: formData,
             success: function(response) {
                 if (response) {
-                    alert(response);
+                    
                     // Limpiar el formulario o realizar otra acción
                     $('#form')[0].reset(); // Limpiar el formulario
                     window.location.reload(); // Recargar la página
