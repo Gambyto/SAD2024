@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="empleadoModalLabel">Solicitudes de prestamos</h5>
+                <h5 class="modal-title" id="empleadoModalLabel">Solicitudes de préstamos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -68,6 +68,7 @@
 
 <!-- Script de paginación y búsqueda -->
 <script>
+
 var paginaActual = 1;
 var totalPaginas = 0; // Inicializar totalPaginas
 var busqueda = ""; // Inicializar búsqueda

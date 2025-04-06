@@ -79,6 +79,7 @@
             
         </div>
 
+        <script src="../JS/Close_modal.js"></script>
         </form>
     </main>
 

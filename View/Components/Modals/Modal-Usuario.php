@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="empleadoModalLabel">Actualizar datos de usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            </div> 
             <div class="modal-body">
             <form id="FormEmpleadoModal" class="needs-validation" method="POST" novalidate>
 
@@ -74,6 +74,11 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
         <script>
+                    // Agregar un evento de clic al botón de close del modal
+        $('#empleadoModal .btn-close').on('click', function() {
+            // Cerrar el modal manualmente
+            $('#empleadoModal').modal('hide');
+        });
         function guardarCambios() {
             const empleadoData = {
                 cedula: $('#cedulaModal').val(),

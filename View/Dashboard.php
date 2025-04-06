@@ -56,4 +56,4 @@ use PhpParser\Node\Expr\Include_;
             
         </div>
     </main>
-    
+<script src="../JS/Close_modal.js"></script>

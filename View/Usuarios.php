@@ -98,6 +98,7 @@
                 <button class="btn btn-outline-danger" type="reset">Cancelar</button>
             </div>
 
+        <script src="../JS/Close_modal.js"></script>
         <script src="../JS/validation-empleado.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
