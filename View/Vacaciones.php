@@ -276,14 +276,14 @@ function Calcular() {
         success: function(response) {
             try {
                 const data = JSON.parse(response);
-                var totalferiado = data.feriado * sueldo;
-                var totalutilidades = data.utilidades * sueldo;
-                var totalpendientes = data.pendientes * sueldo;
+                var totalferiado = data.feriado * (sueldo * 0.33);
+                var totalutilidades = data.utilidades * (sueldo * 0.33);
+                var totalpendientes = data.pendientes * (sueldo * 0.33);
                 console.log(data);
 				
                 if(data.html){
                     $('#alerts').html(data.html);
-                }else{
+                }else{ 
 
                     $('#Dvacaciones').val(data.Dvacaciones);
                     $('#Vacacionesfin').val(data.Vacacionesfin);

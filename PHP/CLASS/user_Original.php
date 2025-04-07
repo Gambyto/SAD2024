@@ -344,12 +344,12 @@ class Nomina extends connect
 		return "La fecha de ingreso no puede ser mayor a la fecha de hoy";
 	}
 
-	// Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
-	//$fecha30DiasAtras = clone $fechaHoy;
-	//$fecha30DiasAtras->modify("-30 days");
-	//if ($fechaIngresoDate < $fecha30DiasAtras) {
-	//	return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
-	//}
+	//Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
+	$fecha30DiasAtras = clone $fechaHoy;
+	$fecha30DiasAtras->modify("-30 days");
+	if ($fechaIngresoDate < $fecha30DiasAtras) {
+		return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
+	}
 
 	return null; // Si no hay errores, devuelve null
 	}
@@ -1075,6 +1075,43 @@ public function Prestamos_View() {
     	$data[] = $row;
   		}
   		return $data;
+	}
+
+	public function Cuentas_pagadas_recibo() {
+		$query = "SELECT id_cp AS id, id_prestamo, prestamos.cedula_FK AS cedula, empleados.nombre, empleados.apellido, empleados.cargo,
+cuentas_por_pagar2.deuda, cuentas_por_pagar2.aporte, cuentas_por_pagar2.tpago AS tipo_pago, cuentas_por_pagar2.refe, cuentas_por_pagar2.fecha AS fecha,
+prestamos.concepto, prestamos.monto AS monto_prestamo, prestamos.cuotas, prestamos.fecha AS fecha_solicitud,
+tasa_dolar.tasa_del_dia AS tasa
+				FROM cuentas_por_pagar2 
+                INNER JOIN prestamos ON id_prestamo = prestamos.id_prestamos
+                INNER JOIN empleados ON prestamos.cedula_FK = empleados.cedula
+                INNER JOIN tasa_dolar ON prestamos.tasaBCV_FK = tasa_dolar.id_tasa
+                WHERE prestamos.estado = 1 AND empleados.estado = 1";
+  		
+  		$result = $this->connect_db()->query($query);
+
+  		$data = array();
+  		while ($row = mysqli_fetch_assoc($result)) {
+    	$data[] = $row;
+  		}
+  		return $data;
+	}
+	
+	public function Recibo($id) {
+		$query = "SELECT id_cp AS id, id_prestamo, prestamos.cedula_FK AS cedula, empleados.nombre, empleados.apellido, empleados.cargo,
+cuentas_por_pagar2.deuda, cuentas_por_pagar2.aporte, cuentas_por_pagar2.tpago AS tipo_pago, cuentas_por_pagar2.refe, cuentas_por_pagar2.fecha AS fecha,
+prestamos.concepto, prestamos.monto AS monto_prestamo, prestamos.cuotas, prestamos.fecha AS fecha_solicitud,
+tasa_dolar.tasa_del_dia AS tasa
+				FROM cuentas_por_pagar2 
+                INNER JOIN prestamos ON id_prestamo = prestamos.id_prestamos
+                INNER JOIN empleados ON prestamos.cedula_FK = empleados.cedula
+                INNER JOIN tasa_dolar ON prestamos.tasaBCV_FK = tasa_dolar.id_tasa
+                WHERE prestamos.estado = 1 AND empleados.estado = 1 AND id_cp = $id";
+  		
+  		$result = $this->connect_db()->query($query);
+
+		  $data = mysqli_fetch_assoc($result);
+		  return $data;
 	}
 
 public function Prestamos_View_report() {

@@ -45,7 +45,8 @@ switch ($op) {
             
             if (!empty($_POST['vacacionesini'])) {
                 $Vacacionesini = isset($_POST['vacacionesini']) ? $_POST['vacacionesini'] : $Vacacionesini; 
-                
+                $parse_sueldo = $_POST['sueldo'] * 0.33
+                ;
                 $Dadd = $Nomina->DaysOff($_POST['cedula'], $Vacacionesini);
                 $Dadd = $Dadd > 16 ? 16 : $Dadd; //Días de Servicio
                 $Dvacaciones = 15 + $Dadd -1; //Días de Vacaciones 
@@ -54,11 +55,11 @@ switch ($op) {
                 $Laboral= $Nomina->MidDays($resultado['fecha']);
                 $Vacacionesfin = $resultado['fecha'];
             // Calculos generales de vacaciones (muestreo de la tabla)
-                $vacation = $Dvacaciones * $_POST['sueldo'];
+                $vacation = $Dvacaciones * $parse_sueldo;
         
-                $Pweekend = $resultado['diasFinSemana'] * $_POST['sueldo'];
+                $Pweekend = $resultado['diasFinSemana'] * $parse_sueldo;
         
-                $Totaladd = ($_POST['feriado'] + $_POST['utilidades'] + $_POST['pendientes']) * $_POST['sueldo'];
+                $Totaladd = ($_POST['feriado'] + $_POST['utilidades'] + $_POST['pendientes']) * $parse_sueldo;
         
                 $inceV = ($Totaladd + $Pweekend + ($vacation * 2)) * 0.005;
         

@@ -37,7 +37,7 @@ ob_start();
 			div#texto{
 				text-align: center;
 			}
-			th#datos{
+			th#datas{
 				padding: 0px;
 			}
 			.row {
@@ -106,7 +106,7 @@ ob_start();
 				margin: auto;
 			}
 
-			.datosSolicitados{
+			.datasSolicitados{
 				margin-left: 0.1%; 
 				margin-top: -0.10%; 		 
 				width: 720px;
@@ -117,10 +117,10 @@ ob_start();
 
 		</style>
 	</head>
-	<body>
+	<body> 
 		<?php if ($_GET['id']) {
 			$id = $_GET['id'];
-			$dato = $Nomina->GetID_Prestamos($id);
+			$data = $Nomina->Recibo($id);
 		} ?>
 		<table style="width: 100%">
 			<tr>
@@ -134,7 +134,7 @@ ob_start();
 					<br>
 					<div style="overflow: auto;">
 						<p class="RIF">J-080199936</p>
-						<p class="recibo">Solicitud de Préstamo y/o Cuentas por Pagar</p>
+						<p class="recibo">Cuenta pagada</p>
 						<br>
 					</div>
 				</th>
@@ -148,11 +148,17 @@ ob_start();
 		<table style="width: 100%; border: solid black 1px; margin-top: -0.15%;">
 			<tr>
 				<th>
-					<div class="datosSolicitados";>
-						<p style="text-align: left; padding-top: -35px;">Nombres y Apellidos: <?=$dato['nombre']?> <?=$dato['apellido']?><br>	
-							Cédula: <?=$dato['cedula']?> <br>
-							Cargo: <?=$dato['cargo']?><br>
-							Fecha de solicitud: <?=date('d-m-Y',strtotime($dato['fecha']))?>
+					<div class="datasSolicitados";>
+						<p style="text-align: left; padding-top: -35px;">Nombre: <?=$data['nombre']?> <?=$data['apellido']?><br>	
+							Cédula: <?=$data['cedula']?> <br>
+							Cargo: <?=$data['cargo']?><br>
+							Fecha de emisión: <?=date('d-m-Y',strtotime($data['fecha_solicitud']))?>
+						</p>
+
+						<p style="text-align: left; margin-left: 15rem; margin-top: -35px;">
+							Tipo de pago: <?=$data['tipo_pago']?> <br>	
+							Referencia: <?=$data['refe']?> <br><br>
+							Fecha del pago: <?=date('d-m-Y',strtotime($data['fecha']))?><br>
 						</p>
 
 						<p style="text-align: right; margin-right: 80px;"> Fecha: <br>
@@ -160,7 +166,7 @@ ob_start();
 						</p> 							 
 
 						<p style="text-align: right;"> <?=date('d-m-Y')?><br>
-							0000000<?=$dato['id_prestamos']?>
+						<?=str_pad($data['id'], 9, '0', STR_PAD_LEFT)?>
 						</p>
 					</div>
 				</th>	
@@ -179,54 +185,27 @@ ob_start();
 		<table style="width: 100%; margin-top: -0.20%; ">
 			
 			<tr>
-				
-				<th style="width: 35%;">Concepto</th>
-				<th style="width: 35%;">Cuotas</th>
-				<th style="width: 35%;">Total</th>
-		
-
-
-
+				<th >Concepto</th>
+				<th >Cuotas</th>
+				<th >Deuda</th>
+				<th  colspan="2">Aporte</th>
+				<th >Total</th>
 			</tr>
 
 			<tr>
 				
-				<td> Prestamo </td>
-				<td> <?=$dato['cuotas']?> (semanal) </td>
-				<td> <?=$dato['monto_desc']?> $</td>
+				<td> Préstamo (<?=$data['monto_prestamo']?> $)</td>
+				<td> <?=$data['cuotas']?> (semanal) </td>
+				<td> <?=$data['deuda'] + $data['aporte']?> $</td>
+				<td style="width: 15%;"> <?=$data['aporte']?> $ </td>
+				<td> <?=number_format($data['aporte'] * $data['tasa'],2)?> Bs.</td>
+				<td> <?=$data['deuda']?> $</td>
 		
 		
 
-			</tr>
-
-			<tr>
-				
-				<td></td>
-				<td></td>
-				<td></td>
-		
-
-			</tr>
-
-
-	<tr>
-				
-				<td></td>
-				<td></td>
-				<td></td>
-
-			</tr>
-
-
-
-			<tr>
-				<th id="NP" colspan="3">Monto a descontar: <?=$dato['descuento']?> $</th>
-		
 			</tr>
 			<tr>
-				<th id="Bs" colspan="3">Bs: <?=$dato['descuento'] * $_SESSION['TasaBCV']?></th>
-
-
+				<th id="NP" colspan="6">Descripción: <?=$data['concepto']?> </th>
 			</tr>
 
 

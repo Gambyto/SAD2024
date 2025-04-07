@@ -129,9 +129,8 @@ ob_start();
 
 			<tr style="background-color: lightGray;">
 
-			<th>Nombres</th>
-			<th>Apellidos</th>
 			<th>Cedula</th>			
+			<th>Nombre</th>
 			<th>Fecha de ingreso</th>
 			<th>Sueldo</th>
 			<th>Tasa utilidad</th>
@@ -153,9 +152,8 @@ ob_start();
 				$datos = $Nomina->View_Fideicomiso();
 				foreach ($datos as $dato) {
 					echo '<tr>';
-					echo '<td scope="col">'	.$dato['nombre']. '</td>';
-					echo '<td scope="col">'	.$dato['apellido']. '</td>';
 					echo '<td scope="col">'	.$dato['cedula']. '</td>';
+					echo '<td scope="col">'	.$dato['nombre']. ' ' .$dato['apellido'].'</td>';
 					echo '<td scope="col">'	.$dato['f_ingreso']. '</td>';
 					echo '<td scope="col">'	.$dato['sueldo']. '</td>';
 					echo '<td scope="col">'	.$dato['tasa_utilidad']. '</td>';

@@ -101,7 +101,9 @@ ob_start();
 		justify-content: space-between;
 		display: flex;
 	}
-
+	p {
+		text-align: justify;
+	}
 		</style>
 	</head>
 	<body>
@@ -132,7 +134,7 @@ ob_start();
 							Cédula: <?=$dato['cedula']?> <br>
 							Fecha de ingreso: <?=$dato['f_ingreso']?> <br>
 							Tiempo de servicio: <?=$dato['t_servicio']?> años<br>
-							Sueldo mensual: <?=$dato['sueldo']?> $<br>
+							Sueldo mensual: <?=number_format($dato['sueldo'] * $dato['tasa'],2)?> Bs. / <?=$dato['sueldo']?> $<br>
 							Inicio de vacaciones: <?=$dato['ini_vacaciones']?> <br>
 							Culminación de vacaciones: <?=$dato['fin_vacaciones']?> <br>
 							Inicio de labores: <?=$dato['ini_laboral']?> 
@@ -169,8 +171,8 @@ ob_start();
 				
 				<td>Vacaciones</td>
 				<td style="text-align: right;"><?=$dato['dia_correspondido']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['dia_correspondido']?> $</td>			
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_correspondido']) * $dato['tasa'],2)?> Bs.</td>			
 				<td></td>		
 		
 
@@ -180,8 +182,8 @@ ob_start();
 				
 				<td>Bono Vacacional</td>
 				<td style="text-align: right;"><?=$dato['dia_correspondido']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['dia_correspondido']?> $</td>		
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_correspondido']) * $dato['tasa'],2)?> Bs.</td>		
 				<td></td>		
 
 			</tr>
@@ -191,8 +193,8 @@ ob_start();
 				
 				<td>Días descanso</td>
 				<td style="text-align: right;"><?=$dato['dia_descanso']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['dia_descanso']?> $</td>			
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_descanso'])*$dato['tasa'],2)?> Bs.</td>			
 				<td></td>		
 
 			</tr>
@@ -202,8 +204,8 @@ ob_start();
 				
 				<td>Días feriados</td>
 				<td style="text-align: right;"><?=$dato['dia_feriado']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['dia_feriado']?> $</td>		
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_feriado'])*$dato['tasa'],2)?> Bs.</td>		
 				<td></td>		
 
 			</tr>
@@ -213,8 +215,8 @@ ob_start();
 				
 				<td>Días pendientes</td>
 				<td style="text-align: right;"><?=$dato['dia_otorgado']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['dia_otorgado']?> $</td>			
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_otorgado'])*$dato['tasa'],2)?> Bs.</td>			
 				<td></td>		
 
 			</tr>
@@ -232,41 +234,42 @@ ob_start();
 				
 				<td>Días utilidades</td>
 				<td style="text-align: right;"><?=$dato['utilidades']?></td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario']?> $</td>
-				<td style="text-align: right;"><?=$dato['sueldo_diario'] * $dato['utilidades']?> $</td>		
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> $</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['utilidades'])*$dato['tasa'],2)?> $</td>		
 				<td></td>		
 
 			</tr>
 
 	<tr>
 				
-				<td></td>
+				<td>INCE</td>
 				<td></td>
 				<td></td>
 				<td></td>		
-				<td style="text-align: right;"> - <?=$dato['ince']?></td>			
+				<td style="text-align: right;"> <?=number_format(-$dato['ince'] * $dato['tasa'],2)?> Bs.</td>			
 
 			</tr>
 
 
 			<tr>
 			    <th id="TT" colspan="3">Totales</th>
-				<td style="text-align: right;"> <?=$dato['sueldo_diario'] * ($dato['utilidades'] + ( 2 * $dato['dia_correspondido']) +  $dato['dia_descanso'] + $dato['dia_feriado'] + $dato['dia_otorgado'])?> $</td>
-				<td style="text-align: right;">  <?=-$dato['ince']?> $</td>
+				<td style="text-align: right;"> <?=number_format(($dato['sueldo_diario'] * ($dato['utilidades'] + ( 2 * $dato['dia_correspondido']) +  $dato['dia_descanso'] + $dato['dia_feriado'] + $dato['dia_otorgado']))* $dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;">  <?=number_format(-$dato['ince'] * $dato['tasa'],2)?> Bs.</td>
 			</tr>
 			<tr>
-				<th id="NP" colspan="5">NETO PAGAR:  <?=$dato['monto']?>$</th>
+				<th id="NP" colspan="5">NETO PAGAR:  <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.</th>
 		
 			</tr>
 			<tr>
-				<th id="Bs" colspan="5">Bs: <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.</th>
+				<th id="Bs" colspan="5">NETO DIVISAS: <?=$dato['monto']?> $</th>
 
 
 			</tr>
 
 		</table>
 
-		<p>Recibí conforme: <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.</p>
+		<p>Recibí conforme: <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.
+			Esto calculado a la tasa del Banco Central de Venezuela del <?=date('d-m-Y', strtotime($dato['ini_vacaciones']))?> establecida en <?=$dato['tasa']?> Bs.</p>
 
 			<p style="text-align: center; margin-right: 577px;">Firma Gerente General<br>
 					DISORIENT, C.A.

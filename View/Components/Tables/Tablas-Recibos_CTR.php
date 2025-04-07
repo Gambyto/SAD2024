@@ -7,7 +7,7 @@ $elementosPorPagina = 7;
 // Obtener datos de nómina, vacaciones y préstamos
 $datosNomina = $Nomina->Search_Nomina();
 $datosVacaciones = $Nomina->View_Vacation();
-$datosPrestamos = $Nomina->Prestamos_View_report();
+$datosPrestamos = $Nomina->Cuentas_pagadas_recibo();
 
 // Combinar todos los datos en un solo arreglo
 $datosCombinados = array_merge($datosNomina, $datosVacaciones, $datosPrestamos);
@@ -43,7 +43,7 @@ if ($busquedaCedula || $busquedaConcepto || $busquedaFecha) {
                 $concepto = 'Sueldo y Salario';
             } elseif (isset($dato['vacaciones_id'])) {
                 $concepto = 'Vacaciones';
-            } elseif (isset($dato['id_prestamos'])) {
+            } elseif (isset($dato['id_cp'])) {
                 $concepto = 'Préstamo';
             }
 
@@ -102,10 +102,10 @@ try {
             $tipo = 'vacaciones';
             $id = $dato['vacaciones_id'];
             $pdfUrl = 'PlantillaPDF/Vacaciones-y-utilidades.php?id=' . $id;
-        } elseif (isset($dato['id_prestamos'])) {
+        } elseif (isset($dato['id'])) {
             $respuesta['datos'] .= '<th scope="col"> Préstamo </th>';
             $tipo = 'prestamo';
-            $id = $dato['id_prestamos'];
+            $id = $dato['id'];
             $pdfUrl = 'PlantillaPDF/Prestamos-y-cuentas-por-pagar1.php?id=' . $id;
         }
 
