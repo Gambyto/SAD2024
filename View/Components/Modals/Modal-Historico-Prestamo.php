@@ -1,9 +1,9 @@
 <!-- Modal para actualizar empleado -->
-<div class="modal fade" id="empleadoModal" tabindex="-1" aria-labelledby="empleadoModalLabel" aria-hidden="true">
+<div class="modal fade" id="historicoPrestamosModal" tabindex="-1" aria-labelledby="historicoPrestamosModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="empleadoModalLabel">Historico de prestamos</h5>
+                <h5 class="modal-title" id="historicoPrestamosModalLabel">Historico de prestamos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -12,9 +12,11 @@
 
                     <form action="">
                         <div class="empleados__content modal-search">
-                            <label for="search"> Buscar: </label>
+                            <label for="buscarPrestamos"> Buscar: </label>
                             <div class="input-group mb-3">
-                                <input type="text" id="search" name="search" class="form-control" aria-label="Buscar por cédula" placeholder="Buscar por cédula">
+                                <input type="text" id="buscarPrestamos" name="buscarPrestamos" class="form-control" 
+                                aria-label="Buscar por cédula" 
+                                placeholder="Buscar por cédula">
                                 
                             </div>
                         </div>
@@ -25,10 +27,10 @@
                         <nav class="Page" aria-label="Page navigation">
                             <ul class="pagination">
                                 <li class="page-item">
-                                    <a class="page-link" id="anterior" href="#" tabindex="-1">Anterior</a>
+                                    <a class="page-link" id="anteriorPrestamos" href="#" tabindex="-1">Anterior</a>
                                 </li>
                                 <li class="page-item">
-                                    <a class="page-link" id="siguiente" href="#">Siguiente</a>
+                                    <a class="page-link" id="siguientePrestamos" href="#">Siguiente</a>
                                 </li>
                             </ul>
                         </nav>
@@ -47,10 +49,10 @@
                             <th scope="col" colspan="2"> Descripción </th>
                             <th scope="col"> Fecha de solicitud </th>
                             <th scope="col"> Fecha de límite </th>
-                            <th scope="col"> Opciones </th>
+                           <!-- <th scope="col"> Opciones </th> -->
                         </tr>
                     </thead>
-                    <tbody id="tabla-datos" style="text-align: center;">
+                    <tbody id="tablaPrestamos" style="text-align: center;">
                         <!-- Los datos se cargarán aquí dinámicamente -->
                     </tbody>
                 </table>
@@ -68,22 +70,23 @@
 
 <!-- Script de paginación y búsqueda -->
 <script>
-var paginaActual = 1;
-var totalPaginas = 0; // Inicializar totalPaginas
-var busqueda = ""; // Inicializar búsqueda
+var paginaActualPrestamos = 1;
+var totalPaginasPrestamos = 0; // Inicializar totalPaginas
+ // Inicializar parametros de busqueda
+var buscarPrestamos = "";
 
-function cambiarPagina(pagina) {
+function cargarPrestamos(pagina, buscarPrestamos) {
     $.ajax({
-        url: 'Components/Tables/Tablas-Prestamos-Historico.php',
+        url: 'Components/Tables/Tablas-Prestamos-Historico.php', // Ruta al archivo PHP que maneja la lógica de la tabla
         type: 'GET',
-        data: { pagina: pagina, busqueda: busqueda },
+        data: { pagina: pagina, busqueda: buscarPrestamos},
         success: function(response) {
     try {
         var datos = JSON.parse(response);
-        $('#tabla-datos').html(datos.datos); // Actualizar la tabla
-        totalPaginas = datos.totalPaginas; // Actualizar el total de páginas
-        paginaActual = pagina; // Actualizar la página actual
-        actualizarBotones(); // Actualizar el estado de los botones
+        $('#tablaPrestamos').html(datos.datos); // Actualizar la tabla
+        totalPaginasPrestamos = datos.totalPaginas; // Actualizar el total de páginas
+        paginaActualPrestamos = pagina; // Actualizar la página actual
+        actualizarNavegacionPrestamos(); // Actualizar el estado de los botones
     } catch (e) {
         console.log("Error al parsear la respuesta del servidor:", e);
         console.log("Respuesta del servidor:", response);
@@ -95,40 +98,39 @@ function cambiarPagina(pagina) {
     });
 }
 
-function actualizarBotones() {
-    if (paginaActual == 1) {
-        $('#anterior').addClass('disabled'); // Deshabilitar "Anterior" si estamos en la primera página
+function actualizarNavegacionPrestamos() {
+    if (paginaActualPrestamos == 1) {
+        $('#anteriorPrestamos').addClass('disabled'); // Deshabilitar "Anterior" si estamos en la primera página
     } else {
-        $('#anterior').removeClass('disabled'); // Habilitar "Anterior" si no estamos en la primera página
+        $('#anteriorPrestamos').removeClass('disabled'); // Habilitar "Anterior" si no estamos en la primera página
     }
     
-    if (paginaActual == totalPaginas) {
-        $('#siguiente').addClass('disabled'); // Deshabilitar "Siguiente" si estamos en la última página
+    if (paginaActualPrestamos == totalPaginasPrestamos) {
+        $('#siguientePrestamos').addClass('disabled'); // Deshabilitar "Siguiente" si estamos en la última página
     } else {
-        $('#siguiente').removeClass('disabled'); // Habilitar "Siguiente" si no estamos en la última página
+        $('#siguientePrestamos').removeClass('disabled'); // Habilitar "Siguiente" si no estamos en la última página
     }
 }
 
-$('#anterior').click(function(e) {
+$('#anteriorPrestamos').click(function(e) {
     e.preventDefault(); // Evitar el comportamiento por defecto del enlace
-    if (paginaActual > 1) {
-        cambiarPagina(paginaActual - 1); // Cambiar a la página anterior
+    if (paginaActualPrestamos > 1) {
+        cargarPrestamos(paginaActualPrestamos - 1, buscarPrestamos); // Cambiar a la página anterior
     }
 });
 
-$('#siguiente').click(function(e) {
+$('#siguientePrestamos').click(function(e) {
     e.preventDefault(); // Evitar el comportamiento por defecto del enlace
-    if (paginaActual < totalPaginas) {
-        cambiarPagina(paginaActual + 1); // Cambiar a la página siguiente
+    if (paginaActualPrestamos < totalPaginasPrestamos) {
+        cargarPrestamos(paginaActualPrestamos + 1, buscarPrestamos); // Cambiar a la página siguiente
     }
 });
 
 // Función para manejar la búsqueda
-$('#search').on('input', function() {
-    busqueda = $(this).val(); // Obtener el valor de búsqueda
-    cambiarPagina(1); // Reiniciar a la primera página
+$('#buscarPrestamos').on('input', function() {
+    buscarPrestamos = $(this).val(); // Obtener el valor de búsqueda
+    cargarPrestamos(1, buscarPrestamos); // Reiniciar a la primera página
 });
-
 // Cargar los datos inicialmente
-cambiarPagina(1);
+cargarPrestamos(1);
 </script>

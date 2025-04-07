@@ -84,8 +84,9 @@
                     name="cedula" 
                     required 
                     pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                    onkeyup="buscarUsuario(this.value)">
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); filtrarTabla(this.value);"
+                    onkeyup="buscarUsuario(this.value)"
+                    >
 
                     <input type="hidden" name="cedula1" id="cedula1">
                 </div>
@@ -205,17 +206,40 @@
     
     <script>
     function openModal() {
-        $('#empleadoModal').modal('show');
+        $('#historicoPrestamosModal').modal('show');
     }
 
     function solicitudes() {
-        $('#solicitudes').modal('show');
+        $('#solicitudesPrestamos').modal('show');
     }
 
     function aporte() {
         $('#aporte').modal('show');
     }
-    
+
+function filtrarTabla(cedula) {
+    // Obtener la tabla
+    var tabla = document.getElementById('cuerpoTabla');
+
+    // Obtener las filas de la tabla
+    var filas = tabla.getElementsByTagName('tr');
+
+    // Filtrar las filas
+    for (var i = 0; i < filas.length; i++) {
+        var fila = filas[i];
+        var celdaCedula = fila.cells[0];
+        var textoCedula = celdaCedula.textContent;
+
+        // Si la cédula coincide, mostrar la fila
+        if (textoCedula.includes(cedula)) {
+            fila.style.display = '';
+        } else {
+            // Si no coincide, ocultar la fila
+            fila.style.display = 'none';
+        }
+    }
+}
+
     function buscarUsuario(cedula) {
         if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
             $.ajax({

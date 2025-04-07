@@ -12,6 +12,15 @@
 
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input type="text" class="form-control" id="Mcedula" 
+                    name="cedula"
+                    required 
+                    pattern="\d{8}" maxlength="8" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                    onkeyup="buscarEmpleado(this.value)">
+                </div>
+                <div>
                     <label for="nombre" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="Mnombre" name="nombre" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
@@ -21,15 +30,6 @@
                     <input type="text" class="form-control" id="Mapellido" name="apellido" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
 
-                <div>
-                    <label for="cedula" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="Mcedula" 
-                    name="cedula"
-                    required 
-                    pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                    onkeyup="buscarEmpleado(this.value)">
-                </div>
             </div>
            
             <div class="empleados__content" style="display: flex; gap: 1rem;">
@@ -112,17 +112,30 @@
         <div class="modal-footer">
                 <div class="col-12">
                 <button class="btn btn-outline-primary" id="aporte-btn" onclick="agg_aporte()">Aportar</button>
-                    <button class="btn btn-outline-danger" type="reset">Cancelar</button>
+                    <button class="btn btn-outline-danger" id="cancel" type="reset">Cancelar</button>
                 </div>
             </div>
     </div>
 </div>
+        <script src="../JS/Close_modal.js"></script>
         <script src="../JS/phonenumbervalidate.js"></script>
         <script src="../JS/Validate-decimalnumber.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
         
         <script>
+
+// Función para cerrar modal al presionar botones
+function cerrarModal() {
+  // Cerrar el modal manualmente
+  $(this).closest('.modal').modal('hide');
+}
+
+// Agregar evento de clic a los botones
+$('#aporte-btn, #cancel').on('click', function(event) {
+  cerrarModal.call(this);
+});
+
 
 function agg_aporte(){
     // Recoger todos los datos del formulario usando serialize
@@ -141,7 +154,7 @@ function agg_aporte(){
                 } else {
                     alert(data.message);
                 }
-                    $('#form')[0].reset(); // Limpiar el formulario
+                    $('#formaporte')[0].reset(); // Limpiar el formulario
                 } else {
                     alert('Error al guardar los datos. Intente nuevamente.');
                 }
@@ -203,6 +216,8 @@ $('#referencia').on('keypress', function(e) {
 
                         actualizarDeudaParcial();
 
+                        $('#alerts').html(datos.html);
+                        $('#formaporte').reset(); // Limpiar mensajes de alerta si los hay
                     } else {
                         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                         $('#nombre').val('');

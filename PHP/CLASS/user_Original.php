@@ -967,6 +967,29 @@ public function Display_Prestamos($cedula)
       		}
 	}
 
+	public function Display_Prestamos_tabla($cedula)
+	{
+		$query = "SELECT empleados.nombre, empleados.apellido,
+		prestamos.id_prestamos, prestamos.descuento, prestamos.monto, 
+		prestamos.monto_desc, id_prestamos, cedula_FK As cedulaFK,
+		fecha, cuotas, concepto, date_limit, prestamos.estado
+			FROM empleados 
+					INNER JOIN prestamos ON empleados.cedula = prestamos.cedula_FK 
+					WHERE monto_desc > 0 AND empleados.cedula = '$cedula' AND prestamos.estado = 1";
+		
+		$result = $this->connect_db()->query($query);
+	
+		$data = array();
+		if ($result->num_rows > 0) 
+		{
+			while ($row = $result->fetch_assoc()) 
+			{
+				$data[] = $row;
+			}
+		}
+		return $data;
+	}
+
 public function ValidatePrestamos($cedula)
 	{
 		$query = "SELECT * FROM prestamos  

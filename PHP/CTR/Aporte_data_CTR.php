@@ -8,9 +8,15 @@ if (isset($_POST['cedula'])) {
     if ($datosEmpleado) {
         echo json_encode($datosEmpleado);
     } else {
-        echo json_encode(['error' => 'Empleado no encontrado.']);
+        $message = 'Error: Empleado no encontrado o no tiene préstamos registrados.';
+        ob_start();
+        include_once '../../View/Components/alerts.php';
+        $html = ob_get_clean();
+        $response = array('message' => $message, 'html' => $html);
+        echo json_encode($response);
+        exit;
     }
 } else {
     echo json_encode(['error' => 'Cédula no proporcionada.']);
 }
-?>
+?> 

@@ -57,13 +57,14 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
 			</ul>
 			</nav>
 		</h4>
-    <table class="table">
+    <table class="table" id="tablaPrestamos">
         <thead class="table-primary" style="text-align: center;">
             <tr>
                 <th scope="col"> Cédula </th>
                 <th scope="col"> Nombre </th>
                 <th scope="col"> Monto </th>
                 <th scope="col"> N° cuotas </th> 
+                <th scope="col"> Deuda </th> 
                 <th scope="col"> Fecha de solicitud </th>
                 <th scope="col"> Fecha de límite </th>
                 <?php if ($_SESSION['type'] == 'Gerencia' ) { ?>
@@ -72,7 +73,7 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
             </tr>
         </thead>
 
-        <tbody style="text-align: center;">
+        <tbody style="text-align: center;" id="cuerpoTabla">
             <?php 
             foreach ($datosPagina as $dato) {
                 echo '<tr>';
@@ -80,7 +81,8 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                 echo '<th scope="col">' . $dato['nombre'] .' '. $dato['apellido']  . '</th>';
                 echo '<th scope="col" style="text-align: rigth;">' . $dato['monto'] . ' $</th>';
                 echo '<th scope="col">' . $dato['cuotas'] . '</th>';
-                echo '<th scope="col">' . $dato['fecha'] . '</th>';
+                echo '<th scope="col">' . $dato['monto_desc'] . ' $</th>';
+                echo '<th scope="col">' . $dato['fecha'] . ' $</th>';
                 echo '<th scope="col">' . $dato['date_limit'] . '</th>';
                 if ($_SESSION['type'] == 'Gerencia') {
                 echo '<th>

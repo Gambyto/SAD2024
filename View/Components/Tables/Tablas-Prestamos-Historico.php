@@ -7,13 +7,11 @@ $elementosPorPagina = 10;
 // Obtener el número total de elementos
 $datos = $Nomina->Prestamos_View_Modal();
 
-// Obtener la búsqueda por cédula
-$busqueda = isset($_GET['busqueda']) ? $_GET['busqueda'] : '';
+$busqueda = isset($_GET['busqueda']) ? $_GET['busqueda'] : null;
 
-// Filtrar los datos según la búsqueda
-if ($busqueda) {
+if ($busqueda !== null) {
     $datos = array_filter($datos, function($dato) use ($busqueda) {
-        return strpos($dato['cedula'], $busqueda) !== false;
+        return preg_match('/' . $busqueda . '/i', $dato['cedula']);
     });
 }
 
@@ -50,18 +48,18 @@ try {
         $respuesta['datos'] .= '<th scope="col" colspan="2">' . $dato['concepto'] . '</th>';
         $respuesta['datos'] .= '<th scope="col">' . $dato['fecha'] . '</th>';
         $respuesta['datos'] .= '<th scope="col">' . $dato['date_limit'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col">
-        <button name="btn2" class="btn btn-outline-primary" onclick="">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-            <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-            <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
-            <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"></path>
-            <path d="M17 18h2"></path>
-            <path d="M20 15h-3v6"></path>
-            <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"></path>
-        </svg>
-        </button>
-    </th>';
+        //$respuesta['datos'] .= '<th scope="col">
+        //<button name="btn2" class="btn btn-outline-primary" onclick="">
+        //<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+        //    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+        //    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
+        //    <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"></path>
+        //    <path d="M17 18h2"></path>
+        //    <path d="M20 15h-3v6"></path>
+        //    <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"></path>
+        //</svg>
+        //</button>
+    //</th>';
         $respuesta['datos'] .= '</tr>';
     }
 } catch (Exception $e) {

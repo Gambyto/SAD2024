@@ -1,9 +1,9 @@
 <!-- Modal para actualizar empleado -->
-<div class="modal fade" id="solicitudes" tabindex="-1" aria-labelledby="empleadoModalLabel" aria-hidden="true">
+<div class="modal fade" id="solicitudesPrestamos" tabindex="-1" aria-labelledby="solicitudesPrestamosModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="empleadoModalLabel">Solicitudes de préstamos</h5>
+                <h5 class="modal-title" id="solicitudesPrestamosModalLabel">Solicitudes de préstamos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -12,9 +12,9 @@
 
                     <form action="">
                         <div class="empleados__content modal-search">
-                            <label for="search"> Buscar: </label>
+                            <label for="buscarSolicitudes"> Buscar: </label>
                             <div class="input-group mb-3">
-                                <input type="text" id="search-s" name="search" class="form-control" aria-label="Buscar por cédula" placeholder="Buscar por cédula">
+                                <input type="text" id="buscarSolicitudes" name="buscarSolicitudes" class="form-control" aria-label="Buscar por cédula" placeholder="Buscar por cédula">
                                 
                             </div>
                         </div>
@@ -25,10 +25,10 @@
                         <nav class="Page" aria-label="Page navigation">
                             <ul class="pagination">
                                 <li class="page-item">
-                                    <a class="page-link" id="anterior-s" href="#" tabindex="-1">Anterior</a>
+                                    <a class="page-link" id="anteriorSolicitudes" href="#" tabindex="-1">Anterior</a>
                                 </li>
                                 <li class="page-item">
-                                    <a class="page-link" id="siguiente-s" href="#">Siguiente</a>
+                                    <a class="page-link" id="siguienteSolicitudes" href="#">Siguiente</a>
                                 </li>
                             </ul>
                         </nav>
@@ -50,7 +50,7 @@
                             <th scope="col"> Opciones </th>
                         </tr>
                     </thead>
-                    <tbody id="tablas-solicitudes" style="text-align: center;">
+                    <tbody id="tablaSolicitudes" style="text-align: center;">
                         <!-- Los datos se cargarán aquí dinámicamente -->
                     </tbody>
                 </table>
@@ -69,22 +69,22 @@
 <!-- Script de paginación y búsqueda -->
 <script>
 
-var paginaActual = 1;
-var totalPaginas = 0; // Inicializar totalPaginas
-var busqueda = ""; // Inicializar búsqueda
+var paginaActualSolicitudes = 1;
+var totalPaginasSolicitudes = 0; // Inicializar totalPaginas
+var buscarSolicitudes = ""; // Inicializar búsqueda
 
-function cambiarPagina(pagina) {
+function cargarSolicitudes(pagina) {
     $.ajax({
         url: 'Components/Tables/Tablas-Solicitud.php',
         type: 'GET',
-        data: { pagina: pagina, busqueda: busqueda },
+        data: { pagina: pagina, busqueda: buscarSolicitudes },
         success: function(response) {
     try {
         var datos = JSON.parse(response);
-        $('#tablas-solicitudes').html(datos.datos); // Actualizar la tabla
-        totalPaginas = datos.totalPaginas; // Actualizar el total de páginas
-        paginaActual = pagina; // Actualizar la página actual
-        actualizarBotones(); // Actualizar el estado de los botones
+        $('#tablaSolicitudes').html(datos.datos); // Actualizar la tabla
+        totalPaginasSolicitudes = datos.totalPaginas; // Actualizar el total de páginas
+        paginaActualSolicitudes = pagina; // Actualizar la página actual
+        actualizarBotonesSolicitudes(); // Actualizar el estado de los botones
     } catch (e) {
         console.log("Error al parsear la respuesta del servidor:", e);
         console.log("Respuesta del servidor:", response);
@@ -96,92 +96,88 @@ function cambiarPagina(pagina) {
     });
 }
 
-function actualizarBotones() {
-    if (paginaActual == 1) {
-        $('#anterior-s').addClass('disabled'); // Deshabilitar "Anterior" si estamos en la primera página
+function actualizarBotonesSolicitudes() {
+    if (paginaActualSolicitudes == 1) {
+        $('#anteriorSolicitudes').addClass('disabled'); // Deshabilitar "Anterior" si estamos en la primera página
     } else {
-        $('#anterior-s').removeClass('disabled'); // Habilitar "Anterior" si no estamos en la primera página
+        $('#anteriorSolicitudes').removeClass('disabled'); // Habilitar "Anterior" si no estamos en la primera página
     }
     
-    if (paginaActual == totalPaginas) {
-        $('#siguiente-s').addClass('disabled'); // Deshabilitar "Siguiente" si estamos en la última página
+    if (paginaActualSolicitudes == totalPaginasSolicitudes) {
+        $('#siguienteSolicitudes').addClass('disabled'); // Deshabilitar "Siguiente" si estamos en la última página
     } else {
-        $('#siguiente-s').removeClass('disabled'); // Habilitar "Siguiente" si no estamos en la última página
+        $('#siguienteSolicitudes').removeClass('disabled'); // Habilitar "Siguiente" si no estamos en la última página
     }
 }
 
-$('#anterior-s').click(function(e) {
+$('#anteriorSolicitudes').click(function(e) {
     e.preventDefault(); // Evitar el comportamiento por defecto del enlace
-    if (paginaActual > 1) {
-        cambiarPagina(paginaActual - 1); // Cambiar a la página anterior
+    if (paginaActualSolicitudes > 1) {
+        cargarSolicitudes(paginaActualSolicitudes - 1); // Cambiar a la página anterior
     }
 });
 
-$('#siguiente-s').click(function(e) {
+$('#siguienteSolicitudes').click(function(e) {
     e.preventDefault(); // Evitar el comportamiento por defecto del enlace
-    if (paginaActual < totalPaginas) {
-        cambiarPagina(paginaActual + 1); // Cambiar a la página siguiente
+    if (paginaActualSolicitudes < totalPaginasSolicitudes) {
+        cargarSolicitudes(paginaActualSolicitudes + 1); // Cambiar a la página siguiente
     }
 });
 
 // Función para manejar la búsqueda
-$('#search-s').on('input', function() {
-    busqueda = $(this).val(); // Obtener el valor de búsqueda
-    cambiarPagina(1); // Reiniciar a la primera página
+$('#buscarSolicitudes').on('input', function() {
+    buscarSolicitudes = $(this).val(); // Obtener el valor de búsqueda
+    cargarSolicitudes(1); // Reiniciar a la primera página
 });
 
 // Cargar los datos inicialmente
-cambiarPagina(1);
+cargarSolicitudes(1);
 
-    function confirmarA(id)
-    {  
-        if(confirm("¿Quieres aprobar esté prestamo?"))
-            {
-                $.ajax({
-                    url: '../PHP/CTR/Solicitudes_CTR.php',
-                    type: 'POST',
-                    data: {id: id,
-                        accion: 'Aprovado'
-                    },
-                    success: function(response){
-                        if (data.html) {
-                        $('#alerts').html(data.html);
-                        } else {
-                        alert(data.message);
-                        }
-                    },
-                    error: function(){
-                        alert('Error al aprobar esta solicitud, intente de nuevo');
-                    }
-                });
-                return false;
-            }
-                return false;
-    }
+function aprobarSolicitud(id) {
+  if (confirm("¿Quieres aprobar esta solicitud?")) {
+    $.ajax({
+      url: '../PHP/CTR/Solicitudes_CTR.php',
+      type: 'POST',
+      data: { id: id, accion: 'Aprovado' },
+      success: function(response) {
+        if (!response.message) {
+          // Eliminar la fila correspondiente de la tabla
+          $('#registro-' + id).remove();
+          $('#alerts').html(response.html);
+        } else {
+          alert('Error: Algo salió mal');
+        }
+      },
+      error: function() {
+        alert('Error al aprobar esta solicitud, intente de nuevo');
+      }
+    });
+    return false;
+  }
+  return false;
+}
 
-    function confirmarD(id)
-    {  
-        if(confirm("Denegar solicitud ¿Está seguro?"))
-            {
-                $.ajax({
-                    url: '../PHP/CTR/Solicitudes_CTR.php',
-                    type: 'POST',
-                    data: {id: id,
-                        accion: 'Denegado'},
-                    success: function(response){
-                        if (data.html) {
-                        $('#alerts').html(data.html);
-                    } else {
-                        alert(data.message);
-                    }
-                    },
-                    error: function(){
-                        alert('Error, intente de nuevo');
-                    }
-                });
-                return false;
-            }
-                return false;
-    }
-
+function denegarSolicitud(id) {
+  if (confirm("Denegar solicitud ¿Está seguro?")) {
+    $.ajax({
+      url: '../PHP/CTR/Solicitudes_CTR.php',
+      type: 'POST',
+      data: { id: id, accion: 'Denegado' },
+      success: function(response) {
+        if (!response.message) {
+          // Eliminar la fila correspondiente de la tabla
+          $('#registro-' + id).remove();
+          $('#alerts').html(response.html);
+        } else {
+          alert('Error: Algo salió mal');
+        }
+      },
+      error: function() {
+        alert('Error, intente de nuevo');
+      }
+    });
+    return false;
+  }
+  return false;
+}
 </script>

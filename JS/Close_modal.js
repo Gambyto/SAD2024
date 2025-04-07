@@ -3,3 +3,5 @@ $('.modal .btn-close').on('click', function() {
     // Cerrar el modal manualmente
     $(this).closest('.modal').modal('hide');
 });
+
+

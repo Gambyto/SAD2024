@@ -12,6 +12,14 @@
 
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input type="text" class="form-control" id="cedula" 
+                    name="cedula" value="<?=$_SESSION['id']?>"
+                    required 
+                    pattern="\d{8}" maxlength="8" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
+                <div>
                     <label for="nombre" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
@@ -21,14 +29,6 @@
                     <input type="text" class="form-control" id="apellido" name="apellido" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
 
-                <div>
-                    <label for="cedula" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="cedula" 
-                    name="cedula" value="<?=$_SESSION['id']?>"
-                    required 
-                    pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                </div>
             </div>
            
             <div class="empleados__content" style="display: flex; gap: 1rem;">
