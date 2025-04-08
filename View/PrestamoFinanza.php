@@ -321,8 +321,10 @@ function Guardar(){
             type: 'POST',
             data: formData,
             success: function(response) {
+                console.log(response);
                 if (response) {
                 var data = JSON.parse(response);
+                
                     if (data.html) {
                     $('#alerts').html(data.html);
                 } else {

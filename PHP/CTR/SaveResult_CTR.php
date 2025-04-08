@@ -299,6 +299,28 @@ switch ($op) {
                 exit;
             }else{
 
+                if ($Nomina->ValidatePrestamos($cedula)) {
+                        
+                    $message = 'Error: El empleado ya poseé un prestamo activo';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                    
+                }
+
+                $monto = getPostValue('monto',0);
+                if ($monto <= 0) {
+                    $message = 'Error: El monto del prestamo debe ser mayor a 0';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                }
                 $fechaIngreso = getPostValue('f_ingreso','null');
                 $fechaActual = new DateTime();
                 $fechaIngresoDate = new DateTime($fechaIngreso);
@@ -306,7 +328,6 @@ switch ($op) {
                 $diferenciaEnMeses = $intervalo->m + ($intervalo->y * 12);
 
                 $descuento = getPostValue('descuento',0);
-                $monto = getPostValue('monto',0);
                 $cuota = getPostValue('cuotas',0);
                 $solicitud = getPostValue('fechasolicitud','null');
                 $limit = getPostValue('fechalimite','null');
@@ -322,17 +343,7 @@ switch ($op) {
                     exit;
                 }else{
 
-                    if ($Nomina->ValidatePrestamos($cedula)) {
-                        
-                        $message = 'Error: El empleado ya poseé un prestamo activo';
-                        ob_start();
-                        include_once '../../View/Components/alerts.php';
-                        $html = ob_get_clean();
-                        $response = array('message' => $message, 'html' => $html);
-                        echo json_encode($response);
-                        exit;
-                        
-                    }else{
+                   
                         
                         if ($Nomina->Create_Prestamos_Ori($descuento, 
                         $monto, $cuota, $concepto, $cedula, $solicitud,$limit)){
@@ -356,7 +367,7 @@ switch ($op) {
                         }
                     }
                 }
-            }
+            
         
     break;
 
