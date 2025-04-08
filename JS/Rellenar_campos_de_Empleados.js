@@ -22,9 +22,9 @@ function buscarEmpleado(cedula) {
         rellenarFormulario(null);
     }
 }
-
+ 
 function rellenarFormulario(datos) {
-    console.log('busqueda aplicada');
+    // Limpiar los campos antes de rellenar
     if (datos) {
         console.log(datos);
         

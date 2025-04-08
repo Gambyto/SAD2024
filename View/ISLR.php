@@ -1,6 +1,6 @@
 <?php require 'Components/Header.php';?>
 
-</header>
+</header> 
 
     <main>
     <div id="alerts"></div>
@@ -119,7 +119,8 @@
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">%</span>
                         <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                        name="reten" id="reten">
+                        name="reten" id="reten" 
+                        oninput="formatInput(this)" maxlength="4">
                     </div>
             </div>
         </div>

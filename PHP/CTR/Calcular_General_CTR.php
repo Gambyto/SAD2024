@@ -162,12 +162,22 @@ switch ($op) {
         if (!empty($_POST['sueldo'])) {
             if (!empty($_POST['reten'])) {
                 $aporte = $_POST['reten'];
+                if ($aporte > 0.5 && $aporte <= 2) {
+                    $Monto = (($_POST['sueldo'] * $_SESSION['TasaBCV']) * $aporte) / 100;
+    
+                    $response =  array(
+                        'Monto' => $Monto
+                    );
+                }else{
+                    $message = 'Error: El porcentaje a retener debe estar entre 0.5 y 2%';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                }
 
-                $Monto = (($_POST['sueldo'] * $_SESSION['TasaBCV']) * $aporte) / 100;
-
-                $response =  array(
-                    'Monto' => $Monto
-                );
             } else{
                 $message = 'Error: No se a ingresado el porcentaje a retener';
                 ob_start();
