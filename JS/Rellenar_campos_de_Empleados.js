@@ -7,7 +7,11 @@ function buscarEmpleado(cedula) {
                 op: 1 },
             success: function(response) {
                 const datos = JSON.parse(response);
-                rellenarFormulario(datos);
+                if (datos) {
+                    rellenarFormulario(datos);
+                } else {
+                    console.log('No se encontró un empleado con la cédula proporcionada.');
+                }
             },
             error: function() {
                 alert('Error en la búsqueda del empleado. Intente nuevamente.');
@@ -20,11 +24,12 @@ function buscarEmpleado(cedula) {
 }
 
 function rellenarFormulario(datos) {
+    console.log('busqueda aplicada');
     if (datos) {
         console.log(datos);
         
         // Rellenar campos de información personal
-        $('#validationCustom03').val(datos.cedula);
+        
         $('#validationCustom01').val(datos.nombre);
         $('#validationCustom02').val(datos.apellido);
         $('#validationCustom04').val(datos.tlf);
@@ -124,23 +129,6 @@ if (datos.discapacidad !== 'Ninguna') {
         
     } else {
         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
-        $('#validationCustom03').val('');
-        $('#validationCustom01').val('');
-        $('#validationCustom02').val('');
-        $('#validationCustom04').val('');
-        $('#validationCustom05').val('');
-        $('#validationCustom06').val('');
-        $('#validationCustom07').val('');
-        $('#validationCustom09').val('');
-        $('#validationCustom10').val('');
-        $('#validationCustom11').val('');
-        $('#validationCustom12').val('');
-        $('#validationFormCheck4').prop('checked', false);
-        $('#validationFormCheck5').prop('checked', false);
-        $('#validationCustom16').val('Ninguna');
-        $('#validationCustom17').val('No aplica');
-        $('#validationFormCheck2').prop('checked', false);
-        $('#validationFormCheck3').prop('checked', false);
-        $('#validationCustom13').val('');
+    
     }
 }

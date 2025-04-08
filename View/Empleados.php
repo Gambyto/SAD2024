@@ -14,7 +14,7 @@
         <div class="empleados">
 
             <div class="block Name">
-                <h2> Empleados </h2> 
+                <h2> Empleados </h2>  
             </div>
             
             <form class="needs-validation block form-1" id="FormEmpleado" method="POST" novalidate>
@@ -46,7 +46,7 @@
                     <div class="a1">
                     <label for="validationCustom04" class="form-label">Teléfono principal</label>
                     <input type="text" name="tlf" class="form-control" id="validationCustom04" required 
-                    placeholder="0424-1234567" 
+                    placeholder="xxxx-xxxxxxx" 
                     oninput="formatPhoneNumber(this)">
                     <div class="invalid-feedback">
                         por favor coloque un número de telefono.
@@ -56,7 +56,7 @@
                 <div class="a1">
                     <label for="validationCustom05" class="form-label">Teléfono adicional</label>
                     <input type="text" name="second_tlf" class="form-control" id="validationCustom05" 
-                    placeholder="0424-1234567" 
+                    placeholder="xxxx-xxxxxxx" 
                     oninput="formatPhoneNumber(this)">
                 </div>
             </div>
@@ -211,9 +211,9 @@
                 
                 <div class="col-12">
                     <button class="btn btn-outline-primary" type="submit">Registrar</button>
-                    <button class="btn btn-outline-danger" type="reset">Cancelar</button>
+                    <button class="btn btn-outline-danger" type="reset">Limpiar</button>
                 </div>
-                
+                 
                 <script src="../JS/Rellenar_campos_de_Empleados.js"></script>
                 <script src="../JS/Validate_Empleado.js"></script>
                 <script src="../JS/validation-empleado.js"></script>
@@ -241,11 +241,36 @@
        
 
         <script>            
+// Obtén el tipo de usuario desde la variable de sesión
+var userType = '<?php echo $_SESSION['type'] ?? ''; ?>';
+
+// Verifica si el tipo de usuario es válido
+if (userType !== 'Gerencia') {
+    // Deshabilita el campo de texto
+    document.getElementById('validationCustom03').readOnly = true;
+    document.getElementById('validationCustom04').readOnly = true;
+    document.getElementById('validationCustom01').readOnly = true;
+    document.getElementById('validationCustom02').readOnly = true;
+    document.getElementById('validationCustom04').readOnly = true;
+    document.getElementById('validationCustom05').readOnly = true;
+    document.getElementById('validationCustom6').readOnly = true;
+    document.getElementById('validationCustom7').readOnly = true;
+    
+        // Rellenar campos de información laboral
+    document.getElementById('validationCustom09').readOnly = true;
+    document.getElementById('validationCustom10').ariaDisabled = true;
+    document.getElementById('validationCustom11').readOnly = true;
+    document.getElementById('validationCustom12').readOnly = true;
+    document.getElementById('validationCustom13').readOnly = true;
+}
+
+
+// Función para buscar empleado por cédula
 const cedulaInput = document.getElementById('validationCustom03');
 
 cedulaInput.addEventListener('input', function() {
     const cedula = this.value;
-    if (cedula.length === 8) {
+    if (cedula.length >= 7 && cedula.length <= 8) {
         buscarEmpleado(cedula);
     }
 });

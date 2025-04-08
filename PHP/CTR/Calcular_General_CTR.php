@@ -55,11 +55,11 @@ switch ($op) {
                 $Laboral= $Nomina->MidDays($resultado['fecha']);
                 $Vacacionesfin = $resultado['fecha'];
             // Calculos generales de vacaciones (muestreo de la tabla)
-                $vacation = $Dvacaciones * $parse_sueldo;
+                $vacation = $Dvacaciones * ( $parse_sueldo / 30);
         
-                $Pweekend = $resultado['diasFinSemana'] * $parse_sueldo;
+                $Pweekend = $resultado['diasFinSemana'] * ( $parse_sueldo / 30);
         
-                $Totaladd = ($_POST['feriado'] + $_POST['utilidades'] + $_POST['pendientes']) * $parse_sueldo;
+                $Totaladd = ($_POST['feriado'] + $_POST['utilidades'] + $_POST['pendientes']) * ($parse_sueldo / 30);
         
                 $inceV = ($Totaladd + $Pweekend + ($vacation * 2)) * 0.005;
         

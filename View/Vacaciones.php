@@ -276,9 +276,10 @@ function Calcular() {
         success: function(response) {
             try {
                 const data = JSON.parse(response);
-                var totalferiado = data.feriado * (sueldo * 0.33);
-                var totalutilidades = data.utilidades * (sueldo * 0.33);
-                var totalpendientes = data.pendientes * (sueldo * 0.33);
+                var totalferiado = data.feriado * ((sueldo * 0.33) / 30);
+                var totalutilidades = data.utilidades * ((sueldo * 0.33) / 30);
+                var totalpendientes = data.pendientes * ((sueldo * 0.33) / 30);
+                var sueldod = ((sueldo * 0.33)/30);
                 console.log(data);
 				
                 if(data.html){
@@ -295,7 +296,7 @@ function Calcular() {
 				 // Llenar la tabla con los datos recibidos
 				$('.T_Dvacaciones').text(data.Dvacaciones || 0);
 				$('.T_vacation').text(data.vacation.toFixed(2) + '$' || '0.00 $');
-                $('.T_sueldod').text(sueldo + '$' || '0.00 $');
+                $('.T_sueldod').text(sueldod.toFixed(2) + '$' || '0.00 $');
 
                 $('#T_findesemana').text(data.FinSemana || 0);
                 $('#finsemana').val(data.FinSemana || 0);
@@ -303,7 +304,7 @@ function Calcular() {
                 
 				$('#T_feriado').text(data.feriado || 0);
                 $('#T_totalferiado').text(totalferiado.toFixed(2) + '$' || '0.00 $');
-                
+                 
                 $('#T_pendientes').text(data.pendientes || 0);
                 $('#T_totalpendiente').text(totalpendientes.toFixed(2) + '$' || '0.00 $');
                 

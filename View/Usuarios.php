@@ -82,9 +82,9 @@
                     <label for="validationCustom04" class="form-label">Tipo de Ususario</label>
                     <select class="form-select" id="validationCustom04" name="tipo" required>
                         <option selected disabled value="">Choose...</option>
-                        <option>Gerencia</option>
-                        <option>Administrador</option>
-                        <option>Trabajador</option>
+                        <option value="Gerencia">Gerencia</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Trabajador" selected>Trabajador</option>
                     </select>
                     <div class="invalid-feedback">
                         Please select a valid state.
@@ -111,62 +111,91 @@
     }
     
     function buscarUsuario(cedula) {
-        if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
-            $.ajax({
-                url: '../PHP/CTR/User_CTR.php', // Cambia esto por la ruta a tu script PHP
-                type: 'POST',
-                data: { cedula: cedula },
-                success: function(response) {
-                    // Suponiendo que la respuesta es un objeto JSON con nombre y apellido
-                    const datos = JSON.parse(response);
-                    if (datos) {
-                        $('#nombre').val(datos.nombre);
-                        $('#apellido').val(datos.apellido);
-                        $('#cedula1').val(datos.cedula);
-                    } else {
-                        // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
-                        $('#nombre').val('');
-                        $('#apellido').val('');
-                        $('#cedula1').val('');
-                    }
-                },
-                error: function() {
-                    alert('Error en la búsqueda del usuario. Intente nuevamente.');
-                }
-            });
-        } else {
-            // Limpiar los campos si la cédula no tiene 8 dígitos
-            $('#nombre').val('');
-            $('#apellido').val('');
-        }
-    }
-
-    function Guardar(){
-        // Recoger todos los datos del formulario usando serialize
-        const formData = $('#form').serialize();
+    if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
         $.ajax({
-            url: '../PHP/CTR/SaveResult_CTR.php', 
+            url: '../PHP/CTR/User_CTR.php', // Cambia esto por la ruta a tu script PHP
             type: 'POST',
-            data: formData,
+            data: { cedula: cedula },
             success: function(response) {
-                if (response) {
+                // Suponiendo que la respuesta es un objeto JSON con todos los campos
+                const datos = JSON.parse(response);
+                // Verifica si se encontraron datos
+                console.log(datos);
+                if (datos) {
+                    $('#nombre').val(datos.nombre);
+                    $('#apellido').val(datos.apellido);
+                    $('#cedula1').val(datos.cedula);
+                    $('#validationCustomUsername').val(datos.username); // Cambia el id del campo
+                    $('#pass').val(datos.clave);
+                    $('#passconfirm').val(datos.clave);
+                    // Asignar el tipo de usuario al campo correspondiente
+                    $('#validationCustom04').val(datos.type);
+                    // Cambiar el atributo value del input op
+                    $('#op').val(datos.op);
+                } else {
+                    // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
+                    $('#nombre').val('');
+                    $('#apellido').val('');
+                    $('#cedula1').val('');
+                    $('#validationCustomUsername').val(''); // Cambia el id del campo
+                    $('#pass').val('');
+                    $('#passconfirm').val('');
+                    $('#validationCustom04').val('');
+                    // Cambiar el atributo value del input op
+                    $('#op').val('9');
+                }
+            },
+            error: function() {
+                alert('Error en la búsqueda del usuario. Intente nuevamente.');
+            }
+        });
+    } else {
+        // Limpiar los campos si la cédula no tiene 8 dígitos
+        $('#nombre').val('');
+        $('#apellido').val('');
+        $('#cedula1').val('');
+        $('#validationCustomUsername').val(''); // Cambia el id del campo
+        $('#pass').val('');
+        $('#passconfirm').val('');
+        $('#validationCustom04').val('');
+        // Cambiar el atributo value del input op
+        $('#op').val('9');
+    }
+}
+
+function Guardar(){
+    // Recoger todos los datos del formulario usando serialize
+    const formData = $('#form').serialize();
+    $.ajax({
+        url: '../PHP/CTR/SaveResult_CTR.php', 
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response) {
                 var data = JSON.parse(response);
-                    if (data.html) {
+                if (data.html) {
                     $('#alerts').html(data.html);
                 } else {
                     alert(data.message);
                 }
-                    $('#form')[0].reset(); // Limpiar el formulario
+                if (data.redirect) {
+                    setTimeout(function() {
+                        window.location.href = data.url;
+                    }, 3000);
                 } else {
-                    alert('Error al guardar los datos. Intente nuevamente.');
+                    $('#form')[0].reset(); // Limpiar el formulario
                 }
-            },
-            error: function() {
-                alert('Error en la conexión al servidor. Intente nuevamente.');
+            } else {
+                alert('Error al guardar los datos. Intente nuevamente.');
             }
-        });
-    };
-    </script>
+        },
+        error: function() {
+            alert('Error en la conexión al servidor. Intente nuevamente.');
+        }
+    });
+}
+
+  </script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

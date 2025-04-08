@@ -7,7 +7,7 @@ if (isset($_POST['cedula'])) {
     // Obtener datos del empleado
     $datosEmpleado = $Nomina->View_Active_Search_Nomina($cedula);
     
-    switch ($op) {
+    switch ($op) { 
         case 1:
             
             // Inicializar arrays para los datos financieros
@@ -29,14 +29,14 @@ if (isset($_POST['cedula'])) {
                 $datosEmpleado['consumo'] = $cuentasPorPagar;
                 echo json_encode($datosEmpleado);
             } else {
-                echo json_encode(['error' => 'Empleado no encontrado.']);
+                exit;
             }
             break;
 
         // Puedes agregar más casos aquí para otras operaciones
         case 3:
             $sueldobs = $datosEmpleado['sueldo'] * $_POST['tasa']; 
-            $sueldoD = $datosEmpleado['sueldo'] / 25;
+            $sueldoD = $datosEmpleado['sueldo'] ;
             // Combinar todos los datos en un solo array
             if ($datosEmpleado) {
                 $datosEmpleado['sueldobs'] = $sueldobs;

@@ -466,14 +466,53 @@ switch ($op) {
                     $contrasena = getPostValue('pass','null');
                     $tipo = getPostValue('tipo','null');
                     
-                    if ($User->Update_User($usuario,$contrasena,$cedula,$tipo)) {
+                    // Verificar si el usuario que se intenta editar es el usuario en sesión
+                if ($cedula == $_SESSION['id']) {
+                    // Verificar si el tipo de usuario es el mismo que el actual
+                    if ($tipo != $_SESSION['type']) {
+                        $message = 'Error: No se puede cambiar el tipo de usuario';
+                        ob_start();
+                        include_once '../../View/Components/alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html);
+                        echo json_encode($response);
+                        exit;
+                    }
+
+                    // Verificar si la contraseña es igual a la anterior
+                    $datosUsuario = $User->ReturnDataUser($_SESSION['user'],$_SESSION['clave']);
+                    if ($contrasena == $datosUsuario[0]['clave']) {
+                        session_destroy();
+                        $message = 'Usuario actualizado, por favor inicie sesión nuevamente';
+                        ob_start();
+                        include_once '../../View/Components/True_alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html, 'redirect' => true);
+                        echo json_encode($response);
+                        exit;
+                    }
+                }
+
+                if ($User  ->Update_User($usuario,$contrasena,$cedula,$tipo)) {
+                    if ($cedula == $_SESSION['id']) {
+                        session_destroy();
+                        $message = 'Usuario actualizado, por favor inicie sesión nuevamente';
+                        ob_start();
+                        include_once '../../View/Components/True_alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html, 'redirect' => true, 'url' => '../index.php');
+                        echo json_encode($response);
+                        exit;
+                    } else {
                         $message = 'Usuario actualizado';
                         ob_start();
                         include_once '../../View/Components/True_alerts.php';
                         $html = ob_get_clean();
                         $response = array('message' => $message, 'html' => $html);
                         echo json_encode($response);
-                    }else{
+                        exit;
+                    }
+                }else{
                         $message = 'Error: Algo salio mal';
                         ob_start();
                         include_once '../../View/Components/alerts.php';

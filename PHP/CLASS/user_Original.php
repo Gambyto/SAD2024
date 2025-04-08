@@ -7,9 +7,21 @@ class UserE extends connect
 	public $pass;
 	public $name;
 	
+		public function Existencia($user)
+	{
+		$query="SELECT * FROM usuario WHERE username='$user' AND estado = 1";
+		$result= $this->connect_db()->query($query);
+
+		$numRows = $result->num_rows;
+		if ($numRows == 1) 
+		{
+			return true;
+		}
+			return false;
+	}
+
 		public function verificar($user, $pass)
 	{
-
 		$query="SELECT * FROM usuario WHERE username='$user' AND clave='$pass' AND estado = 1";
 		$result= $this->connect_db()->query($query);
 
@@ -95,7 +107,8 @@ class UserE extends connect
 
 	public function  Get_User($dni)
 	{
-		$query="SELECT empleados.nombre, empleados.apellido, empleados.cedula, username, clave, type
+		$query="SELECT empleados.nombre, empleados.apellido, 
+		empleados.cedula, username, clave, type
 				FROM usuario 
 				JOIN empleados ON usuario.cedula = empleados.cedula 
 				WHERE usuario.cedula = '$dni' AND usuario.estado = '1'";
@@ -344,14 +357,22 @@ class Nomina extends connect
 		return "La fecha de ingreso no puede ser mayor a la fecha de hoy";
 	}
 
-	//Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
-	$fecha30DiasAtras = clone $fechaHoy;
-	$fecha30DiasAtras->modify("-30 days");
-	if ($fechaIngresoDate < $fecha30DiasAtras) {
-		return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
-	}
+	
+		//Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
+		//$fecha30DiasAtras = clone $fechaHoy;
+		//$fecha30DiasAtras->modify("-30 days");
+		//if ($fechaIngresoDate < $fecha30DiasAtras) {
+		//	return "La fecha de ingreso no puede ser mayor a 30 días anteriores a la fecha de hoy";
+		//}
 
-	return null; // Si no hay errores, devuelve null
+		//Validar que la fecha de ingreso no supere los 30 días anteriores a la fecha de hoy
+		$fecha30DiasAtras = clone $fechaHoy;
+		$fecha30DiasAtras->modify("-30 years");
+		if ($fechaIngresoDate < $fecha30DiasAtras) {
+			return "La fecha de ingreso no puede ser mayor a 30 años";
+		}
+
+	return false; // Si no hay errores, devuelve null
 	}
 
 	public function obtenerPagosNomina($mes, $anio) {

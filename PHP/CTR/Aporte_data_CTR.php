@@ -15,7 +15,7 @@ if (isset($_POST['cedula'])) {
         $response = array('message' => $message, 'html' => $html);
         echo json_encode($response);
         exit;
-    }
+    } 
 } else {
     echo json_encode(['error' => 'Cédula no proporcionada.']);
 }
