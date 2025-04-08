@@ -29,8 +29,8 @@
                         <label for="validationCustom01" class="form-label">Nombre</label>
                         <input type="text" name="nombre" class="form-control" 
                         id="validationCustom01" maxlength="30" required 
-                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
-                    </div>
+                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1); this.value = this.value.replace(/ (?=[a-z])/g, ' ').replace(/\b\w/g, l => l.toUpperCase())"
+                    ></div>
 
                     <div>
                         <label for="validationCustom02" class="form-label">Apellido</label>

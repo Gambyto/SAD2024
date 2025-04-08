@@ -351,6 +351,22 @@ class Nomina extends connect
 	}
 
 	// Validar fecha de ingreso
+	if ($fechaIngreso <= $fechaNacimiento) {
+		return("La fecha de ingreso debe ser mayor a la fecha de nacimiento");
+	}
+
+	$fechaNacimientoD =  DateTime::createFromFormat("Y-m-d", $fechaNacimiento);
+	$fechaIngresoD =  DateTime::createFromFormat("Y-m-d", $fechaIngreso);
+	$date18 = $fechaNacimientoD->modify('+18 years');
+	//var_dump($fechaIngresoD);
+	//var_dump($fechaNacimientoD);
+	//var_dump($date18);
+	if ($fechaIngresoD < $date18) {
+		return "La fecha de ingreso debe ser mayor a 18 años después de la fecha de nacimiento";
+	}
+	
+
+	// Validar fecha de ingreso
 	$fechaHoy = new DateTime();
 	$fechaIngresoDate = DateTime::createFromFormat("Y-m-d", $fechaIngreso);
 	if ($fechaIngresoDate > $fechaHoy) {
