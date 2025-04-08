@@ -2,19 +2,19 @@
 session_start();
 include_once '../CLASS/user_Original.php';
 
-$cedula = $_POST['cedula'];
-$nombre = $_POST['nombre']; 
-$apellido = $_POST['apellido'];
-$direccion = $_POST['direccion'];
-$correo = $_POST['correo'];
+$cedula = $_POST['cedula'] ?? null;
+$nombre = $_POST['nombre'] ?? null; 
+$apellido = $_POST['apellido'] ?? null;
+$direccion = $_POST['direccion'] ?? null;
+$correo = $_POST['correo'] ?? null;
 $sexo = $_POST['sexo'] ?? null;
-$tlf = $_POST['tlf'];
-$second_tlf= $_POST['second_tlf'];
+$tlf = $_POST['tlf'] ?? null;
+$second_tlf= $_POST['second_tlf'] ?? null;
 $departamento = $_POST['departamento'] ?? null;
 $cargo = $_POST['cargo'] ?? null;
-$ingreso = $_POST['ingreso'];
-$sueldo = $_POST['sueldo'];
-$edad= $_POST['edad'];
+$ingreso = $_POST['ingreso'] ?? null;
+$sueldo = $_POST['sueldo'] ?? null;
+$edad= $_POST['edad'] ?? null;
 $type_invalid_person= $_POST['tipo-discapacidad'] ?? null;
 $afeccion= $_POST['afeccion'] ?? null;
 

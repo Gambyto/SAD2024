@@ -13,7 +13,7 @@ $(document).ready(function() {
         var formData = $(this).serialize();
 
         $.ajax({
-            type: 'POST',
+            type: 'POST', 
             url: '../PHP/CTR/Insert_Empleado_CTR.php',
             data: formData,
             success: function(response) {

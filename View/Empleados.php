@@ -247,21 +247,28 @@ var userType = '<?php echo $_SESSION['type'] ?? ''; ?>';
 // Verifica si el tipo de usuario es válido
 if (userType !== 'Gerencia') {
     // Deshabilita el campo de texto
-    document.getElementById('validationCustom03').readOnly = true;
-    document.getElementById('validationCustom04').readOnly = true;
-    document.getElementById('validationCustom01').readOnly = true;
-    document.getElementById('validationCustom02').readOnly = true;
-    document.getElementById('validationCustom04').readOnly = true;
-    document.getElementById('validationCustom05').readOnly = true;
-    document.getElementById('validationCustom6').readOnly = true;
-    document.getElementById('validationCustom7').readOnly = true;
+    document.getElementById('validationCustom03').disabled = true;
+    document.getElementById('validationCustom04').disabled = true;
+    document.getElementById('validationCustom01').disabled = true;
+    document.getElementById('validationCustom02').disabled = true;
+    document.getElementById('validationCustom04').disabled = true;
+    document.getElementById('validationCustom05').disabled = true;
+    document.getElementById('validationCustom6').disabled = true;
+    document.getElementById('validationCustom7').disabled = true;
+    
+    document.getElementById('validationFormCheck3').disabled = true;
+    document.getElementById('validationFormCheck2').disabled = true;
+    document.getElementById('validationFormCheck4').disabled = true;
+    document.getElementById('validationFormCheck5').disabled = true;
     
         // Rellenar campos de información laboral
-    document.getElementById('validationCustom09').readOnly = true;
-    document.getElementById('validationCustom10').ariaDisabled = true;
-    document.getElementById('validationCustom11').readOnly = true;
-    document.getElementById('validationCustom12').readOnly = true;
-    document.getElementById('validationCustom13').readOnly = true;
+    document.getElementById('validationCustom09').disabled = true;
+    document.getElementById('validationCustom10').disabled = true; // Cambia ariaDisabled a disabled
+    document.getElementById('validationCustom11').disabled = true;
+    document.getElementById('validationCustom12').disabled = true;
+    document.getElementById('validationCustom13').disabled = true;
+    document.getElementById('validationCustom16').disabled = true;
+    document.getElementById('validationCustom17').disabled = true;
 }
 
 
