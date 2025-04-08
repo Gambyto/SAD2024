@@ -124,6 +124,7 @@
                             <option value="30">30</option>
                             <option value="60">60</option>
                             <option value="90">90</option>
+                            <option value="120">120</option>
                         </select>
                     </div>
                 </div>

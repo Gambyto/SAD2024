@@ -36,7 +36,7 @@
                         <label for="validationCustom02" class="form-label">Apellido</label>
                         <input type="text" name="apellido" class="form-control" 
                         id="validationCustom02" maxlength="30" required 
-                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
+                        oninput="this.value = this.value.replace(/^[0-9]/, '').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toLowerCase(); this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1); this.value = this.value.replace(/ (?=[a-z])/g, ' ').replace(/\b\w/g, l => l.toUpperCase())">
                     </div>
                     
 
@@ -67,7 +67,7 @@
                     <input type="text" name="direccion" class="form-control" 
                     id="validationCustom6" aria-describedby="inputGroupPrepend"
                     maxlength="200" 
-                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()"
+                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').charAt(0).toUpperCase() + this.value.slice(1).toLowerCase(); this.value = this.value.replace(/ (?=[a-z])/g, ' ').replace(/\b\w/g, l => l.toUpperCase())"
                     required>
                     <div class="invalid-feedback">
                         Por favor coloque una dirección.
