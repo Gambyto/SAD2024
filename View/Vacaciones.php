@@ -119,7 +119,7 @@
 				<div class="empleados__content">
                     <label> Utilidades:</label>
                     <div class="input-group input-group-sm mb-3">
-                        <select class="form-control" name="Utilidades" id="Utilidades">
+                        <select class="form-control" name="utilidades" id="utilidades">
                             <option value="0">0</option>
                             <option value="30">30</option>
                             <option value="60">60</option>
@@ -204,7 +204,7 @@ function buscarEmpleado(cedula) {
                     $('#f_ingreso').val(datos.f_ingreso);
 					$('#sueldoD').val(datos.sueldod);
 					$('#feriados').val(0);
-	 				$('#Utilidades').val(0);
+	 				$('#utilidades').val(0);
 					$('#pendientes').val(0);
 
                 } else {
@@ -215,7 +215,7 @@ function buscarEmpleado(cedula) {
 					$('#f_ingreso').val('');
 					$('#sueldoD').val('');
 					$('#feriados').val('');
-	 				$('#Utilidades').val('');
+	 				$('#utilidades').val('');
 					$('#pendientes').val('');
 					$('#Dvacaciones').val(0);
 					$('#Vacacionesfin').val('');
@@ -234,7 +234,7 @@ function buscarEmpleado(cedula) {
 		$('#f_ingreso').val('');
 		$('#sueldoD').val('');
 		$('#feriados').val(0);
-	 	$('#Utilidades').val(0);
+	 	$('#utilidades').val(0);
 		$('#pendientes').val(0);
 		$('#Dvacaciones').val(0);
 		$('#Vacacionesfin').val('');
@@ -252,7 +252,7 @@ function Calcular() {
 
 	// variables probables
 	var feriado = $('#feriados').val();
-	var utilidades = $('#Utilidades').val();
+	var utilidades = $('#utilidades').val();
 	var pendientes = $('#pendientes').val();
 
     console.log(sueldo);

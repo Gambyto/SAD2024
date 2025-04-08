@@ -119,12 +119,15 @@ ob_start();
 					<br>
 					<div style="overflow: auto;">
 						<p class="RIF">J-080199936</p>
-						<p class="recibo">Recibo de pago del trabajador<p>
+						<p class="recibo">Recibo de pago de vacaciones y utilidades<p>
 					</div>
 		</table>
 		<?php if ($_GET['id']) {
 			$id = $_GET['id'];
 			$dato = $Nomina->GetID_Vacation($id);
+
+			$sueldo_parse = $dato['sueldo'] * 0.33;
+			$dato['sueldo_diario'] = $sueldo_parse / 30;
 		} ?>
 		<table style="width: 100%; border: solid black 1px;">
 			<tr>
@@ -234,8 +237,8 @@ ob_start();
 				
 				<td>Días utilidades</td>
 				<td style="text-align: right;"><?=$dato['utilidades']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> $</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['utilidades'])*$dato['tasa'],2)?> $</td>		
+				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
+				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['utilidades'])*$dato['tasa'],2)?> Bs.</td>		
 				<td></td>		
 
 			</tr>

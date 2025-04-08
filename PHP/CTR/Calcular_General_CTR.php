@@ -40,7 +40,7 @@ switch ($op) {
         }
         break;
     
-    case 2: //Vacaciones
+    case 2: //Vacaciones 
         if (!empty($_POST['sueldo'])) {
             
             if (!empty($_POST['vacacionesini'])) {

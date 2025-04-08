@@ -137,8 +137,8 @@ switch ($op) {
                     echo json_encode($response);
                     exit;
             }else{
-                if($Nomina->Vacation_Insert($Dvacaciones,$utilidad,$Tservicio,$vacacionesini,$vacacionesfin,
-                $laboral,$findesemana,$pendiente,$feriado,$sueldod,$cedula,$monto,$ince)){
+                if($Nomina->Vacation_Insert($Dvacaciones,$Tservicio,$utilidad,$vacacionesini,$vacacionesfin,
+                $laboral,$findesemana,$feriado,$pendiente,$sueldod,$cedula,$monto,$ince)){
                     $message = 'Vacaciones cargadas con exito';
                     ob_start();
                     include_once '../../View/Components/True_alerts.php';
