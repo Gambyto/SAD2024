@@ -1123,7 +1123,7 @@ tasa_dolar.tasa_del_dia AS tasa
                 INNER JOIN prestamos ON id_prestamo = prestamos.id_prestamos
                 INNER JOIN empleados ON prestamos.cedula_FK = empleados.cedula
                 INNER JOIN tasa_dolar ON prestamos.tasaBCV_FK = tasa_dolar.id_tasa
-                WHERE prestamos.estado = 1 AND empleados.estado = 1";
+                WHERE prestamos.estado = 1 AND empleados.estado = 1 AND cuentas_por_pagar2.estado = 1";
   		
   		$result = $this->connect_db()->query($query);
 
@@ -1590,8 +1590,8 @@ public function cuentas_por_pagar_View()
 		public function Insert_aporte($id,$deuda,$aporte,$tpago,$refe,$fecha)
 		{
 			$query = "INSERT INTO `cuentas_por_pagar2`
-			(`id_prestamo`, `deuda`, `aporte`, `tpago`, `refe`, `fecha`) 
-			VALUES ('$id','$deuda','$aporte','$tpago','$refe','$fecha')";
+			(`id_prestamo`, `deuda`, `aporte`, `tpago`, `refe`, `fecha`, `estado`) 
+			VALUES ('$id','$deuda','$aporte','$tpago','$refe','$fecha', '1')";
 			if ($result= $this->connect_db()->query($query)){
 				return true;
 			}else {

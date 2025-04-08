@@ -43,7 +43,7 @@ if ($busquedaCedula || $busquedaConcepto || $busquedaFecha) {
                 $concepto = 'Sueldo y Salario';
             } elseif (isset($dato['vacaciones_id'])) {
                 $concepto = 'Vacaciones';
-            } elseif (isset($dato['id_cp'])) {
+            } elseif (isset($dato['id'])) {
                 $concepto = 'Préstamo';
             }
 
