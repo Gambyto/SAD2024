@@ -10,8 +10,8 @@ if (empty($data)) {
     $anio_end = 'Sin datos';
     $anio_ini = 'Sin datos';
 } else {
-    $mount_end = number_format($data[0]['monto'], 2);
-    $mount_ini = number_format($data[1]['monto'], 2);
+    $mount_end = $data[0]['monto'];
+    $mount_ini = $data[1]['monto'];
     $average = number_format((($mount_end - $mount_ini) / $mount_end) * 100, 2);
     $anio_end = $data[0]['anio'];
     $anio_ini = $data[1]['anio'];
@@ -45,9 +45,9 @@ include_once 'Components/Modals/Vacation_Grap.php';
     <div class="indicator__body">
         <small class="text-body-secondary">Total pagado por vacaciones</small>
         <h5 class="text-body-primary"><?php
-        echo $mount_end. ' $ en '. $anio_end; 
+        echo number_format($mount_end,2). ' $ en '. $anio_end; 
         ?></h5>
-        <small class="text-body-secondary"> Comparado con: <?php echo $mount_ini. '$ en '. $anio_ini; ?></small>
+        <small class="text-body-secondary"> Comparado con: <?php echo number_format($mount_ini, 2). '$ en '. $anio_ini; ?></small>
     </div>
 
 </div>

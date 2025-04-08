@@ -57,8 +57,8 @@
     <?php include_once '../View/Components/Modals/Modal-Solicitudes.php';?>
 </div>
 
-<script>
+<script> 
      function solicitudes() {
-        $('#solicitudes').modal('show');
+        $('#solicitudesPrestamos').modal('show');
     }
 </script>

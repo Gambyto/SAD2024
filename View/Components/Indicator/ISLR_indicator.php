@@ -19,12 +19,12 @@ if (empty($data)) {
         $mes_ini = 'Sin datos';
         $anio_ini = 'Sin datos';
     }else {
-        $mount_ini = number_format($data[1]['monto'],2);
+        $mount_ini = $data[1]['monto'];
         $anio_ini = $data[1]['anio'];
         $mes_ini = $data[1]['mes'];
         $mes_ini = $meses[$mes_ini - 1 ];    
     } 
-    $mount_end = number_format($data[0]['monto'],2); 
+    $mount_end = $data[0]['monto']; 
     $average = number_format((($mount_end - $mount_ini) / $mount_end) * 100 , 2);
     
     $mes_end = $data[0]['mes'];
@@ -51,7 +51,7 @@ include_once 'Components/Modals/ISLR_Graph.php';
     } elseif ($mount_end == $mount_ini) {
         echo '<span class="badge bg-warning"> '.$average.'%</span>';
     } else {
-        echo '<span class="badge bg-success"> -'. $average. '%</span>';
+        echo '<span class="badge bg-success"> '. $average. '%</span>';
     }
     ?>
     </div>
@@ -59,9 +59,9 @@ include_once 'Components/Modals/ISLR_Graph.php';
     <div class="indicator__body">
         <small class="text-body-secondary">Total Aportado al ISLR</small>
         <h5 class="text-body-primary"><?php
-        echo $mount_end. ' Bs. En '. $mes_end. ' - '. $anio_end; 
+        echo number_format($mount_end,2). ' Bs. En '. $mes_end. ' - '. $anio_end; 
         ?></h5>
-        <small class="text-body-secondary"> Comparado con: <?php echo $mount_ini. ' Bs. En '. $mes_ini. ' - '.$anio_ini; ?></small>
+        <small class="text-body-secondary"> Comparado con: <?php echo number_format($mount_ini,2). ' Bs. En '. $mes_ini. ' - '.$anio_ini; ?></small>
     </div>
 
 </div>
