@@ -88,7 +88,7 @@ ob_start();
 						<div id="RIF" style="float: left;"> RIF: J-080199936 </div>
 					<div id="texto">
 						<div style="float: right;">Fecha: <?php echo date("Y/m/d"); ?></div> 
-						<div > RELACIÓN NÓMINA DEL PERSONAL </div>
+						<div > RELACIÓN DE PERSONAL </div>
 					</div>
 					<br>
 					</div>

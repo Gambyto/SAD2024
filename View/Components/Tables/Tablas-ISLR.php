@@ -21,11 +21,11 @@
 						</thead>
 
 
-						<?php if (isset($_POST['buscarF'])) {?>
+						<?php if (isset($_GET['buscarF'])) {?>
 							
 						<tbody>
 							<?php 
-							$datos = $Nomina->Search_ISLR($_POST['FechaBuscar']);
+							$datos = $Nomina->Search_ISLR($_GET['FechaBuscar']);
 							foreach ($datos as $dato) {
 								echo '<tr>';
 								echo '<th scope="col">'	.$dato['nombre']. '</th>';

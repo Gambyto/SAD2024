@@ -56,7 +56,8 @@
 
 						<input type="hidden" name="cedula1" id="cedula1">
 
-		  				<input type="submit" class="btn btn-outline-info" value="Buscar" name="Buscar" id="Buscar">
+		  				<!--<input type="submit" class="btn btn-outline-info" 
+                        value="Buscar" name="Buscar" id="Buscar">-->
 					</div>
 			</div>
 

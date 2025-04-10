@@ -52,13 +52,14 @@
                         <div class="input-group input-group-sm mb-3">
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             id="cedula" name="cedula"
-                            required maxlength="8" 
+                             maxlength="8" 
                             oninput="this.value = this.value.replace(/[^0-9]/g, '');"
                             onkeyup="buscarEmpleado(this.value)">
                             
                             <input type="hidden" id="cedula1" name="cedula1">
 
-                            <input type="submit" class="btn btn-outline-info" value="Buscar" name="Buscar" id="Buscar">
+                            <!--<input type="submit" class="btn btn-outline-info" 
+                            value="Buscar" name="Buscar" id="Buscar">-->
                         </div>
                     </div>
                     
@@ -134,7 +135,7 @@
                 <input type="hidden" id="op" name="op" value="4">
 			</div>
         </div>
-    </form>
+    </form>  
         
     <div class="block item-5">
             <?php include_once 'Components/Tables/Tablas-ISLR.php';?>
