@@ -102,6 +102,7 @@
                 <label for="info" class="form-label">Descripción</label>
                 <input type="text" class="form-control" name="info" id="info">
                 <input type="hidden" id="op" name="op" value="8">
+                <input type="hidden" name="f_ingreso" id="f_ingreso">
             </div>
         
    
@@ -144,13 +145,13 @@
                         $('#nombre').val(datos.nombre);
                         $('#cedula1').val(datos.cedula);
                         $('#apellido').val(datos.apellido);
-                        var F_ingreso = datos.f_ingreso;
-                        alert('Fecha de ingreso: ' + F_ingreso);
+                        $('#f_ingreso').val(datos.f_ingreso);
                     } else {
                         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                         $('#nombre').val('');
                         $('#cedula1').val('');
                         $('#apellido').val('');
+                        $('#f_ingreso').val('');
                     }
                 },
                 error: function() {
@@ -279,7 +280,7 @@ function Guardar(){
         $.ajax({
             url: '../PHP/CTR/SaveResult_CTR.php', 
             type: 'POST',
-            data: formData,
+            data: formData, f_ingreso, 
             success: function(response) {
                 console.log(response);
                 if (response) {

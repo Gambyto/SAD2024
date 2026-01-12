@@ -1325,6 +1325,21 @@ public function cuentas_por_pagar_View()
   		}
   		return $data;
 	}
+
+	public function Exists_solicitud_prestamos($cedula)
+	{
+		$query = "SELECT * FROM solicitudes  
+				WHERE estado = 'Espera' AND cedula_FK = '$cedula'";
+  		
+  		$result = $this->connect_db()->query($query);
+
+ 			if ($result->num_rows > 0) {
+			 	return true;
+			}else {
+				return false;
+			}
+	}
+	
 // Función para el modulo de prestamos y cuentas por pagar Fin
 
 

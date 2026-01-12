@@ -380,10 +380,9 @@ switch ($op) {
                 $response = array('message' => $message, 'html' => $html);
                 echo json_encode($response);
                 exit;
-            }else{
-
+            } else {
+                // 1. Validación de préstamo activo
                 if ($Nomina->ValidatePrestamos($cedula)) {
-                        
                     $message = 'Error: El empleado ya poseé un prestamo activo';
                     ob_start();
                     include_once '../../View/Components/alerts.php';
@@ -391,12 +390,10 @@ switch ($op) {
                     $response = array('message' => $message, 'html' => $html);
                     echo json_encode($response);
                     exit;
-                    
                 }
-
-                $monto = getPostValue('monto',0);
-                if ($monto <= 0) {
-                    $message = 'Error: El monto del prestamo debe ser mayor a 0';
+                // 1.1 Validación de solicitud activa 
+                if ($Nomina->Exists_solicitud_prestamos($cedula)) {
+                    $message = 'Error: El empleado ya poseé una solicitud activa';
                     ob_start();
                     include_once '../../View/Components/alerts.php';
                     $html = ob_get_clean();
@@ -404,19 +401,43 @@ switch ($op) {
                     echo json_encode($response);
                     exit;
                 }
-                $fechaIngreso = getPostValue('f_ingreso','null');
+
+               // 2. Validación de monto (Rango entre $1 y $2000)
+                $monto = (float)getPostValue('monto', 0); // Forzamos a float para comparaciones numéricas precisas
+
+                if ($monto <= 0 || $monto > 2000) {
+                    $message = ($monto <= 0) 
+                        ? 'Error: El monto del préstamo debe ser mayor a 0' 
+                        : 'Error: El monto del préstamo no puede ser mayor a 2000';
+
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    
+                    echo json_encode(['message' => $message, 'html' => $html]);
+                    exit;
+                }
+                
+
+                // 3. Validación de tiempo en la empresa (mínimo 6 meses)
+                $fechaIngreso = getPostValue('f_ingreso', null); // Cambiado a null real para evitar el error previo
+                
+                if (!$fechaIngreso || $fechaIngreso === 'null') {
+                    $message = 'Error: No se pudo verificar la fecha de ingreso del empleado';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                }
+
                 $fechaActual = new DateTime();
                 $fechaIngresoDate = new DateTime($fechaIngreso);
                 $intervalo = $fechaActual->diff($fechaIngresoDate);
                 $diferenciaEnMeses = $intervalo->m + ($intervalo->y * 12);
 
-                $descuento = getPostValue('descuento',0);
-                $cuota = getPostValue('cuotas',0);
-                $solicitud = getPostValue('fechasolicitud','null');
-                $concepto = getPostValue('info','null');
-                $estado = 'Espera';
-
-                if ($diferenciaEnMeses  <= 5) {
+                if ($diferenciaEnMeses <= 5) {
                     $message = 'Error: El empleado posee menos de 6 meses en la empresa';
                     ob_start();
                     include_once '../../View/Components/alerts.php';
@@ -424,7 +445,13 @@ switch ($op) {
                     $response = array('message' => $message, 'html' => $html);
                     echo json_encode($response);
                     exit;
-                }else{
+                } else {
+                    // Si pasa todas las validaciones, procedemos a insertar la solicitud
+                    $descuento = getPostValue('descuento', 0);
+                    $cuota = getPostValue('cuotas', 0);
+                    $solicitud = getPostValue('fechasolicitud', 'null');
+                    $concepto = getPostValue('info', 'null');
+                    $estado = 'Espera';
 
                     if ($Nomina->Insert_Solicitud($cedula, $monto, $descuento, $cuota, $concepto, $solicitud, $estado)){
                         $message = 'Solicitud enviada';
@@ -433,8 +460,8 @@ switch ($op) {
                         $html = ob_get_clean();
                         $response = array('message' => $message, 'html' => $html);
                         echo json_encode($response);
-                    }else{
-                        $message = 'Error: Algo salio mal';
+                    } else {
+                        $message = 'Error: Algo salio mal al procesar la solicitud';
                         ob_start();
                         include_once '../../View/Components/alerts.php';
                         $html = ob_get_clean();
@@ -444,8 +471,8 @@ switch ($op) {
                     }
                 }
             }
-        
     break;
+        
 
     case '9': // Caso para insertar nuevos usuarios
         if (empty($cedula)) {
