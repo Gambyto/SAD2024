@@ -13,7 +13,7 @@ $totalPaginas = ceil($totalElementos / $elementosPorPagina);
 $paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
 
 // Calcular el índice de inicio para la consulta
-$inicio = ($paginaActual - 1) * $elementosPorPagina;
+$inicio = ($paginaActual - 1) * $elementosPorPagina; 
 
 // Obtener los datos para la página actual
 $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
@@ -76,7 +76,8 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
         <tbody style="text-align: center;" id="cuerpoTabla">
             <?php 
             foreach ($datosPagina as $dato) {
-                echo '<tr>';
+                $clase = (strtotime($dato['date_limit']) < strtotime(date('Y-m-d'))) ? 'mora' : '';
+                echo '<tr class="' . $clase . '">';
                 echo '<th scope="col">' . $dato['cedula'] . '</th>';
                 echo '<th scope="col">' . $dato['nombre'] .' '. $dato['apellido']  . '</th>';
                 echo '<th scope="col" style="text-align: rigth;">' . $dato['monto'] . ' $</th>';

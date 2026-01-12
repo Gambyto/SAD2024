@@ -108,7 +108,7 @@ class UserE extends connect
 	public function  Get_User($dni)
 	{
 		$query="SELECT empleados.nombre, empleados.apellido, 
-		empleados.cedula, username, clave, type
+		empleados.cedula, empleados.f_ingreso, username, clave, type
 				FROM usuario 
 				JOIN empleados ON usuario.cedula = empleados.cedula 
 				WHERE usuario.cedula = '$dni' AND usuario.estado = '1'";
@@ -1103,7 +1103,7 @@ public function Prestamos_View() {
 					fecha, monto , monto_desc, descuento, cuotas, concepto, date_limit, prestamos.estado
 
 				FROM prestamos INNER JOIN empleados ON cedula_FK = cedula
-				WHERE date_limit > NOW() AND monto_desc > 0 AND prestamos.estado = 1";
+				WHERE  monto_desc > 0 AND prestamos.estado = 1";
   		
   		$result = $this->connect_db()->query($query);
 
@@ -1383,11 +1383,13 @@ public function cuentas_por_pagar_View()
 		}	
 	}
 	
-	public function Create_Tasa_Dola($TasaBCV)
+	public function Create_Tasa_Dola($TasaBCV, $tasa2)
 	{
 		$TasaBCV = number_format($TasaBCV,2);
-		$query="INSERT INTO tasa_dolar (`tasa_del_dia`,`fecha`) 
-				VALUES ('$TasaBCV', STR_TO_DATE(NOW(), '%Y-%m-%d'))";
+		$tasa2 = number_format($tasa2,2);
+
+		$query="INSERT INTO tasa_dolar (`tasa_del_dia`,`tasa_eur`,`fecha`) 
+				VALUES ('$TasaBCV', '$tasa2', STR_TO_DATE(NOW(), '%Y-%m-%d'))";
 
 		if ($result= $this->connect_db()->query($query)){
 			return true;

@@ -188,7 +188,7 @@
 
 
         <div id="alerts"></div>
-        </div>
+        </div> 
         
         <div class="block indicator">
         <?php include_once 'Components/Indicator/PromedioPrestamos.php'; ?>

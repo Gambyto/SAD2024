@@ -4,6 +4,10 @@
   --background: #0d110e;
 }
 
+#alerts{
+  z-index: 9999;
+}
+
 .container {
   position: absolute;
   top: 0;

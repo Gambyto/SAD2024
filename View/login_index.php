@@ -15,7 +15,7 @@
 					<input type="password" 
 					class="login__input" placeholder="Contraseña"
 					id="password" name="password">
-				</div>
+				</div> 
 				<button class="button login__submit">
 					<span class="button__text">Iniciar sesión</span>
 					<i class="button__icon fas fa-chevron-right"></i>

@@ -381,28 +381,67 @@ switch ($op) {
                 echo json_encode($response);
                 exit;
             }else{
-                $descuento = getPostValue('descuento',0);
-                $monto = getPostValue('monto',0);
-                $cuota = getPostValue('cuotas',0);
-                $solicitud = getPostValue('fechasolicitud','null');
-                $concepto = getPostValue('info','null');
-                $estado = 'Espera';
-    
-                if ($Nomina->Insert_Solicitud($cedula, $monto, $descuento, $cuota, $concepto, $solicitud, $estado)){
-                    $message = 'Solicitud enviada';
-                    ob_start();
-                    include_once '../../View/Components/True_alerts.php';
-                    $html = ob_get_clean();
-                    $response = array('message' => $message, 'html' => $html);
-                    echo json_encode($response);
-                }else{
-                    $message = 'Error: Algo salio mal';
+
+                if ($Nomina->ValidatePrestamos($cedula)) {
+                        
+                    $message = 'Error: El empleado ya poseé un prestamo activo';
                     ob_start();
                     include_once '../../View/Components/alerts.php';
                     $html = ob_get_clean();
                     $response = array('message' => $message, 'html' => $html);
                     echo json_encode($response);
                     exit;
+                    
+                }
+
+                $monto = getPostValue('monto',0);
+                if ($monto <= 0) {
+                    $message = 'Error: El monto del prestamo debe ser mayor a 0';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                }
+                $fechaIngreso = getPostValue('f_ingreso','null');
+                $fechaActual = new DateTime();
+                $fechaIngresoDate = new DateTime($fechaIngreso);
+                $intervalo = $fechaActual->diff($fechaIngresoDate);
+                $diferenciaEnMeses = $intervalo->m + ($intervalo->y * 12);
+
+                $descuento = getPostValue('descuento',0);
+                $cuota = getPostValue('cuotas',0);
+                $solicitud = getPostValue('fechasolicitud','null');
+                $concepto = getPostValue('info','null');
+                $estado = 'Espera';
+
+                if ($diferenciaEnMeses  <= 5) {
+                    $message = 'Error: El empleado posee menos de 6 meses en la empresa';
+                    ob_start();
+                    include_once '../../View/Components/alerts.php';
+                    $html = ob_get_clean();
+                    $response = array('message' => $message, 'html' => $html);
+                    echo json_encode($response);
+                    exit;
+                }else{
+
+                    if ($Nomina->Insert_Solicitud($cedula, $monto, $descuento, $cuota, $concepto, $solicitud, $estado)){
+                        $message = 'Solicitud enviada';
+                        ob_start();
+                        include_once '../../View/Components/True_alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html);
+                        echo json_encode($response);
+                    }else{
+                        $message = 'Error: Algo salio mal';
+                        ob_start();
+                        include_once '../../View/Components/alerts.php';
+                        $html = ob_get_clean();
+                        $response = array('message' => $message, 'html' => $html);
+                        echo json_encode($response);
+                        exit;
+                    }
                 }
             }
         

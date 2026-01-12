@@ -86,7 +86,7 @@
         data: {
             labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'], // Etiquetas de los pagos
             datasets: [{
-                label: 'Pagos del Mes',
+                label: 'Pagado',
                 data: pagos, // Datos de los pagos
                 backgroundColor: 'rgba(75, 192, 192, 0.8)', // Color de las barras
                 borderColor: 'rgba(75, 192, 192, 1)', // Color del borde
@@ -99,6 +99,15 @@
             plugins: {
                 legend: {
                     display: false, // Ocultar la leyenda
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var value = context.parsed.y;
+                            var formattedValue = value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            return 'Pagado: ' + formattedValue + ' $';
+                        }
+                    }
                 }
             },
             scales: {

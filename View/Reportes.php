@@ -66,7 +66,7 @@
 					</div>
 			</div>
 
-			<div class="empleados__content">
+			<div class="empleados__content"> 
 				<label> Apellidos:</label>
 					<div class="input-group input-group-sm mb-3">
 		  				<input type="text" class="form-control" aria-label="Sizing example input" 
@@ -169,6 +169,8 @@
         <div class="block item-5">
             <?php include_once 'Components/Tables/Tablas-vacaciones.php';?>
         </div>
+		 
+		<div id="alerts"></div>
         </form>
     </main>
     

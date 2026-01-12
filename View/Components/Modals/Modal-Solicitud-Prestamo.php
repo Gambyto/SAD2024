@@ -3,8 +3,8 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="empleadoModalLabel">Solicitar prestamo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="empleadoModalLabel">Solicitar préstamo</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
             <form id="FormEmpleadoModal" class="needs-validation" style="gap: 1rem; display: flex;
@@ -36,10 +36,21 @@
                 <label for="monto" class="form-label">Monto</label>
                 <div class="input-group has-validation">
                     <span class="input-group-text" id="inputGroupPrepend">$</span>
-                    <input type="text" class="form-control" id="monto" 
+                    <input type="text" class="form-control" id="monto"
                     name="monto" maxlength="7"
-                    oninput="formatInput(this); updateCuotas(this.value)"
+                    oninput="formatInput(this); updateCuotas(this.value); validateMonto()"
                     required>
+                    <span class="input-group-text info-span">
+                        <span class="info-spantext"> Advertencia: <br> - El monto debe ser mayor a $0. <br> - El monto máximo es de $2000. </span> <!-- Colocar restrigciones de prestamos-->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle info-circle">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                            <path d="M12 9h.01" />
+                            <path d="M11 12h1v4h1" />
+                        </svg>
+                    </span>
                     <div class="invalid-feedback">
                         Monto requerido.
                     </div>
@@ -56,7 +67,7 @@
             </div>
             </div>
 
-            <div class="empleados__content">
+            <div class="empleados__content" style="margin-top: 1rem;">
                 <div class="a2">
                     <label for="descuento" class="form-label">Monto a descontar por cuota</label>
                     <div class="input-group has-validation"> 
@@ -108,7 +119,7 @@
         <div class="modal-footer">
                 <div class="col-12">
                     <button class="btn btn-outline-primary" type="button" onclick="Guardar()">Solicitar</button>
-                    <button class="btn btn-outline-danger" type="reset">Cancelar</button>
+                    <button class="btn btn-outline-danger" type="reset" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
     </div>
@@ -133,6 +144,8 @@
                         $('#nombre').val(datos.nombre);
                         $('#cedula1').val(datos.cedula);
                         $('#apellido').val(datos.apellido);
+                        var F_ingreso = datos.f_ingreso;
+                        alert('Fecha de ingreso: ' + F_ingreso);
                     } else {
                         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                         $('#nombre').val('');
@@ -159,10 +172,10 @@
         { min: 0, max: 50, options: [4] },
         { min: 50, max: 150, options: [4, 12] },
         { min: 150, max: 250, options: [4, 12, 24] },
-        { min: 250, max: 1000, options: [4, 12, 24, 48] }
+        { min: 250, max: 2000, options: [4, 12, 24, 48] }
     ];
 
-    const cuotasRange = cuotasOptions.find(range => monto >= range.min && monto < range.max);
+    const cuotasRange = cuotasOptions.find(range => monto >= range.min && monto <= range.max);
 
     if (cuotasRange) {
         cuotasRange.options.forEach(option => {
@@ -240,6 +253,26 @@ function dateinterval(limite) {
     });
 }
 
+function validateMonto() {
+    const montoInput = document.getElementById('monto');
+    const montoValue = parseFloat(montoInput.value) || 0;
+    const feedbackDiv = montoInput.parentElement.querySelector('.invalid-feedback');
+
+    // Remove previous validation classes
+    montoInput.classList.remove('is-valid', 'is-invalid');
+
+    if (montoValue <= 0) {
+        montoInput.classList.add('is-invalid');
+        feedbackDiv.textContent = 'El monto debe ser mayor a $0.';
+    } else if (montoValue > 2000) {
+        montoInput.classList.add('is-invalid');
+        feedbackDiv.textContent = 'El monto máximo es de $2000.';
+    } else {
+        montoInput.classList.add('is-valid');
+        feedbackDiv.textContent = '';
+    }
+}
+
 function Guardar(){
         // Recoger todos los datos del formulario usando serialize
         const formData = $('#FormEmpleadoModal').serialize();
@@ -248,11 +281,16 @@ function Guardar(){
             type: 'POST',
             data: formData,
             success: function(response) {
+                console.log(response);
                 if (response) {
-                    
-                    // Limpiar el formulario o realizar otra acción
+                var data = JSON.parse(response);
+                
+                    if (data.html) {
+                    $('#alerts').html(data.html);
+                } else {
+                    alert(data.message);
+                }
                     $('#form')[0].reset(); // Limpiar el formulario
-                    window.location.reload(); // Recargar la página
                 } else {
                     alert('Error al guardar los datos. Intente nuevamente.');
                 }

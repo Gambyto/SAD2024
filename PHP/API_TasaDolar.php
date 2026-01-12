@@ -21,19 +21,25 @@ libxml_clear_errors();
 
 $xpath = new DOMXPath($dom);
 $tasaElements = $xpath->query('//div[@id="dolar"]//div[contains(@class, "centrado")]/strong');
+$tasaElementsEUR = $xpath->query('//div[@id="euro"]//div[contains(@class, "centrado")]/strong');
 
-if ($tasaElements->length > 0) {
+if ($tasaElements->length > 0 and $tasaElementsEUR->length > 0) {
     $tasa_del_dia = trim($tasaElements->item(0)->nodeValue);
     $tasa_del_dia = str_replace('"', '', $tasa_del_dia);
     $tasa_del_dia = str_replace(',', '.', $tasa_del_dia);
+
+    $tasaEUR = trim($tasaElementsEUR->item(0)->nodeValue);
+    $tasaEUR = str_replace('"', '', $tasaEUR);
+    $tasaEUR = str_replace(',', '.', $tasaEUR);
     //echo "Tasa del día encontrada: " . $tasa_del_dia . "<br>"; // Mensaje de depuración
 } else {
     die();
 }
 
 $tasa_del_dia = (float)$tasa_del_dia;
+$tasaEUR = (float)$tasaEUR;
 
-if ($Nomina->Create_Tasa_Dola($tasa_del_dia)) {
+if ($Nomina->Create_Tasa_Dola($tasa_del_dia, $tasaEUR)) {
    // echo "Tasa del día guardada exitosamente: " . $tasa_del_dia . "<br>";
 } else {
    // echo "Error al guardar la tasa del día.<br>";

@@ -81,6 +81,8 @@
 
         <script src="../JS/Close_modal.js"></script>
         </form>
+
+        <div id="alerts"></div>
     </main>
 
     <script>
