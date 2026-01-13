@@ -1,6 +1,7 @@
 <?php
     $timeservice = $Nomina->Time_Service();
-    $fechasanterior = $Nomina->Time_ServiceAnterior();
+    $fechasanterior = $Nomina->Time_ServiceAnterior(); 
+    $actual_year = date('Y'); 
     
     $change = $timeservice - $fechasanterior;
     $revenue = number_format(($change/$fechasanterior) * 100, 2);
@@ -38,8 +39,8 @@
     
     <div class="indicator__body">
         <small class="text-body-secondary">Tiempo de servicio</small>
-        <h5 class="text-body-primary"><?php echo $year .' Años '. $day .' meses'; ?></h5>
-        <small class="text-body-secondary"> Comparado con: <?php echo $Ayear .' Años '. $Aday .' meses'; ?></small>
+        <h5 class="text-body-primary"><?php echo $year .' Años '. $day .' meses en '. $actual_year; ?></h5>
+        <small class="text-body-secondary"> Comparado con: <?php echo $Ayear .' Años '. $Aday .' meses en '. $actual_year-1; ?></small>
     </div>
 
 </div>
