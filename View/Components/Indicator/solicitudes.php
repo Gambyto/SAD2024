@@ -36,7 +36,7 @@
     </div>
     
     <div class="indicator__body ">
-        <small class="text-body-secondary">Solicitudes de prestamos</small>
+        <small class="text-body-secondary">Solicitudes de préstamos</small>
         <h5 class="text-body-primary">
             <?php
             if ($solicitudes > 0) {

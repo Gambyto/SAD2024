@@ -41,7 +41,7 @@ if ($balance > 50 ){
     </div>
     
     <div class="indicator__body">
-        <small class="text-body-secondary">Tasa de reembolso de los prestamos</small>
+        <small class="text-body-secondary">Tasa de reembolso de los préstamos</small>
         <h5 class="text-body-primary"><?php
         echo $balance. '% han sido pagados'; // Muestra el promedio mensual
         ?></h5>

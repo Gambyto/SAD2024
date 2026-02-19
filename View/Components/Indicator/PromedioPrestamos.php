@@ -42,7 +42,7 @@ $fecha_fin_formateada = $fecha_fin->format('d/m/Y');
     </div>
     
     <div class="indicator__body">
-        <small class="text-body-secondary">Promedio de monto en prestamos</small>
+        <small class="text-body-secondary">Promedio de monto en préstamos</small>
         <h5 class="text-body-primary"><?php
         echo $mes_promedio. '$ Mes  / '.$semana_promedio.'$ Semana'; // Muestra el promedio mensual
         ?></h5>

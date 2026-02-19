@@ -1,4 +1,4 @@
-<?php
+ <?php
 include_once '../CLASS/user_Original.php'; // Asegúrate de incluir la clase que contiene la función obtenerPagosNomina
 
 $mes = $_POST['mes'] ?? date('n'); // Obtener el mes del POST, o el mes actual si no se proporciona

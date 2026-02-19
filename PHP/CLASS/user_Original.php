@@ -410,7 +410,7 @@ class Nomina extends connect
 		return $pagosSemanales;
 	}
 
-	public function Vendedores_Nomina() {
+public function Vendedores_Nomina() {
 		$query = "SELECT * FROM vista_vendedores 
 				  WHERE mes = MONTH(CURDATE())
 				  ORDER BY anio DESC";
@@ -422,6 +422,7 @@ class Nomina extends connect
 			}
 		return $data;
 	}
+
 
 	public function MAX_Vendedores() {
 		$query = "SELECT * FROM `vista_vendedores` WHERE t_comiciones = 
