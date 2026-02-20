@@ -410,6 +410,31 @@ class Nomina extends connect
 		return $pagosSemanales;
 	}
 
+public function View_Nomina_Historial()
+{
+    $query = "SELECT 
+                MIN(nomina.fecha)                                       AS fecha_inicio,
+                MAX(nomina.fecha)                                       AS fecha_fin,
+                YEAR(nomina.fecha)                                      AS anio,
+                WEEK(nomina.fecha, 1)                                   AS semana,
+                COUNT(*)                                                AS total_empleados,
+                SUM(nomina.neto)                                        AS total_neto_usd,
+                SUM(TRUNCATE(nomina.neto * tasa_dolar.tasa_del_dia, 2)) AS total_neto_bs
+              FROM nomina
+              JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa
+              WHERE nomina.estado = 1
+              GROUP BY YEAR(nomina.fecha), WEEK(nomina.fecha, 1)
+              ORDER BY anio DESC, semana DESC";
+
+    $result = $this->connect_db()->query($query);
+
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
 public function Vendedores_Nomina() {
 		$query = "SELECT * FROM vista_vendedores 
 				  WHERE mes = MONTH(CURDATE())
@@ -423,6 +448,69 @@ public function Vendedores_Nomina() {
 		return $data;
 	}
 
+	public function Search_Nomina_Fecha($fecha) {
+    $query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, 
+                empleados.sueldo, nomina.sueldosem, prestamos.descuento AS desc2,
+                cuentas_por_pagar.descuento AS desc1, 
+                (nomina.bonificaciones + nomina.comisiones) AS asignaciones, 
+                nomina.neto, TRUNCATE(nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs, 
+                tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha, nomina.estado
+                
+            FROM nomina
+            JOIN empleados ON nomina.cedula_FK = empleados.cedula
+            JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa
+            LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
+            LEFT JOIN prestamos ON nomina.prestamos = prestamos.id_prestamos
+
+            WHERE nomina.estado = 1
+            AND nomina.fecha = '$fecha'";
+
+    $result = $this->connect_db()->query($query);
+
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+public function Search_Nomina_Semana($semana, $anio)
+{
+    $query = "SELECT 
+                id_nomina,
+                empleados.nombre, empleados.apellido, empleados.cedula,
+                empleados.sueldo, nomina.sueldosem,
+                COALESCE(
+                    (SELECT SUM(cpp2.aporte) 
+                     FROM cuentas_por_pagar2 cpp2 
+                     WHERE cpp2.id_prestamo = nomina.prestamos 
+                     AND cpp2.fecha = nomina.fecha
+                     AND cpp2.estado = 1),
+                    0
+                ) AS desc2,
+                cuentas_por_pagar.descuento AS desc1,
+                (nomina.bonificaciones + nomina.comisiones) AS asignaciones,
+                nomina.neto,
+                TRUNCATE(nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs,
+                tasa_dolar.tasa_del_dia AS TasaBCV, 
+                nomina.fecha
+
+            FROM nomina
+            JOIN empleados   ON nomina.cedula_FK  = empleados.cedula
+            JOIN tasa_dolar  ON nomina.tasaBCV_FK = tasa_dolar.id_tasa
+            LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
+
+            WHERE nomina.estado = 1
+            AND WEEK(nomina.fecha, 1) = '$semana'
+            AND YEAR(nomina.fecha)    = '$anio'";
+
+    $result = $this->connect_db()->query($query);
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
 
 	public function MAX_Vendedores() {
 		$query = "SELECT * FROM `vista_vendedores` WHERE t_comiciones = 
@@ -452,30 +540,43 @@ public function Vendedores_Nomina() {
 	}
 
 	public function View_Nomina()
-	{
-		$query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, 
-		empleados.sueldo, nomina.sueldosem, prestamos.descuento AS desc2,
-		cuentas_por_pagar.descuento AS desc1, 
-		(nomina.bonificaciones + nomina.comisiones) AS asignaciones, 
-		nomina.neto, TRUNCATE (nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs, tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha, nomina.estado
-			
-			FROM nomina
-			JOIN empleados ON nomina.cedula_FK = empleados.cedula
-			JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa
-			LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
-			LEFT JOIN prestamos ON nomina.prestamos = prestamos.id_prestamos
+{
+    $query = "SELECT 
+                id_nomina, 
+                empleados.nombre, empleados.apellido, empleados.cedula, 
+                empleados.sueldo, nomina.sueldosem,
+                COALESCE(
+                    (SELECT SUM(cpp2.aporte) 
+                     FROM cuentas_por_pagar2 cpp2 
+                     WHERE cpp2.id_prestamo = nomina.prestamos 
+                     AND cpp2.fecha = nomina.fecha
+                     AND cpp2.estado = 1), 
+                    0
+                ) AS desc2,
+                cuentas_por_pagar.descuento AS desc1,
+                (nomina.bonificaciones + nomina.comisiones) AS asignaciones,
+                nomina.neto, 
+                TRUNCATE(nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs, 
+                tasa_dolar.tasa_del_dia AS TasaBCV, 
+                nomina.fecha, nomina.estado
 
-			WHERE nomina.estado = 1		
-			AND WEEK(nomina.fecha) = WEEK(CURDATE())";
-  		
-  		$result = $this->connect_db()->query($query);
+            FROM nomina
+            JOIN empleados    ON nomina.cedula_FK   = empleados.cedula
+            JOIN tasa_dolar   ON nomina.tasaBCV_FK  = tasa_dolar.id_tasa
+            LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
 
-  		$data = array();
-  		while ($row = mysqli_fetch_assoc($result)) {
-    	$data[] = $row;
-  		}
-  		return $data;
-	}
+            WHERE nomina.estado = 1
+            AND WEEK(nomina.fecha, 1) = WEEK(CURDATE(), 1)
+            AND YEAR(nomina.fecha)    = YEAR(CURDATE())";
+
+    $result = $this->connect_db()->query($query);
+    $data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
 
 	public function validarPagoEmpleado($cedula) {
 		$query = "SELECT * FROM nomina WHERE cedula_FK = '$cedula' AND estado = 1 AND WEEK(fecha) = WEEK(CURDATE())";
@@ -935,16 +1036,18 @@ public function Vendedores_Nomina() {
 
 
 // Función para el modulo de prestamos y cuentas por pagar 
-public function Discount_cuentas_por_pagar($cedula,$desc)
-	{
-		$query = "UPDATE cuentas_por_pagar SET monto_desc= monto_desc - $desc WHERE cedula_FK = $cedula AND monto_desc > 0";
-  		
-		if ($result= $this->connect_db()->query($query)){
-			return true;
-		}else {
-			return false;
-		}
-	}
+public function Discount_cuentas_por_pagar($id_cuentasp, $aporte)
+{
+    $query = "UPDATE cuentas_por_pagar 
+              SET monto_desc = monto_desc - $aporte 
+              WHERE id_cuentasp = $id_cuentasp AND monto_desc > 0";
+
+    if ($result = $this->connect_db()->query($query)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 public function Display_cuentas_por_pagar($cedula)
 	{
@@ -960,16 +1063,18 @@ public function Display_cuentas_por_pagar($cedula)
       			return $data;
       		}
 	}
-public function Discount_Prestamos($cedula,$desc)
-	{
-		$query = "UPDATE prestamos SET monto_desc= monto_desc - $desc WHERE cedula_FK = $cedula AND monto_desc > 0";
-  		
-		if ($result= $this->connect_db()->query($query)){
-			return true;
-		}else {
-			return false;
-		}
-	}
+public function Discount_Prestamos($id_prestamo, $aporte)
+{
+    $query = "UPDATE prestamos 
+              SET monto_desc = monto_desc - $aporte 
+              WHERE id_prestamos = $id_prestamo AND monto_desc > 0";
+
+    if ($result = $this->connect_db()->query($query)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 public function GetID_Prestamos($ID)
 	{
@@ -988,22 +1093,35 @@ public function GetID_Prestamos($ID)
 	}
 
 public function Display_Prestamos($cedula)
-	{
-		$query = "SELECT empleados.nombre, empleados.apellido,
-		prestamos.id_prestamos, prestamos.descuento, prestamos.monto, 
-		prestamos.monto_desc, id_prestamos
-		 FROM empleados 
-					INNER JOIN prestamos ON empleados.cedula = prestamos.cedula_FK 
-					WHERE monto_desc > 0 AND empleados.cedula = '$cedula' AND prestamos.estado = 1";
-  		
-  		$result = $this->connect_db()->query($query);
+{
+    $query = "SELECT 
+                p.id_prestamos,
+                p.descuento,
+                p.monto,
+                p.monto_desc,
+                COALESCE(
+                    (SELECT cpp2.aporte 
+                     FROM cuentas_por_pagar2 cpp2 
+                     WHERE cpp2.id_prestamo = p.id_prestamos 
+                     AND WEEK(cpp2.fecha, 1) = WEEK(CURDATE(), 1)
+                     AND YEAR(cpp2.fecha)    = YEAR(CURDATE())
+                     AND cpp2.estado = 1
+                     ORDER BY cpp2.id_cp DESC LIMIT 1),
+                    p.descuento
+                ) AS aporte_semana
+              FROM prestamos p
+              INNER JOIN empleados e ON e.cedula = p.cedula_FK
+              WHERE p.monto_desc > 0 
+              AND e.cedula = '$cedula' 
+              AND p.estado = 1";
 
- 			if ($result->num_rows > 0) 
- 			{
-      			$data = $result->fetch_assoc();
-      			return $data;
-      		}
-	}
+    $result = $this->connect_db()->query($query);
+
+    if ($result->num_rows > 0) {
+        $data = $result->fetch_assoc();
+        return $data;
+    }
+}
 
 	public function Display_Prestamos_tabla($cedula)
 	{
@@ -1616,6 +1734,36 @@ public function cuentas_por_pagar_View()
 				return false;
 			}
 		}
+
+		public function Display_Prestamos_Aporte($cedula)
+{
+    $query = "SELECT 
+                p.id_prestamos,
+                p.monto_desc,
+                p.descuento,
+                COALESCE(
+                    (SELECT cpp2.aporte 
+                     FROM cuentas_por_pagar2 cpp2 
+                     WHERE cpp2.id_prestamo = p.id_prestamos
+                     AND WEEK(cpp2.fecha, 1) = WEEK(CURDATE(), 1)
+                     AND YEAR(cpp2.fecha)    = YEAR(CURDATE())
+                     AND cpp2.estado = 1
+                     ORDER BY cpp2.id_cp DESC LIMIT 1),
+                    p.descuento
+                ) AS aporte_semana
+              FROM prestamos p
+              WHERE p.cedula_FK = '$cedula' 
+              AND p.monto_desc > 0 
+              AND p.estado = 1
+              LIMIT 1";
+
+    $result = $this->connect_db()->query($query);
+
+    if ($result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    return null;
+}
 
 		
 	}
