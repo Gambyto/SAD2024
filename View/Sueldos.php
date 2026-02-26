@@ -68,18 +68,31 @@
                 <div class="empleados__content">
                     <label for="cedula"> Cédula</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" 
-                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                            id="cedula" name="cedula" 
-                            required maxlength="8" 
+                        <input type="text" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                            id="cedula" name="cedula"
+                            required maxlength="8"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '');"
                             onkeyup="buscarEmpleado(this.value)">
 
-                            <input type="hidden" id="cedula1" name="cedula1">
+                        <!-- Botón que abre el modal de empleados pendientes -->
+                        <button class="btn btn-outline-secondary" type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalBuscarEmpleado"
+                                title="Ver empleados pendientes de pago">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                                class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1z"/>
+                                <path d="M13.5 5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                                <path fill-rule="evenodd"
+                                    d="M13.5 5H10a.5.5 0 0 0 0 1h3.5a.5.5 0 0 0 0-1zm0 2H10a.5.5 0 0 0 0 1h3.5a.5.5 0 0 0 0-1z"/>
+                            </svg>
+                        </button>
 
-                            <!--<input type="submit" class="btn btn-outline-info" 
-                            value="Buscar" name="Buscar" id="Buscar">-->
-                        </div>
+                        <input type="hidden" id="cedula1" name="cedula1">
+                    </div>
+
+                    <?php include_once 'Components/Modals/Modal-BuscarEmpleado.php'; ?>
                 </div>
 
                 <div class="empleados__content" style="display: flex; gap: 1rem;">

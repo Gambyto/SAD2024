@@ -8,15 +8,6 @@ session_start();
 	include '../../PHP/CLASS/user_Original.php'; 
 
 ob_start();
-
-/*   		Comentario para Sabastian
-
-1- este es el encabezado qeu vas a a copiar en todos los diseños de pdf.
-
-2- intenta mantener en código CSS lo más limpio posible, osea que lo que coloques en el CSS lo uses en realidad
-
-3- intenta tener semantica HTML, ejmplo cuando uses una <table> hay etiquetas de semantica para esa etiqueta (<thead>, <tbody>)
-*/
 ?>
 <!DOCTYPE html>
 	<html lang="es">
@@ -44,68 +35,46 @@ ob_start();
 				display: flex;
 				justify-content: space-between;
 			}
-
-			table#tablados, th, td { border: 1px solid black;
-
+			table#tablados, th, td { 
+				border: 1px solid black;
 				text-align: center;
-
-
-
 			}
 			td{
 				padding: 10px
 			}
 			td {text-align: left;}
-
 			th#NP{
 				text-align: left;
-
-
 			}
-
 			th#Bs{
 				text-align: left;
-
-
 			}
-
 			th#TT{
 				text-align: left;
-
-
 			}
-
 			.left-image {
-	    float: left;
-	    margin-right: 10px; /* Añade un margen derecho para separar el texto de la imagen */
-	  }
-
-
-	.fila-gruesa {
-	    height: 70px; 
-	  }
-
-	  div#RIF {
-
-	  	text-align: left;
-	  }
-
+				float: left;
+				margin-right: 10px;
+			}
+			.fila-gruesa {
+				height: 70px; 
+			}
+			div#RIF {
+				text-align: left;
+			}
 			.RIF {
-	  			text-align: left;
-	  			margin-bottom: -1px;
-	  		}
-
+				text-align: left;
+				margin-bottom: -1px;
+			}
 			.encabezado {
 				text-align: center;
 				margin: auto;
 				padding-right: 84px;
 			}
-
 			.recibo {
 				text-align: center;
 				margin: auto;
 			}
-
 			.datasSolicitados{
 				margin-left: 0.1%; 
 				margin-top: -0.10%; 		 
@@ -113,8 +82,7 @@ ob_start();
 				height: 45px;
 				justify-content: space-between;
 				display: flex;
-		}
-
+			}
 		</style>
 	</head>
 	<body> 
@@ -139,16 +107,12 @@ ob_start();
 					</div>
 				</th>
 			</tr>
-
-					
-		
-
 		</table>
 
 		<table style="width: 100%; border: solid black 1px; margin-top: -0.15%;">
 			<tr>
 				<th>
-					<div class="datasSolicitados";>
+					<div class="datasSolicitados">
 						<p style="text-align: left; padding-top: -35px;">Nombre: <?=$data['nombre']?> <?=$data['apellido']?><br>	
 							Cédula: <?=$data['cedula']?> <br>
 							Cargo: <?=$data['cargo']?><br>
@@ -173,65 +137,45 @@ ob_start();
 			</tr>
 		</table>
 
-
-							
-
-
-
-
-
+		<table style="width: 100%; margin-top: -0.20%;">
+			<tr>
+				<th>Concepto</th>
+				<th>Cuotas</th>
+				<th>Deuda</th>
+				<th colspan="2">Aporte</th>
+				<th>Total</th>
+			</tr>
+			<tr>
+				<td>Préstamo (<?=$data['monto_prestamo']?> $)</td>
+				<td><?=$data['cuotas']?> (semanal)</td>
+				<td><?=$data['deuda'] + $data['aporte']?> $</td>
+				<td style="width: 15%;"><?=$data['aporte']?> $</td>
+				<td><?=number_format($data['aporte'] * $data['tasa'],2)?> Bs.</td>
+				<td><?=$data['deuda']?> $</td>
+			</tr>
+			<tr>
+				<th id="NP" colspan="6">Descripción: <?=$data['concepto'] ?? 'Ninguna'?></th>
+			</tr>
+			<tr>
+				<th id="NP" colspan="6">Tasa BCV aplicada: <?=number_format($data['tasa'], 2)?> Bs/$</th>
+			</tr>
 		</table>
 
-		<table style="width: 100%; margin-top: -0.20%; ">
-			
-			<tr>
-				<th >Concepto</th>
-				<th >Cuotas</th>
-				<th >Deuda</th>
-				<th  colspan="2">Aporte</th>
-				<th >Total</th>
-			</tr>
-
-			<tr>
-				
-				<td> Préstamo (<?=$data['monto_prestamo']?> $)</td>
-				<td> <?=$data['cuotas']?> (semanal) </td>
-				<td> <?=$data['deuda'] + $data['aporte']?> $</td>
-				<td style="width: 15%;"> <?=$data['aporte']?> $ </td>
-				<td> <?=number_format($data['aporte'] * $data['tasa'],2)?> Bs.</td>
-				<td> <?=$data['deuda']?> $</td>
-		
-		
-
-			</tr>
-			<tr>
-				<th id="NP" colspan="6">Descripción: <?=$data['concepto']?> </th>
-			</tr>
-
-
-
-	  
-
-
-		</table>
-			<br>
-			<p style="text-align: center; margin-right: 577px;">Firma Gerente General<br>
-				DISORIENT, C.A.
-			</p>
-			<br>
-			<br>
-			<br>
-			<p style="text-align: center; margin-left: 594px; margin-top: -114px;">Firma del trabajador</p>
-			<br>
-			<br>
-
+		<br>
+		<p style="text-align: center; margin-right: 577px;">Firma Gerente General<br>
+			DISORIENT, C.A.
+		</p>
+		<br>
+		<br>
+		<br>
+		<p style="text-align: center; margin-left: 594px; margin-top: -114px;">Firma del trabajador</p>
+		<br>
+		<br>
 
 	</body>
 	</html>
-<?php /* Este es el pie de pagina que tienes que copiar */
-
+<?php
 $html = ob_get_clean();
-
 
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
@@ -243,10 +187,7 @@ $options->set(array('isRemoteEnabled' => true));
 $dompdf->setOptions($options);
 
 $dompdf->loadHtml($html);
-
 $dompdf->setPaper('letter');
-// $dompdf->setPaper('A4','landscape');
-
 $dompdf->render();
 $dompdf->stream("Nomin_General.pdf", array("Attachment" => false));
- ?>
+?>

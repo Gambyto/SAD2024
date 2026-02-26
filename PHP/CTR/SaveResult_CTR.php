@@ -302,9 +302,11 @@ if (empty($_POST['cedula'])) {
                 exit;
             }
 
-            $monto = getPostValue('monto', 0);
-            if ($monto <= 0) {
-                $message = 'Error: El monto del prestamo debe ser mayor a 0';
+            $monto = (float)getPostValue('monto', 0);
+            if ($monto <= 0 || $monto > 2000) {
+                $message = ($monto <= 0)
+                    ? 'Error: El monto del préstamo debe ser mayor a 0'
+                    : 'Error: El monto del préstamo no puede ser mayor a 2000';
                 ob_start();
                 include_once '../../View/Components/alerts.php';
                 $html = ob_get_clean();

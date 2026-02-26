@@ -631,26 +631,35 @@ public function Search_Nomina_Semana($semana, $anio)
 }
 
 	public function GetID_nomina($ID)
-	{
-		$query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, empleados.sueldo,empleados.f_ingreso, empleados.cargo, nomina.sueldosem, 
-			nomina.bonificaciones, nomina.comisiones, nomina.neto, 
-			TRUNCATE (nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs, 
-			prestamos.descuento AS Ptm , cuentas_por_pagar.descuento AS cpp, 
-			tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha 
+{
+    $query = "SELECT id_nomina, empleados.nombre, empleados.apellido, empleados.cedula, 
+        empleados.sueldo, empleados.f_ingreso, empleados.cargo, nomina.sueldosem, 
+        nomina.bonificaciones, nomina.comisiones, nomina.neto, 
+        TRUNCATE(nomina.neto * tasa_dolar.tasa_del_dia, 2) AS netobs,
+        COALESCE(
+            (SELECT SUM(cpp2.aporte) 
+             FROM cuentas_por_pagar2 cpp2 
+             WHERE cpp2.id_prestamo = nomina.prestamos 
+             AND cpp2.fecha = nomina.fecha
+             AND cpp2.estado = 1),
+            0
+        ) AS Ptm,
+        COALESCE(cuentas_por_pagar.descuento, 0) AS cpp,
+        tasa_dolar.tasa_del_dia AS TasaBCV, nomina.fecha 
 
-			FROM nomina JOIN empleados ON nomina.cedula_FK = empleados.cedula JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa 
-			LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
-			LEFT JOIN prestamos ON nomina.prestamos = prestamos.id_prestamos
+        FROM nomina 
+        JOIN empleados ON nomina.cedula_FK = empleados.cedula 
+        JOIN tasa_dolar ON nomina.tasaBCV_FK = tasa_dolar.id_tasa 
+        LEFT JOIN cuentas_por_pagar ON nomina.cuentasp = cuentas_por_pagar.id_cuentasp
 
-			WHERE id_nomina = '$ID'";
-			
-			$result= $this->connect_db()->query($query);
- 			if ($result->num_rows > 0) 
- 			{
-      			$data = $result->fetch_assoc();
-      			return $data;
-      		}
-	}
+        WHERE id_nomina = '$ID'";
+        
+    $result = $this->connect_db()->query($query);
+    if ($result->num_rows > 0) {
+        $data = $result->fetch_assoc();
+        return $data;
+    }
+}
 
 	public function Create_Nomina($cedula, $cuentasp, $prestamos, $sueldosem, $neto, $bono, $comis)
 {
@@ -697,7 +706,38 @@ public function Search_Nomina_Semana($semana, $anio)
       		}
 	}
 
+	/* ─────────────────────────────────────────────────────────────────
+   AGREGAR este método dentro de la clase Nomina en user_Original.php
+   Ubicación sugerida: antes del cierre de la clase (línea ~1785)
+   justo encima de:   $User = new UserE();
+─────────────────────────────────────────────────────────────────── */
 
+public function View_Empleados_Sin_Pago_Semana()
+{
+    $query = "SELECT 
+                e.cedula,
+                e.nombre,
+                e.apellido,
+                e.cargo
+              FROM empleados e
+              WHERE e.estado = 1
+                AND e.cedula NOT IN (
+                    SELECT n.cedula_FK
+                    FROM nomina n
+                    WHERE n.estado = 1
+                      AND WEEK(n.fecha, 1) = WEEK(CURDATE(), 1)
+                      AND YEAR(n.fecha)    = YEAR(CURDATE())
+                )
+              ORDER BY e.apellido ASC, e.nombre ASC";
+
+    $result = $this->connect_db()->query($query);
+
+    $data = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
 
 	// Funciones para el modulo de Vacaciones y utlidades
 	public function View_Vacation()
@@ -1254,21 +1294,28 @@ tasa_dolar.tasa_del_dia AS tasa
 	}
 	
 	public function Recibo($id) {
-		$query = "SELECT id_cp AS id, id_prestamo, prestamos.cedula_FK AS cedula, empleados.nombre, empleados.apellido, empleados.cargo,
-cuentas_por_pagar2.deuda, cuentas_por_pagar2.aporte, cuentas_por_pagar2.tpago AS tipo_pago, cuentas_por_pagar2.refe, cuentas_por_pagar2.fecha AS fecha,
-prestamos.concepto, prestamos.monto AS monto_prestamo, prestamos.cuotas, prestamos.fecha AS fecha_solicitud,
-tasa_dolar.tasa_del_dia AS tasa
-				FROM cuentas_por_pagar2 
-                INNER JOIN prestamos ON id_prestamo = prestamos.id_prestamos
-                INNER JOIN empleados ON prestamos.cedula_FK = empleados.cedula
-                INNER JOIN tasa_dolar ON prestamos.tasaBCV_FK = tasa_dolar.id_tasa
-                WHERE prestamos.estado = 1 AND empleados.estado = 1 AND id_cp = $id";
-  		
-  		$result = $this->connect_db()->query($query);
+    $query = "SELECT id_cp AS id, id_prestamo, prestamos.cedula_FK AS cedula, 
+        empleados.nombre, empleados.apellido, empleados.cargo,
+        cuentas_por_pagar2.deuda, cuentas_por_pagar2.aporte, 
+        cuentas_por_pagar2.tpago AS tipo_pago, cuentas_por_pagar2.refe, 
+        cuentas_por_pagar2.fecha AS fecha,
+        prestamos.concepto, prestamos.monto AS monto_prestamo, 
+        prestamos.cuotas, prestamos.fecha AS fecha_solicitud,
+        tasa_dolar.tasa_del_dia AS tasa
+        FROM cuentas_por_pagar2 
+        INNER JOIN prestamos ON id_prestamo = prestamos.id_prestamos
+        INNER JOIN empleados ON prestamos.cedula_FK = empleados.cedula
+        INNER JOIN tasa_dolar ON tasa_dolar.fecha = DATE(cuentas_por_pagar2.fecha)
+        WHERE  
+         empleados.estado = 1 
+        AND id_cp = $id
+        ORDER BY tasa_dolar.id_tasa DESC
+        LIMIT 1";
 
-		  $data = mysqli_fetch_assoc($result);
-		  return $data;
-	}
+    $result = $this->connect_db()->query($query);
+    $data = mysqli_fetch_assoc($result);
+    return $data;
+}
 
 public function Prestamos_View_report() {
 		$query = "SELECT id_prestamos, empleados.nombre, empleados.apellido, empleados.cedula, 
