@@ -1,6 +1,10 @@
 <?php require 'Components/Header.php';?>
 
 <?php if ($_SESSION['type'] == "Trabajador") { ?>
+
+    <!-- Cápsula Saldo Disponible (NUEVO) -->
+    <?php include_once 'Components/Modals/Modal-SaldoPrestamo.php'; ?>
+
     <a onclick="openModal()"
         class="btn btn-primary"> Solicitar Préstamo
         <svg  xmlns="http://www.w3.org/2000/svg"  
@@ -90,4 +94,3 @@
         $('#solicitudes').modal('show');
         }
     </script>
-    

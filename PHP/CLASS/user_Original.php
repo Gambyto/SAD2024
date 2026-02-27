@@ -706,12 +706,6 @@ public function Search_Nomina_Semana($semana, $anio)
       		}
 	}
 
-	/* ─────────────────────────────────────────────────────────────────
-   AGREGAR este método dentro de la clase Nomina en user_Original.php
-   Ubicación sugerida: antes del cierre de la clase (línea ~1785)
-   justo encima de:   $User = new UserE();
-─────────────────────────────────────────────────────────────────── */
-
 public function View_Empleados_Sin_Pago_Semana()
 {
     $query = "SELECT 
@@ -1423,6 +1417,58 @@ public function View_Promedio_Prestamos(){
   		return $data;
 	}
 
+public function Get_Saldo_Prestamos($cedula)
+{
+    $limite = 2000;
+
+    $query = "SELECT 
+                COALESCE(SUM(p.monto_desc), 0) AS total_pendiente
+              FROM prestamos p
+              WHERE p.cedula_FK = '$cedula'
+                AND p.monto_desc > 0
+                AND p.estado = 1";
+
+    $result = $this->connect_db()->query($query);
+    $row    = $result->fetch_assoc();
+
+    $pendiente = (float) $row['total_pendiente'];
+    $saldo     = max(0, $limite - $pendiente);
+
+    return [
+        'limite'     => $limite,
+        'pendiente'  => $pendiente,
+        'saldo'      => $saldo,
+        'porcentaje' => round(($pendiente / $limite) * 100, 1),
+    ];
+}
+
+public function Get_Prestamos_Activos_Trabajador($cedula)
+{
+    $query = "SELECT 
+                p.id_prestamos,
+                p.concepto,
+                p.monto         AS monto_original,
+                p.monto_desc    AS monto_pendiente,
+                p.descuento     AS cuota_semanal,
+                p.cuotas,
+                p.fecha         AS fecha_inicio,
+                p.date_limit    AS fecha_limite,
+                p.estado,
+                ROUND((1 - p.monto_desc / p.monto) * 100, 1) AS progreso
+              FROM prestamos p
+              WHERE p.cedula_FK = '$cedula'
+                AND p.estado = 1
+              ORDER BY p.fecha DESC";
+
+    $result = $this->connect_db()->query($query);
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
 	public function GetID_CPP($ID)
 	{
 		$query = "SELECT id_cuentasp, empleados.nombre, empleados.apellido, empleados.cedula, empleados.cargo, fecha, monto_desc, descuento, cuotas, concepto
@@ -1642,6 +1688,30 @@ public function cuentas_por_pagar_View()
 			return false;
 		}
 	}
+
+	// ── Fideicomiso agrupado por mes ────────────────────────────────────
+public function View_Fideicomiso_Historial()
+{
+    $query = "SELECT
+                DATE_FORMAT(fecha, '%Y-%m')          AS mes,
+                DATE_FORMAT(MIN(fecha), '%d/%m/%Y')  AS fecha_inicio,
+                DATE_FORMAT(MAX(fecha), '%d/%m/%Y')  AS fecha_fin,
+                COUNT(*)                             AS total_empleados,
+                SUM(monto)                           AS total_monto,
+                SUM(anticipo)                        AS total_anticipo
+              FROM fideicomiso
+              GROUP BY DATE_FORMAT(fecha, '%Y-%m')
+              ORDER BY mes DESC";
+
+    $result = $this->connect_db()->query($query);
+    $data   = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+
 
 	/* Funciones de Eliminar */
 	public function Eliminate_Nomina($ID)
