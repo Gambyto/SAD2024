@@ -120,7 +120,7 @@
         <div class="modal-footer">
                 <div class="col-12">
                     <button class="btn btn-outline-primary" type="button" onclick="Guardar()">Solicitar</button>
-                    <button class="btn btn-outline-danger" type="reset" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-outline-danger" id="btn-cancelar-modal" type="reset" data-bs-dismiss="modal">Cancelar</button>
                 </div>
             </div>
     </div>
@@ -130,6 +130,7 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         
         <script>
+            
         buscarUsuario();
         function buscarUsuario() {
             const cedula = '<?php echo $_SESSION['id']; ?>';
@@ -145,7 +146,7 @@
                         $('#nombre').val(datos.nombre);
                         $('#cedula1').val(datos.cedula);
                         $('#apellido').val(datos.apellido);
-                        $('#f_ingreso').val(datos.f_ingreso);
+                        $('#f_ingreso').val(datos.f_ingreso); 
                     } else {
                         // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
                         $('#nombre').val('');
@@ -274,31 +275,49 @@ function validateMonto() {
     }
 }
 
-function Guardar(){
-        // Recoger todos los datos del formulario usando serialize
-        const formData = $('#FormEmpleadoModal').serialize();
-        $.ajax({
-            url: '../PHP/CTR/SaveResult_CTR.php', 
-            type: 'POST',
-            data: formData, f_ingreso, 
-            success: function(response) {
-                console.log(response);
-                if (response) {
+function Guardar() {
+    const formData = $('#FormEmpleadoModal').serialize();
+    $.ajax({
+        url: '../PHP/CTR/SaveResult_CTR.php',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            console.log(response);
+            if (response) {
                 var data = JSON.parse(response);
-                
-                    if (data.html) {
+
+                if (data.html) {
+                    // Muestra el primer mensaje
                     $('#alerts').html(data.html);
+
+                    // Solo cierra el modal y muestra el segundo mensaje si NO es un error
+                    if (!data.html.includes('notification--failure')) {
+                        $('#solicitudes').modal('hide');
+
+                        if (data.html2) {
+                            setTimeout(function() {
+                                $('#alerts').append(data.html2);
+                            }, 3500);
+                        }
+                    }
+
                 } else {
                     alert(data.message);
                 }
-                    $('#form')[0].reset(); // Limpiar el formulario
-                } else {
-                    alert('Error al guardar los datos. Intente nuevamente.');
-                }
-            },
-            error: function() {
-                alert('Error en la conexión al servidor. Intente nuevamente.');
+
+                const nombre = $('#nombre').val();
+                const apellido = $('#apellido').val();
+                $('#FormEmpleadoModal')[0].reset();
+                $('#nombre').val(nombre);
+                $('#apellido').val(apellido);
+
+            } else {
+                alert('Error al guardar los datos. Intente nuevamente.');
             }
-        });
-    };
+        },
+        error: function() {
+            alert('Error en la conexión al servidor. Intente nuevamente.');
+        }
+    });
+}
 </script>

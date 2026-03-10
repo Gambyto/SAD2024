@@ -424,13 +424,20 @@ if (empty($_POST['cedula'])) {
             $concepto  = getPostValue('info', 'null');
             $estado    = 'Espera';
 
-            if ($Nomina->Insert_Solicitud($cedula, $monto, $descuento, $cuota, $concepto, $solicitud, $estado)) {
+           if ($Nomina->Insert_Solicitud($cedula, $monto, $descuento, $cuota, $concepto, $solicitud, $estado)) {
                 $message = 'Solicitud enviada';
                 ob_start();
                 include_once '../../View/Components/True_alerts.php';
                 $html = ob_get_clean();
-                echo json_encode(['message' => $message, 'html' => $html]);
-            } else {
+
+                $message = 'Su solicitud está siendo revisada por el departamento de nómina'; // ← reutiliza $message
+                ob_start();
+                include_once '../../View/Components/alertsW.php';
+                $html2 = ob_get_clean();
+
+                echo json_encode(['message' => $message, 'html' => $html, 'html2' => $html2]);
+                exit;
+            }else {
                 $message = 'Error: Algo salio mal al procesar la solicitud';
                 ob_start();
                 include_once '../../View/Components/alerts.php';

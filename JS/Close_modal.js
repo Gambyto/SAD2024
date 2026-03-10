@@ -4,4 +4,3 @@ $('.modal .btn-close').on('click', function() {
     $(this).closest('.modal').modal('hide');
 });
 
-
