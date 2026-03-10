@@ -579,7 +579,9 @@ public function Search_Nomina_Semana($semana, $anio)
 
 
 	public function validarPagoEmpleado($cedula) {
-		$query = "SELECT * FROM nomina WHERE cedula_FK = '$cedula' AND estado = 1 AND WEEK(fecha) = WEEK(CURDATE())";
+		$query = "SELECT * FROM nomina WHERE cedula_FK = '$cedula' AND estado = 1 
+					AND WEEK(fecha) = WEEK(CURDATE()) 
+					AND YEAR(fecha) = YEAR(CURDATE())";
 		$result = $this->connect_db()->query($query);
 	
 		if ($result->num_rows > 0) {
