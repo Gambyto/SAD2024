@@ -280,7 +280,7 @@ function filtrarTabla(cedula) {
         { min: 0, max: 50, options: [4] },
         { min: 50, max: 150, options: [4, 12] },
         { min: 150, max: 250, options: [4, 12, 24] },
-        { min: 250, max: 1000, options: [4, 12, 24, 48] }
+        { min: 250, max: 2001, options: [4, 12, 24, 48] }
     ];
 
     const cuotasRange = cuotasOptions.find(range => monto >= range.min && monto < range.max);
@@ -314,32 +314,36 @@ function updateCampos() {
 
 
 function Guardar(){
-        // Recoger todos los datos del formulario usando serialize
-        const formData = $('#form').serialize();
-        $.ajax({
-            url: '../PHP/CTR/SaveResult_CTR.php', 
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                console.log(response);
-                if (response) {
+    const formData = $('#form').serialize();
+    $.ajax({
+        url: '../PHP/CTR/SaveResult_CTR.php', 
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            console.log(response);
+            if (response) {
                 var data = JSON.parse(response);
                 
-                    if (data.html) {
+                if (data.html) {
                     $('#alerts').html(data.html);
+
+                    // Reset solo si NO es un error
+                    if (!data.html.includes('notification--failure')) {
+                        $('#form')[0].reset();
+                    }
+
                 } else {
                     alert(data.message);
                 }
-                    $('#form')[0].reset(); // Limpiar el formulario
-                } else {
-                    alert('Error al guardar los datos. Intente nuevamente.');
-                }
-            },
-            error: function() {
-                alert('Error en la conexión al servidor. Intente nuevamente.');
+            } else {
+                alert('Error al guardar los datos. Intente nuevamente.');
             }
-        });
-    };
+        },
+        error: function() {
+            alert('Error en la conexión al servidor. Intente nuevamente.');
+        }
+    });
+};
     </script>
 
 

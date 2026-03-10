@@ -83,7 +83,7 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                 echo '<th scope="col" style="text-align: rigth;">' . $dato['monto'] . ' $</th>';
                 echo '<th scope="col">' . $dato['cuotas'] . '</th>';
                 echo '<th scope="col">' . $dato['monto_desc'] . ' $</th>';
-                echo '<th scope="col">' . $dato['fecha'] . ' $</th>';
+                echo '<th scope="col">' . $dato['fecha'] . '</th>';
                 echo '<th scope="col">' . $dato['date_limit'] . '</th>';
                 if ($_SESSION['type'] == 'Gerencia') {
                 echo '<th>
