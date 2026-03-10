@@ -781,3 +781,12 @@
 @media (max-width: 576px) {
     .saldo-resumen-grid { grid-template-columns: 1fr; }
 }
+
+#tasa-promedio {
+    cursor: default;
+    pointer-events: none; /* si también quieres deshabilitar el onclick */
+}
+#tasa-promedio:hover {
+    background-color: transparent;
+    transition: none;
+}

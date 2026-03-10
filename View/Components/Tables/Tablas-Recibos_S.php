@@ -99,7 +99,7 @@ $('#cedula1').on('input', function() {
     cambiarPagina(1, cedula, concepto, fecha); // Reiniciar a la primera página
 });
 // Función para manejar la búsqueda
-$('#concepto').on('input', function() {
+$('#concepto').on('change', function() {
     concepto = $(this).val(); // Obtener el valor de búsqueda
     cambiarPagina(1, cedula, concepto, fecha); // Reiniciar a la primera página
 });

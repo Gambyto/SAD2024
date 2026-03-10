@@ -59,10 +59,12 @@
                 <?php } ?>
                     <label> Concepto:</label>
                     <div class="input-group input-group-sm mb-3">
-                        <input type="text" class="form-control" aria-label="Sizing example input" 
-                            aria-describedby="inputGroup-sizing-sm" id="concepto" name="concepto"
-                            required maxlength="50" placeholder="Sueldo - Vacaciones - Préstamo"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()">
+                        <select class="form-control" id="concepto" name="concepto">
+                            <option value="">Todos</option>
+                            <option value="Sueldo">Sueldo y Salario</option>
+                            <option value="Vacaciones">Vacaciones</option>
+                            <option value="Préstamo">Préstamo</option>
+                        </select>
                     </div>
 
                     <label> Fecha:</label>

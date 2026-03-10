@@ -24,7 +24,7 @@ $average = ($promedioTasa != 0 && $promedioTasa_old != 0) ? (($promedioTasa - $p
 $average = number_format($average, 2);
 ?>
 
-<div class="indicator__content" style="min-width: 19rem; min-height: 10rem;" onclick="openGraphModalISLR()">
+<div class="indicator__content" id="tasa-promedio" style="min-width: 19rem; min-height: 10rem;">
 
     <div class="indicator__header">
     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-coin">
