@@ -1,262 +1,420 @@
-<?php require 'Components/Header.php';?>
+<?php require 'Components/Header.php'; ?>
 
-</header> 
+<!-- ──────────────────────────────────────────────
+     Inyectar tasa BCV como variable JS global
+     (la necesita el modal de totalización para
+     calcular montos en Bs en el front-end)
+────────────────────────────────────────────────── -->
+<script>
+    window.tasaBCV = <?php echo json_encode(isset($_SESSION['TasaBCV']) ? floatval($_SESSION['TasaBCV']) : 1); ?>;
+</script>
 
-    <main>
+<!-- ── Botones de cabecera ── -->
+<div style="display:flex; gap:1rem; align-items:center;">
+    <?php include_once 'Components/Modals/Modal-TotalizarISLR.php'; ?>
+</div>
+
+</header>
+
+<main>
     <div id="alerts"></div>
-        <form action="" id="form">
+
+    <form action="" id="form">
         <div class="form">
 
+            <!-- ══ TÍTULO Y ACCIONES ══ -->
             <div class="block Name">
                 <h2>Retención de Impuestos Sobre la Renta (ISLR)</h2>
-                <?php /*
-                <div class="search-box">
-                    <div class="row">
-                        <input type="text" class="search-bar" placeholder="Buscar trabajador... (cedula)" autocomplete="off">
-                        <button>
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24" height="24"  
-                            viewBox="0 0 24 24"  
-                            fill="none"  
-                            stroke="currentColor"  
-                            stroke-width="2"  
-                            stroke-linecap="round"  
-                            stroke-linejoin="round"  
-                            class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                            
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                            <path d="M21 21l-6 -6" />
-                            
-                        </svg>
-                    </button>
-                    </div>
-                <div class="results"></div>
+
+                <div class="buttons">
+                    <input type="button" value="Guardar" class="btn btn-outline-success"
+                           name="guardar" onclick="Guardar()">
+                    <input type="reset"  value="Nuevo"   class="btn btn-outline-danger"
+                           name="reset"  onclick="limpiarFormularioISLR()">
+                </div>
             </div>
 
-            <script src="../JS/Search-box.js"></script>
-            */
-?>
-            <div class="buttons">
-                <input type="button" value="Calcular" class="btn btn-outline-success" name="calcular" onclick="Calcular()">
-					
-				<input type="button" value="Guardar" class="btn btn-outline-success" name="guardar" onclick="Guardar()">
-					
-				<input type="reset" value="Nuevo" class="btn btn-outline-danger" name="reset">
-			</div>
-        </div>
+            <!-- ══ DATOS DEL EMPLEADO ══ -->
+            <div class="block item-1">
+                <h4>Datos del empleado</h4>
 
-        <div class="block item-1">
-            <h4>Datos del empleado</h4>
+                <!-- Cédula + botón buscar empleado -->
                 <div class="empleados__content">
-                    <label> Cédula</label>
-                        <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                            id="cedula" name="cedula"
-                             maxlength="8" 
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                            onkeyup="buscarEmpleado(this.value)">
-                            
-                            <input type="hidden" id="cedula1" name="cedula1">
+                    <label>Cédula</label>
+                    <div class="input-group input-group-sm mb-3">
+                        <input type="text" class="form-control" id="cedula" name="cedula"
+                               maxlength="8" autocomplete="off"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                               onkeyup="buscarEmpleadoISLR(this.value)">
 
-                            <!--<input type="submit" class="btn btn-outline-info" 
-                            value="Buscar" name="Buscar" id="Buscar">-->
+                        <!-- Botón que abre el modal de empleados -->
+                        <button class="btn btn-outline-secondary" type="button"
+                                data-bs-toggle="modal" data-bs-target="#modalBuscarEmpleadoISLR"
+                                title="Ver empleados">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1
+                                         1-4 6-4 5 3 5 4-1 1-1 1H1z"/>
+                                <path d="M13.5 5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-5
+                                         a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                                <path fill-rule="evenodd"
+                                      d="M13.5 5H10a.5.5 0 0 0 0 1h3.5a.5.5 0 0 0 0-1zm0
+                                         2H10a.5.5 0 0 0 0 1h3.5a.5.5 0 0 0 0-1z"/>
+                            </svg>
+                        </button>
+
+                        <input type="hidden" id="cedula1" name="cedula1">
+                    </div>
+                </div>
+
+                <!-- Nombre / Apellido -->
+                <div class="empleados__content" style="display:flex; gap:1rem;">
+                    <div class="a1">
+                        <label>Nombres</label>
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control" id="nombre"
+                                   name="nombre" readonly>
                         </div>
                     </div>
-                    
-                <div class="empleados__content" style="display: flex; gap: 1rem;">
                     <div class="a1">
-                    <label> Nombres</label>
+                        <label>Apellidos</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                            name="nombre" id="nombre" readonly>
-                        </div>
-                    </div>
-
-                    <div class="a1">
-                        <label> Apellidos</label>
-                        <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                            name="apellido" id="apellido" readonly>
+                            <input type="text" class="form-control" id="apellido"
+                                   name="apellido" readonly>
                         </div>
                     </div>
                 </div>
 
+                <!-- Cargo -->
                 <div class="empleados__content">
-                    <label> Cargo </label>
-					<div class="input-group input-group-sm mb-3">
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                        name="cargo" id="cargo" readonly>
-					</div>
-			    </div>
-        </div>
-        
-        <div class="block item-2">
-            <h4>  </h4>
-			<div class="empleados__content" style="display: flex; gap: 1rem;">
-                <div class="a1">
-                    <label> Sueldo </label>
+                    <label>Cargo</label>
                     <div class="input-group input-group-sm mb-3">
-                        <span class="input-group-text">$</span>
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                        name="sueldo" id="sueldo" readonly>
-                    </div>
-                </div>
-                <div class="a1">
-                    <label for=""></label>
-                    <div class="input-group input-group-sm mb-3">
-                        <span class="input-group-text">Bs.</span>
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                        name="sueldobs" id="sueldobs" readonly>
+                        <input type="text" class="form-control" id="cargo"
+                               name="cargo" readonly>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="block item-3">
-        <h4> Retención </h4>
+            <!-- ══ SUELDO ══ -->
+            <div class="block item-2">
+                <h4>&nbsp;</h4>
+                <div class="empleados__content" style="display:flex; gap:1rem;">
+                    <div class="a1">
+                        <label>Sueldo</label>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">$</span>
+                            <input type="text" class="form-control" id="sueldo"
+                                   name="sueldo" readonly>
+                        </div>
+                    </div>
+                    <div class="a1">
+                        <label>&nbsp;</label>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">Bs.</span>
+                            <input type="text" class="form-control" id="sueldobs"
+                                   name="sueldobs" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="empleados__content">
-                <label>Porcentaje de retención</label>
+            <!-- ══ RETENCIÓN ══ -->
+            <div class="block item-3">
+                <h4>Retención</h4>
+
+                <div class="empleados__content">
+                    <label>Porcentaje de retención</label>
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">%</span>
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                        name="reten" id="reten" 
-                        oninput="formatInput(this)" maxlength="4">
+                        <!--
+                            Campo de solo lectura — se rellena automáticamente
+                            al traer el empleado (2% general / 3% Gerente).
+                        -->
+                        <input type="text" class="form-control bg-light" id="reten"
+                               name="reten" readonly
+                               style="cursor:default;">
                     </div>
+                </div>
             </div>
-        </div>
 
-        <div class="block item-4">
-            <div class="empleados__content-info">
-				<h6 class="info">Monto</h6> <br>
-                
-				<p id="aporte">Bs 0.00</p>
-                <input type="hidden" id="aporte1" name="aporte1">
-                <input type="hidden" id="op" name="op" value="4">
-			</div>
-        </div>
-    </form>  
-        
-    <div class="block item-5">
-            <?php include_once 'Components/Tables/Tablas-ISLR.php';?>
+            <!-- ══ RESULTADO ══ -->
+            <div class="block item-4">
+                <div class="empleados__content-info">
+                    <h6 class="info">Monto retenido</h6><br>
+                    <p id="aporte">Bs 0.00</p>
+                    <input type="hidden" id="aporte1" name="aporte1">
+                    <input type="hidden" id="op"      name="op"     value="4">
+                </div>
+            </div>
+
+            <!-- ══ TABLA ══ -->
+            <div class="block item-5">
+                <?php include_once 'Components/Tables/Tablas-ISLR.php'; ?>
+            </div>
+        </div><!-- /.form -->
+    </form>
+
+
+</main>
+
+<!-- ══════════════════════════════════════
+     MODAL: BUSCAR EMPLEADO (para ISLR)
+════════════════════════════════════════ -->
+<div class="modal fade" id="modalBuscarEmpleadoISLR" tabindex="-1"
+     aria-labelledby="modalBuscarEmpleadoISLRLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalBuscarEmpleadoISLRLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                         fill="currentColor" class="bi bi-people-fill me-2" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        <path fill-rule="evenodd"
+                              d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75
+                              1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                        <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                    </svg>
+                    Buscar empleado
+                </h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-0">
+                <div class="px-3 pt-3 pb-2">
+                    <input type="text" id="filtroISLRModal" class="form-control form-control-sm"
+                           placeholder="Filtrar por nombre o cédula..." autocomplete="off">
+                </div>
+                <div id="islrModalLoader" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                    <span class="ms-2 text-muted small">Cargando empleados...</span>
+                </div>
+                <div id="islrModalVacio" class="text-center py-4 d-none">
+                    <p class="text-muted small mb-0">No hay empleados registrados.</p>
+                </div>
+                <ul class="list-group list-group-flush" id="listaEmpleadosISLR"></ul>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
         </div>
     </div>
-    </main>
-    
-<?php include_once 'Components/Footer.php';?>
+</div>
+
+<?php include_once 'Components/Footer.php'; ?>
 
 <script src="../JS/Validate-decimalnumber.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<!-- ══════════════════════════════════════
+     SCRIPTS PRINCIPALES DE ISLR
+════════════════════════════════════════ -->
 <script>
-function buscarEmpleado(cedula) {
-    if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
+/* ----------------------------------------------------------------
+   Determina el porcentaje de retención según el cargo
+---------------------------------------------------------------- */
+function porcentajePorCargo(cargo) {
+    return (cargo || '').trim().toLowerCase() === 'gerente' ? 3 : 2;
+}
+
+/* ----------------------------------------------------------------
+   Limpia el formulario
+---------------------------------------------------------------- */
+function limpiarFormularioISLR() {
+    $('#cedula').val('');
+    $('#cedula1').val('');
+    $('#nombre').val('');
+    $('#apellido').val('');
+    $('#cargo').val('');
+    $('#sueldo').val('');
+    $('#sueldobs').val('');
+    $('#reten').val('');
+    $('#aporte').text('Bs 0.00');
+    $('#aporte1').val('');
+    $('#alerts').html('');
+}
+
+/* ----------------------------------------------------------------
+   Buscar empleado por cédula (onkeyup)
+---------------------------------------------------------------- */
+function buscarEmpleadoISLR(cedula) {
+    if (cedula.length >= 7 && cedula.length <= 8) {
         $.ajax({
-            url: '../PHP/CTR/Search_General.php', // Cambia esto por la ruta a tu script PHP
+            url: '../PHP/CTR/Search_General.php',
             type: 'POST',
-            data: { cedula: cedula ,
-                op : 3,
-                tasa : <?php echo json_encode($_SESSION['TasaBCV']); ?> },
-            success: function(response) {
-                // Suponiendo que la respuesta es un objeto JSON con nombre y apellido
-                const datos = JSON.parse(response);
-                if (datos) {
-                    console.log(datos);
-                    $('#cedula1').val(datos.cedula);
-                    $('#nombre').val(datos.nombre);
-                    $('#apellido').val(datos.apellido);
-                    $('#cargo').val(datos.cargo);
-                    $('#sueldo').val(datos.sueldo);
-                    $('#sueldobs').val(datos.sueldobs.toFixed(2));
+            data: {
+                cedula: cedula,
+                op: 3,
+                tasa: window.tasaBCV
+            },
+            success: function (response) {
+                var datos;
+                try { datos = JSON.parse(response); } catch(e) { datos = null; }
+
+                if (datos && datos.cedula) {
+                    rellenarFormularioISLR(datos);
                 } else {
-                    // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
-                    $('#cedula1').val('');
-                    $('#nombre').val('');
-                    $('#apellido').val('');
-                    $('#cargo').val('');
-                    $('#sueldo').val(0);
-                    $('#sueldobs').val(0);
+                    limpiarFormularioISLR();
+                    $('#cedula').val(cedula); // conservar lo escrito
                 }
             },
-            error: function() {
+            error: function () {
                 alert('Error en la búsqueda del empleado. Intente nuevamente.');
             }
         });
     } else {
-        // Limpiar los campos si la cédula no tiene 8 dígitos
-        $('#cedula1').val('');
-        $('#nombre').val('');
-        $('#apellido').val('');
-        $('#cargo').val('');
-        $('#sueldo').val(0);
-        $('#sueldobs').val(0);
+        /* Limpiar si la cédula es demasiado corta */
+        var cedulaActual = $('#cedula').val();
+        limpiarFormularioISLR();
+        $('#cedula').val(cedulaActual);
     }
 }
 
-</script>
+/* ----------------------------------------------------------------
+   Rellena todos los campos y calcula automáticamente
+---------------------------------------------------------------- */
+function rellenarFormularioISLR(datos) {
+    var pct     = porcentajePorCargo(datos.cargo);
+    var sueldoD = parseFloat(datos.sueldo) || 0;
+    var sueldoBs= parseFloat(datos.sueldobs) || 0;
+    var monto   = (sueldoD * window.tasaBCV * pct) / 100;
 
-<script>
-function Calcular() {
-    var sueldo = $('#sueldo').val(); // Obtener el sueldo
-    var cedula = $('#cedula1').val(); // Obtener la cédula
-    var reten = $('#reten').val(); // Obtener la cédula
-    console.log(sueldo);
-    console.log(cedula);
-    // Enviar datos al servidor mediante AJAX
+    $('#cedula1').val(datos.cedula);
+    $('#nombre').val(datos.nombre);
+    $('#apellido').val(datos.apellido);
+    $('#cargo').val(datos.cargo);
+    $('#sueldo').val(sueldoD.toFixed(2));
+    $('#sueldobs').val(sueldoBs.toFixed(2));
+    $('#reten').val(pct);
+
+    /* Actualizar campo de monto */
+    $('#aporte').text('Bs ' + monto.toFixed(2));
+    $('#aporte1').val(monto.toFixed(2));
+}
+
+/* ----------------------------------------------------------------
+   Guardar aporte ISLR
+---------------------------------------------------------------- */
+function Guardar() {
+    var cedula = $('#cedula1').val();
+    var aporte = $('#aporte1').val();
+
+    if (!cedula) {
+        $('#alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+            'Error: debe buscar un empleado primero.' +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        return;
+    }
+    if (!aporte || parseFloat(aporte) <= 0) {
+        $('#alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+            'Error: no se ha calculado el monto.' +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        return;
+    }
+
+    var formData = $('#form').serialize();
     $.ajax({
-        url: '../PHP/CTR/Calcular_General_CTR.php',
+        url: '../PHP/CTR/SaveResult_CTR.php',
         type: 'POST',
-        data: {
-            op: 4,
-            sueldo: sueldo,
-            cedula: cedula,
-            reten: reten
-        },
-        success: function(response) {
+        data: formData,
+        success: function (response) {
             try {
-                const data = JSON.parse(response);
-                console.log(data);
+                var data = JSON.parse(response);
                 if (data.html) {
                     $('#alerts').html(data.html);
-                }else{
-                    // Asignar valores desde la respuesta del servidor
-                    $('#aporte').text('Bs ' + data.Monto.toFixed(2));
-                    $('#aporte1').val(data.Monto.toFixed(2));
+                    /* Si fue exitoso, refrescar la tabla */
+                    if (data.html.indexOf('alert-danger') === -1) {
+                        limpiarFormularioISLR();
+                        if (typeof refrescarTablaISLR === 'function') refrescarTablaISLR();
+                    }
+                } else {
+                    alert(data.message || 'Respuesta inesperada del servidor.');
                 }
-
             } catch (e) {
-                console.error("Error al procesar la respuesta JSON:", e);
-                alert('Error al procesar la respuesta del servidor. Intente nuevamente.');
+                alert('Error al procesar la respuesta del servidor.');
             }
         },
-        error: function(xhr, status, error) {
-            console.error("Error en la solicitud AJAX:", status, error);
-            alert('Error al calcular el Neto a Pagar. Intente nuevamente.');
+        error: function () {
+            alert('Error en la conexión al servidor. Intente nuevamente.');
         }
     });
 }
 
-    function Guardar(){
-        // Recoger todos los datos del formulario usando serialize
-        const formData = $('#form').serialize();
-        $.ajax({
-            url: '../PHP/CTR/SaveResult_CTR.php', 
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                const data = JSON.parse(response);
-                console.log(data);
-                if (response) {
-                    $('#alerts').html(data.html);
-                    // Limpiar el formulario o realizar otra acción
-                    $('#nominaForm')[0].reset(); // Limpiar el formulario
-                } else {
-                    alert('Error al guardar los datos. Intente nuevamente.');
-                }
-            },
-            error: function() {
-                alert('Error en la conexión al servidor. Intente nuevamente.');
+
+/* ================================================================
+   MODAL: BUSCAR EMPLEADO (para ISLR)
+================================================================ */
+$('#modalBuscarEmpleadoISLR').on('show.bs.modal', function () {
+    cargarListaEmpleadosISLR();
+});
+
+$('#filtroISLRModal').on('input', function () {
+    var termino = $(this).val().toLowerCase().trim();
+    $('#listaEmpleadosISLR li').each(function () {
+        $(this).toggle($(this).text().toLowerCase().includes(termino));
+    });
+});
+
+function cargarListaEmpleadosISLR() {
+    var $lista  = $('#listaEmpleadosISLR').empty();
+    var $loader = $('#islrModalLoader').removeClass('d-none');
+    var $vacio  = $('#islrModalVacio').addClass('d-none');
+    $('#filtroISLRModal').val('');
+
+    $.ajax({
+        url: '../PHP/CTR/Search_General.php',
+        type: 'POST',
+        data: { op: 2 },   /* op=2: todos los empleados activos */
+        success: function (raw) {
+            $loader.addClass('d-none');
+            var empleados;
+            try { empleados = JSON.parse(raw); } catch(e) { empleados = []; }
+
+            if (!Array.isArray(empleados) || !empleados.length) {
+                $vacio.removeClass('d-none');
+                return;
             }
-        });
-    };
-    </script>
+
+            empleados.forEach(function (emp) {
+                var pct   = porcentajePorCargo(emp.cargo);
+                var $item = $(
+                    '<li class="list-group-item list-group-item-action d-flex ' +
+                    'justify-content-between align-items-center py-2 px-3"' +
+                    ' style="cursor:pointer;" data-cedula="' + emp.cedula + '">' +
+                    '<div>' +
+                    '<span class="fw-semibold small">' + emp.nombre + ' ' + emp.apellido + '</span><br>' +
+                    '<span class="text-muted" style="font-size:.78rem;">' + (emp.cargo || '') +
+                    ' &nbsp;·&nbsp; ' + pct + '%</span>' +
+                    '</div>' +
+                    '<span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">' +
+                    emp.cedula + '</span>' +
+                    '</li>'
+                );
+
+                $item.on('click', function () {
+                    seleccionarEmpleadoISLR(emp.cedula);
+                });
+
+                $lista.append($item);
+            });
+        },
+        error: function () {
+            $loader.addClass('d-none');
+            $vacio.removeClass('d-none');
+        }
+    });
+}
+
+function seleccionarEmpleadoISLR(cedula) {
+    $('#modalBuscarEmpleadoISLR').one('hidden.bs.modal', function () {
+        limpiarFormularioISLR();
+        $('#cedula').val(cedula);
+        buscarEmpleadoISLR(cedula);
+    });
+    $('#modalBuscarEmpleadoISLR').modal('hide');
+}
+</script>

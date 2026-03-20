@@ -1,63 +1,199 @@
+<!--
+  ============================================================
+  Tablas-ISLR.php  —  Tabla con paginación JS + actualización
+  en tiempo real.  Solo muestra registros del mes en curso
+  (o del mes filtrado por el selector de mes).
+  ============================================================
+-->
+
 <div class="table__information">
-    <div style="display: flex; justify-content: space-between;">
-        <div class="empleados__content">
-            <label> Buscar:</label>
-            <div class="input-group input-group-sm mb-3">
-                <input type="month" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="FechaBuscar">
-                <input type="submit" value="Buscar" class="btn btn-outline-info" name="buscarF">
+
+    <!-- ── Barra de filtro ── -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem;">
+        <div class="empleados__content mb-0">
+            <label class="me-1">Buscar por mes:</label>
+            <div class="input-group input-group-sm">
+                <input type="month" class="form-control" id="islrFiltroMes"
+                       value="<?php echo date('Y-m'); ?>">
+                <button class="btn btn-outline-info" id="islrBtnBuscar" type="button">Buscar</button>
+                <button class="btn btn-outline-secondary" id="islrBtnHoy" type="button" title="Ver mes actual">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                         viewBox="0 0 16 16">
+                        <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1
+                                 a.5.5 0 0 1-.5-.5v-1z"/>
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11
+                                 a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1
+                                 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                    </svg>
+                </button>
             </div>
         </div>
+
+        <!-- Paginación -->
+        <nav aria-label="Paginación ISLR">
+            <ul class="pagination pagination-sm mb-0" id="islrPaginacion"></ul>
+        </nav>
     </div>
-					<table class="table">
-						<thead class="table-dark">
-							<tr>
-								<th scope="col"> Nombre </th>
-								<th scope="col"> Apellido </th>
-								<th scope="col"> Cédula </th>
-								<th scope="col"> % Retención </th>
-								<th scope="col"> Monto retenido </th>
-								<th scope="col"> Fecha </th>
-							</tr>
-						</thead>
+
+    <!-- Tabla -->
+    <table class="table mt-2" id="islrTabla">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cédula</th>
+                <th>% Retención</th>
+                <th>Monto retenido</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="islrTbody">
+            <!-- Se llena dinámicamente -->
+        </tbody>
+    </table>
+
+    <!-- Info de página -->
+    <div class="text-muted small" id="islrInfo"></div>
+
+</div>
 
 
-						<?php if (isset($_GET['buscarF'])) {?>
-							
-						<tbody>
-							<?php 
-							$datos = $Nomina->Search_ISLR($_GET['FechaBuscar']);
-							foreach ($datos as $dato) {
-								echo '<tr>';
-								echo '<th scope="col">'	.$dato['nombre']. '</th>';
-								echo '<th scope="col">'	.$dato['apellido']. '</th>';
-								echo '<th scope="col">'	.$dato['cedula']. '</th>';
-								echo '<th scope="col">'	.$dato['aporte']. '</th>';
-								echo '<th scope="col">'	.$dato['monto']. ' Bs </th>';
-								echo '<th scope="col">'	.$dato['fecha']. '</th>';
-								echo '</tr>';
-								}
-								
-							 ?>
-						</tbody>
+<script>
+/* ================================================================
+   Lógica de tabla ISLR — paginación del lado del cliente
+   ================================================================ */
+(function ($) {
+    'use strict';
 
-						<?php } else { ?>
+    var POR_PAGINA   = 7;
+    var paginaActual = 1;
+    var todosLosDatos = [];        // datos completos del mes activo
+    var mesFiltro    = '<?php echo date("Y-m"); ?>';  // mes inicial
 
-						<tbody>
-							<?php 
-							$datos = $Nomina->ISLR_View();
-							foreach ($datos as $dato) {
-								echo '<tr>';
-								echo '<th scope="col">'	.$dato['nombre']. '</th>';
-								echo '<th scope="col">'	.$dato['apellido']. '</th>';
-								echo '<th scope="col">'	.$dato['cedula']. '</th>';
-								echo '<th scope="col">'	.$dato['aporte']. '</th>';
-								echo '<th scope="col">'	.$dato['monto']. ' Bs </th>';
-								echo '<th scope="col">'	.$dato['fecha']. '</th>';
-								echo '</tr>';
-								}
-								
-							 ?>
-						</tbody>
-						<?php  } ?>
-					</table>
-		</div>
+    /* ── Función pública: permite al modal de "Totalizar" refrescar la tabla ── */
+    window.refrescarTablaISLR = function () {
+        cargarDatos(mesFiltro);
+    };
+
+    /* ── Botón Buscar ── */
+    $('#islrBtnBuscar').on('click', function () {
+        var mes = $('#islrFiltroMes').val();
+        if (!mes) return;
+        mesFiltro = mes;
+        paginaActual = 1;
+        cargarDatos(mesFiltro);
+    });
+
+    /* ── Botón "mes actual" ── */
+    $('#islrBtnHoy').on('click', function () {
+        mesFiltro = '<?php echo date("Y-m"); ?>';
+        $('#islrFiltroMes').val(mesFiltro);
+        paginaActual = 1;
+        cargarDatos(mesFiltro);
+    });
+
+    /* ── Cargar datos vía AJAX ── */
+    function cargarDatos(mes) {
+        $('#islrTbody').empty();
+        $('#islrPaginacion').empty();
+        $('#islrInfo').text('');
+
+        $.ajax({
+            url: '../PHP/CTR/Search_General.php',
+            type: 'POST',
+            data: { op: 5, mes: mes },
+            success: function (raw) {
+                var data;
+                try { data = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) { data = []; }
+                todosLosDatos = Array.isArray(data) ? data : [];
+                renderPagina(paginaActual);
+            },
+            error: function () {
+                $('#islrTbody').html(
+                    '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos.</td></tr>'
+                );
+            }
+        });
+    }
+
+    /* ── Renderizar una página ── */
+    function renderPagina(pagina) {
+        paginaActual = pagina;
+        var total     = todosLosDatos.length;
+        var totalPags = Math.max(1, Math.ceil(total / POR_PAGINA));
+        if (pagina > totalPags) paginaActual = totalPags;
+
+        var inicio = (paginaActual - 1) * POR_PAGINA;
+        var slice  = todosLosDatos.slice(inicio, inicio + POR_PAGINA);
+
+        var $tbody = $('#islrTbody').empty();
+
+        if (!slice.length) {
+            $tbody.html(
+                '<tr><td colspan="6" class="text-center text-muted py-3">' +
+                'No hay registros para el período seleccionado.</td></tr>'
+            );
+        } else {
+            $.each(slice, function (i, d) {
+                $tbody.append(
+                    '<tr>' +
+                    '<th>' + (d.nombre   || '') + '</th>' +
+                    '<th>' + (d.apellido || '') + '</th>' +
+                    '<th>' + (d.cedula   || '') + '</th>' +
+                    '<th>' + (d.aporte   || '') + ' %</th>' +
+                    '<th>' + parseFloat(d.monto || 0).toFixed(2) + ' Bs</th>' +
+                    '<th>' + (d.fecha    || '') + '</th>' +
+                    '</tr>'
+                );
+            });
+        }
+
+        /* Info */
+        var desde = total ? inicio + 1 : 0;
+        var hasta = Math.min(inicio + POR_PAGINA, total);
+        $('#islrInfo').text('Mostrando ' + desde + '–' + hasta + ' de ' + total + ' registros.');
+
+        /* Paginación */
+        renderPaginacion(totalPags);
+    }
+
+    /* ── Renderizar botones de paginación ── */
+    function renderPaginacion(totalPags) {
+        var $ul = $('#islrPaginacion').empty();
+
+        /* Anterior */
+        $ul.append(
+            '<li class="page-item ' + (paginaActual === 1 ? 'disabled' : '') + '">' +
+            '<a class="page-link" href="#" data-pag="' + (paginaActual - 1) + '">‹</a></li>'
+        );
+
+        /* Páginas */
+        for (var p = 1; p <= totalPags; p++) {
+            $ul.append(
+                '<li class="page-item ' + (p === paginaActual ? 'active' : '') + '">' +
+                '<a class="page-link" href="#" data-pag="' + p + '">' + p + '</a></li>'
+            );
+        }
+
+        /* Siguiente */
+        $ul.append(
+            '<li class="page-item ' + (paginaActual === totalPags ? 'disabled' : '') + '">' +
+            '<a class="page-link" href="#" data-pag="' + (paginaActual + 1) + '">›</a></li>'
+        );
+
+        /* Click en links de paginación */
+        $ul.find('a.page-link').on('click', function (e) {
+            e.preventDefault();
+            var pag = parseInt($(this).data('pag'));
+            var totalPagsActual = Math.max(1, Math.ceil(todosLosDatos.length / POR_PAGINA));
+            if (pag >= 1 && pag <= totalPagsActual) {
+                renderPagina(pag);
+            }
+        });
+    }
+
+    /* ── Carga inicial (mes actual) ── */
+    cargarDatos(mesFiltro);
+
+})(jQuery);
+</script>

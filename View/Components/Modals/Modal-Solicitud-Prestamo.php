@@ -17,16 +17,16 @@
                     name="cedula" value="<?=$_SESSION['id']?>"
                     required 
                     pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');" readonly>
                 </div>
                 <div>
                     <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
+                    <input type="text" class="form-control" id="nombre" name="nombre" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" readonly>
                 </div>
 
                 <div>
                     <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="apellido" name="apellido" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
+                    <input type="text" class="form-control" id="apellido" name="apellido" required oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" readonly>
                 </div>
 
             </div>
@@ -290,14 +290,22 @@ function Guardar() {
                     // Muestra el primer mensaje
                     $('#alerts').html(data.html);
 
+                    // Elimina la alerta del DOM cuando termina su animación
+                    $('#alerts .notification').one('animationend', function() {
+                        $('#alerts').empty();
+                    });
+
                     // Solo cierra el modal y muestra el segundo mensaje si NO es un error
                     if (!data.html.includes('notification--failure')) {
                         $('#solicitudes').modal('hide');
 
                         if (data.html2) {
                             setTimeout(function() {
-                                $('#alerts').append(data.html2);
-                            }, 3500);
+                            $('#alerts').append(data.html2);
+                            $('#alerts .notification--warning').one('animationend', function() {
+                                $('#alerts').empty();
+                            });
+                        }, 3500);
                         }
                     }
 
