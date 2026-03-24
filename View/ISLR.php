@@ -19,6 +19,10 @@
 <main>
     <div id="alerts"></div>
 
+     <!-- ══════════════════════════════════════
+          FORMULARIO DE ISLR
+     ══════════════════════════════════════ -->
+
     <form action="" id="form">
         <div class="form">
 
@@ -163,7 +167,7 @@
 <div class="modal fade" id="modalBuscarEmpleadoISLR" tabindex="-1"
      aria-labelledby="modalBuscarEmpleadoISLRLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+        <div class="modal-content" style="min-height:540px; max-height:540px;">
 
             <div class="modal-header">
                 <h5 class="modal-title" id="modalBuscarEmpleadoISLRLabel">
@@ -235,7 +239,7 @@ function limpiarFormularioISLR() {
     $('#reten').val('');
     $('#aporte').text('Bs 0.00');
     $('#aporte1').val('');
-    $('#alerts').html('');
+    // No limpiamos #alerts aquí — la alerta debe seguir visible después de guardar
 }
 
 /* ----------------------------------------------------------------
@@ -243,6 +247,8 @@ function limpiarFormularioISLR() {
 ---------------------------------------------------------------- */
 function buscarEmpleadoISLR(cedula) {
     if (cedula.length >= 7 && cedula.length <= 8) {
+        // Al buscar un empleado nuevo, sí limpiamos la alerta anterior
+        $('#alerts').html('');
         $.ajax({
             url: '../PHP/CTR/Search_General.php',
             type: 'POST',
@@ -303,18 +309,9 @@ function Guardar() {
     var cedula = $('#cedula1').val();
     var aporte = $('#aporte1').val();
 
-    if (!cedula) {
-        $('#alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-            'Error: debe buscar un empleado primero.' +
-            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-        return;
-    }
-    if (!aporte || parseFloat(aporte) <= 0) {
-        $('#alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-            'Error: no se ha calculado el monto.' +
-            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-        return;
-    }
+    // Limpiar alerta anterior al iniciar una nueva acción
+    $('#alerts').html('');
+
 
     var formData = $('#form').serialize();
     $.ajax({
@@ -325,9 +322,18 @@ function Guardar() {
             try {
                 var data = JSON.parse(response);
                 if (data.html) {
+                    // Mostrar la alerta primero
                     $('#alerts').html(data.html);
-                    /* Si fue exitoso, refrescar la tabla */
-                    if (data.html.indexOf('alert-danger') === -1) {
+
+                     // Elimina la alerta del DOM cuando termina su animación
+                    $('#alerts .notification').one('animationend', function() {
+                        $('#alerts').empty();
+                    });
+
+                    // Si fue exitoso (no es un error), limpiar el formulario
+                    // pero SIN tocar #alerts
+                    var esError = data.html.indexOf('alert-danger') !== -1;
+                    if (!esError) {
                         limpiarFormularioISLR();
                         if (typeof refrescarTablaISLR === 'function') refrescarTablaISLR();
                     }
@@ -346,75 +352,79 @@ function Guardar() {
 
 
 /* ================================================================
-   MODAL: BUSCAR EMPLEADO (para ISLR)
+   MODAL: BUSCAR EMPLEADO (Versión con Delegación de Eventos)
 ================================================================ */
-$('#modalBuscarEmpleadoISLR').on('show.bs.modal', function () {
-    cargarListaEmpleadosISLR();
-});
+$(document).ready(function () {
 
-$('#filtroISLRModal').on('input', function () {
-    var termino = $(this).val().toLowerCase().trim();
-    $('#listaEmpleadosISLR li').each(function () {
-        $(this).toggle($(this).text().toLowerCase().includes(termino));
-    });
-});
+    // Usamos delegación en el body para asegurar que el input siempre responda
+    $('body').on('input', '#filtroISLRModal', function () {
+        var termino = $(this).val().toLowerCase().trim();
+        console.log("Buscando:", termino); // Verifica esto en tu consola
 
-function cargarListaEmpleadosISLR() {
-    var $lista  = $('#listaEmpleadosISLR').empty();
-    var $loader = $('#islrModalLoader').removeClass('d-none');
-    var $vacio  = $('#islrModalVacio').addClass('d-none');
-    $('#filtroISLRModal').val('');
-
-    $.ajax({
-        url: '../PHP/CTR/Search_General.php',
-        type: 'POST',
-        data: { op: 2 },   /* op=2: todos los empleados activos */
-        success: function (raw) {
-            $loader.addClass('d-none');
-            var empleados;
-            try { empleados = JSON.parse(raw); } catch(e) { empleados = []; }
-
-            if (!Array.isArray(empleados) || !empleados.length) {
-                $vacio.removeClass('d-none');
-                return;
+        // Buscamos directamente en los items de la lista
+        $('#listaEmpleadosISLR li').each(function () {
+            var textoItem = $(this).text().toLowerCase();
+            
+            // Si el texto del <li> contiene el término, se muestra, si no se oculta
+            if (termino === "" || textoItem.indexOf(termino) > -1) {
+                $(this).attr('style', 'display: flex !important'); // Forzamos el display flex de Bootstrap
+            } else {
+                $(this).attr('style', 'display: none !important');
             }
+        });
+    });
 
-            empleados.forEach(function (emp) {
-                var pct   = porcentajePorCargo(emp.cargo);
-                var $item = $(
-                    '<li class="list-group-item list-group-item-action d-flex ' +
-                    'justify-content-between align-items-center py-2 px-3"' +
-                    ' style="cursor:pointer;" data-cedula="' + emp.cedula + '">' +
-                    '<div>' +
-                    '<span class="fw-semibold small">' + emp.nombre + ' ' + emp.apellido + '</span><br>' +
-                    '<span class="text-muted" style="font-size:.78rem;">' + (emp.cargo || '') +
-                    ' &nbsp;·&nbsp; ' + pct + '%</span>' +
-                    '</div>' +
-                    '<span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">' +
-                    emp.cedula + '</span>' +
-                    '</li>'
-                );
+    // Función para cargar la lista (se mantiene similar, pero limpiamos estilos)
+    function cargarListaEmpleadosISLR() {
+        var $lista  = $('#listaEmpleadosISLR').empty();
+        var $loader = $('#islrModalLoader').removeClass('d-none');
+        var $vacio  = $('#islrModalVacio').addClass('d-none');
+        $('#filtroISLRModal').val(''); // Limpiar input al abrir
 
-                $item.on('click', function () {
-                    seleccionarEmpleadoISLR(emp.cedula);
+        $.ajax({
+            url: '../PHP/CTR/Search_General.php',
+            type: 'POST',
+            data: { op: 6 },
+            success: function (raw) {
+                $loader.addClass('d-none');
+                var empleados;
+                try { empleados = JSON.parse(raw); } catch(e) { empleados = []; }
+
+                if (!Array.isArray(empleados) || !empleados.length) {
+                    $vacio.removeClass('d-none');
+                    return;
+                }
+
+                empleados.forEach(function (emp) {
+                    var pct = (emp.cargo || '').trim().toLowerCase() === 'gerente' ? 3 : 2;
+                    
+                    var $item = $(
+                        '<li class="list-group-item list-group-item-action d-flex ' +
+                        'justify-content-between align-items-center py-2 px-3"' +
+                        ' style="cursor:pointer;">' +
+                        '<div>' +
+                        '<span class="fw-semibold small">' + emp.nombre + ' ' + emp.apellido + '</span><br>' +
+                        '<span class="text-muted" style="font-size:.78rem;">' + (emp.cargo || '') +
+                        ' &nbsp;·&nbsp; ' + pct + '%</span>' +
+                        '</div>' +
+                        '<span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">' +
+                        emp.cedula + '</span>' +
+                        '</li>'
+                    );
+
+                    $item.on('click', function () {
+                        seleccionarEmpleadoISLR(emp.cedula);
+                    });
+
+                    $lista.append($item);
                 });
+            }
+        });
+    }
 
-                $lista.append($item);
-            });
-        },
-        error: function () {
-            $loader.addClass('d-none');
-            $vacio.removeClass('d-none');
-        }
+    // Evento para disparar la carga
+    $('#modalBuscarEmpleadoISLR').on('show.bs.modal', function () {
+        cargarListaEmpleadosISLR();
     });
-}
-
-function seleccionarEmpleadoISLR(cedula) {
-    $('#modalBuscarEmpleadoISLR').one('hidden.bs.modal', function () {
-        limpiarFormularioISLR();
-        $('#cedula').val(cedula);
-        buscarEmpleadoISLR(cedula);
-    });
-    $('#modalBuscarEmpleadoISLR').modal('hide');
-}
+}); // document.ready — modal buscar empleado
 </script>

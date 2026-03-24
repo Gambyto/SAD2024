@@ -94,10 +94,6 @@
 
     /* ── Cargar datos vía AJAX ── */
     function cargarDatos(mes) {
-        $('#islrTbody').empty();
-        $('#islrPaginacion').empty();
-        $('#islrInfo').text('');
-
         $.ajax({
             url: '../PHP/CTR/Search_General.php',
             type: 'POST',
@@ -126,16 +122,14 @@
         var inicio = (paginaActual - 1) * POR_PAGINA;
         var slice  = todosLosDatos.slice(inicio, inicio + POR_PAGINA);
 
-        var $tbody = $('#islrTbody').empty();
-
+        /* Construir HTML en memoria — un solo swap para evitar parpadeo */
+        var html = '';
         if (!slice.length) {
-            $tbody.html(
-                '<tr><td colspan="6" class="text-center text-muted py-3">' +
-                'No hay registros para el período seleccionado.</td></tr>'
-            );
+            html = '<tr><td colspan="6" class="text-center text-muted py-3">' +
+                   'No hay registros para el período seleccionado.</td></tr>';
         } else {
             $.each(slice, function (i, d) {
-                $tbody.append(
+                html +=
                     '<tr>' +
                     '<th>' + (d.nombre   || '') + '</th>' +
                     '<th>' + (d.apellido || '') + '</th>' +
@@ -143,10 +137,11 @@
                     '<th>' + (d.aporte   || '') + ' %</th>' +
                     '<th>' + parseFloat(d.monto || 0).toFixed(2) + ' Bs</th>' +
                     '<th>' + (d.fecha    || '') + '</th>' +
-                    '</tr>'
-                );
+                    '</tr>';
             });
         }
+        /* Un solo reemplazo — el ojo no llega a ver el vacío */
+        $('#islrTbody').html(html);
 
         /* Info */
         var desde = total ? inicio + 1 : 0;

@@ -212,6 +212,16 @@ if (empty($_POST['cedula'])) {
             $aporte = getPostValue('reten', 0);
             $monto  = getPostValue('aporte1', 0);
 
+            $islrExistente = $Nomina->Display_ISLR($cedula);
+            if ($islrExistente) {
+                $message = 'Error: Ya se ha registrado un aporte ISLR para este trabajador en el mes en curso';
+                ob_start();
+                include_once '../../View/Components/alerts.php';
+                $html = ob_get_clean();
+                echo json_encode(['message' => $message, 'html' => $html]);
+                exit;
+            }
+
             if ($Nomina->Create_ISLR($aporte, $monto, $cedula)) {
                 $message = 'Aporte ingresado';
                 ob_start();

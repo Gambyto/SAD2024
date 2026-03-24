@@ -8,6 +8,7 @@ $op = isset($_POST['op']) ? (int)$_POST['op'] : null;
    op: 2  →  NO necesita cédula (lista sin pago semana)
    op: 4  →  NO necesita cédula (empleados para ISLR masivo)
    op: 5  →  NO necesita cédula (aportes ISLR por mes)
+   op: 6  →  NO necesita cédula (todos los empleados activos)
    op: 1  →  Requiere cédula (búsqueda individual nómina)
    op: 3  →  Requiere cédula (sueldo en Bs para ISLR)
 ═══════════════════════════════════════════════════ */
@@ -23,6 +24,17 @@ if ($op === 2) {
     ───────────────────────────────────────────────────────────── */
     $empleadosSinPago = $Nomina->View_Empleados_Sin_Pago_Semana();
     echo json_encode($empleadosSinPago);
+    exit;
+}
+
+if ($op === 6) {
+
+    /* ─────────────────────────────────────────────────────────────
+       Todos los empleados activos, sin ningún filtro adicional.
+       Usado por el modal de búsqueda del módulo ISLR.
+    ───────────────────────────────────────────────────────────── */
+    $todos = $Empleado->View();
+    echo json_encode($todos);
     exit;
 }
 
