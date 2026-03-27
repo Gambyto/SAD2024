@@ -80,15 +80,27 @@
             <div class="empleados__content" style="display: flex; gap: 1rem;">
                 <div>
                     <label for="cedula" class="form-label">Cédula</label>
-                    <input type="text" class="form-control" id="cedula" 
-                    name="cedula" 
-                    required 
-                    pattern="\d{8}" maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); filtrarTabla(this.value);"
-                    onkeyup="buscarUsuario(this.value)"
-                    >
-
-                    <input type="hidden" name="cedula1" id="cedula1">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="cedula" name="cedula"
+                            maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            onkeyup="buscarUsuario(this.value)">
+                    
+                        <?php
+                        $modalBuscarConfig = [
+                            'op'       => 6,
+                            'modalId'  => 'modalBuscarEmpPtm',
+                            'filtroId' => 'filtroBuscarEmpPtm',
+                            'listaId'  => 'listaBuscarEmpPtm',
+                            'loaderId' => 'loaderBuscarEmpPtm',
+                            'vacioId'  => 'vacioBuscarEmpPtm',
+                            'titulo'   => 'Buscar empleado',
+                            'onSelect' => 'seleccionarEmpleadoPtm',
+                        ];
+                        include_once 'Components/Modals/Modal-BuscarEmpleadoGeneral.php';
+                        ?>
+                    
+                        <input type="hidden" name="cedula1" id="cedula1">
+                    </div>
                 </div>
 
                 <div>
@@ -180,11 +192,8 @@
 
         <script src="../JS/Close_modal.js"></script>
         <script src="../JS/validation-empleado.js"></script>
-        <script src="../JS/validation-empleado.js"></script>
         <script src="../JS/Validate-decimalnumber.js"></script>
         <script src="../JS/Get-Empleado.js"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 
         <div id="alerts"></div>
@@ -205,6 +214,11 @@
     </main>
     
     <script>
+    function seleccionarEmpleadoPtm(cedula) {
+    $('#cedula').val(cedula);
+    buscarUsuario(cedula);    // función existente en PrestamoFinanza.php
+    }
+
     function openModal() {
         $('#historicoPrestamosModal').modal('show');
     }
@@ -345,5 +359,3 @@ function Guardar(){
     });
 };
     </script>
-
-

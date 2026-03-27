@@ -9,8 +9,10 @@ $op = isset($_POST['op']) ? (int)$_POST['op'] : null;
    op: 4  →  NO necesita cédula (empleados para ISLR masivo)
    op: 5  →  NO necesita cédula (aportes ISLR por mes)
    op: 6  →  NO necesita cédula (todos los empleados activos)
+   op: 7  →  NO necesita cédula (empleados sin préstamo activo)
+   op: 8  →  NO necesita cédula (empleados sin usuario registrado)
    op: 1  →  Requiere cédula (búsqueda individual nómina)
-   op: 3  →  Requiere cédula (sueldo en Bs para ISLR)
+   op: 3  →  Requiere cédula (sueldo en Bs para ISLR/Fideicomiso)
 ═══════════════════════════════════════════════════ */
 
 if ($op === 2) {
@@ -104,6 +106,74 @@ if ($op === 5) {
     $result = $db->query($query);
     $data   = [];
     while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
+if ($op === 7) {
+
+    /* ─────────────────────────────────────────────────────────────
+       Empleados activos SIN préstamo activo (monto_desc > 0).
+       Aparecen primero los que nunca han tenido préstamo,
+       luego los que tienen préstamo ya liquidado.
+       Usado por Modal-BuscarEmpleadoGeneral en Préstamos.
+    ───────────────────────────────────────────────────────────── */
+    $query = "SELECT
+                e.cedula,
+                e.nombre,
+                e.apellido,
+                e.cargo,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM prestamos p
+                    WHERE p.cedula_FK = e.cedula
+                      AND p.monto_desc > 0
+                      AND p.estado = 1
+                ) THEN 1 ELSE 0 END AS tienePrestamo
+              FROM empleados e
+              WHERE e.estado = 1
+              ORDER BY tienePrestamo ASC, e.apellido ASC, e.nombre ASC";
+
+    $db     = $Nomina->connect_db();
+    $result = $db->query($query);
+    $data   = [];
+    while ($row = $result->fetch_assoc()) {
+        $row['tienePrestamo'] = (bool) $row['tienePrestamo'];
+        $data[] = $row;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
+if ($op === 8) {
+
+    /* ─────────────────────────────────────────────────────────────
+       Empleados activos SIN usuario registrado primero,
+       luego los que ya tienen usuario.
+       Usado por Modal-BuscarEmpleadoGeneral en Usuarios.
+    ───────────────────────────────────────────────────────────── */
+    $query = "SELECT
+                e.cedula,
+                e.nombre,
+                e.apellido,
+                e.cargo,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM usuario u
+                    WHERE u.cedula = e.cedula
+                      AND u.estado = 1
+                ) THEN 1 ELSE 0 END AS tieneUsuario
+              FROM empleados e
+              WHERE e.estado = 1
+              ORDER BY tieneUsuario ASC, e.apellido ASC, e.nombre ASC";
+
+    $db     = $Nomina->connect_db();
+    $result = $db->query($query);
+    $data   = [];
+    while ($row = $result->fetch_assoc()) {
+        $row['tieneUsuario'] = (bool) $row['tieneUsuario'];
         $data[] = $row;
     }
     header('Content-Type: application/json');

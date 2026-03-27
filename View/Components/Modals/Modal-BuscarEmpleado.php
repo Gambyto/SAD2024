@@ -4,8 +4,8 @@
      ============================================================ -->
 
 <div class="modal fade" id="modalBuscarEmpleado" tabindex="-1" aria-labelledby="modalBuscarEmpleadoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="min-height:540px; max-height:540px;">
 
             <div class="modal-header">
                 <h5 class="modal-title" id="modalBuscarEmpleadoLabel">
@@ -21,27 +21,28 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <div class="modal-body p-0">
+            <div class="modal-body p-0" style="display:flex; flex-direction:column; overflow:hidden;">
 
-                <!-- Buscador dentro del modal -->
-                <div class="px-3 pt-3 pb-2">
+                <!-- Buscador fijo — no se mueve con el scroll -->
+                <div class="px-3 pt-3 pb-2 flex-shrink-0">
                     <input type="text" id="filtroEmpleadoModal" class="form-control form-control-sm"
-                        placeholder="Filtrar por nombre o cédula..." autocomplete="off">
+                        placeholder="Filtrar por nombre o cédula..." autocomplete="off" maxlength="20">
                 </div>
 
                 <!-- Estado de carga -->
-                <div id="modalEmpleadoLoader" class="text-center py-4 d-none">
+                <div id="modalEmpleadoLoader" class="text-center py-4 d-none flex-shrink-0">
                     <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                     <span class="ms-2 text-muted small">Cargando empleados...</span>
                 </div>
 
                 <!-- Mensaje vacío -->
-                <div id="modalEmpleadoVacio" class="text-center py-4 d-none">
+                <div id="modalEmpleadoVacio" class="text-center py-4 d-none flex-shrink-0">
                     <p class="text-muted small mb-0">No hay empleados pendientes de pago.</p>
                 </div>
 
-                <!-- Lista de empleados -->
-                <ul class="list-group list-group-flush" id="listaEmpleadosPendientes">
+                <!-- Lista scrolleable -->
+                <ul class="list-group list-group-flush" id="listaEmpleadosPendientes"
+                    style="overflow-y:auto; flex:1;">
                     <!-- Se rellena dinámicamente -->
                 </ul>
 
@@ -60,76 +61,91 @@
 /* ---------------------------------------------------------------
    Lógica del modal de empleados pendientes de pago
 --------------------------------------------------------------- */
+$(document).ready(function () {
 
-// Cargar la lista al abrir el modal
-$('#modalBuscarEmpleado').on('show.bs.modal', function () {
-    cargarEmpleadosPendientes();
-});
-
-// Filtro en tiempo real
-$('#filtroEmpleadoModal').on('input', function () {
-    const termino = $(this).val().toLowerCase().trim();
-    $('#listaEmpleadosPendientes li').each(function () {
-        const texto = $(this).text().toLowerCase();
-        $(this).toggle(texto.includes(termino));
+    // Cargar la lista al abrir el modal
+    $('#modalBuscarEmpleado').on('show.bs.modal', function () {
+        cargarEmpleadosPendientes();
     });
-});
 
-function cargarEmpleadosPendientes() {
-    const $lista  = $('#listaEmpleadosPendientes');
-    const $loader = $('#modalEmpleadoLoader');
-    const $vacio  = $('#modalEmpleadoVacio');
-
-    $lista.empty();
-    $vacio.addClass('d-none');
-    $loader.removeClass('d-none');
-    $('#filtroEmpleadoModal').val('');
-
-    $.ajax({
-        url: '../PHP/CTR/Search_General.php',
-        type: 'POST',
-        data: { op: 2 },
-        success: function (response) {
-            $loader.addClass('d-none');
-
-            let empleados;
-            try { empleados = JSON.parse(response); } catch (e) { empleados = []; }
-
-            if (!Array.isArray(empleados) || empleados.length === 0) {
-                $vacio.removeClass('d-none');
-                return;
+    // Filtro con delegación — body siempre existe aunque el modal no esté en DOM aún
+    $('body').on('input', '#filtroEmpleadoModal', function () {
+        var termino = $(this).val().toLowerCase().trim();
+        $('#listaEmpleadosPendientes li').each(function () {
+            var texto = $(this).text().toLowerCase();
+            if (termino === '' || texto.indexOf(termino) > -1) {
+                $(this).attr('style', 'display: flex !important; cursor:pointer;');
+            } else {
+                $(this).attr('style', 'display: none !important');
             }
-
-            empleados.forEach(function (emp) {
-                const nombre = emp.nombre + ' ' + emp.apellido;
-                const cedula = emp.cedula;
-                const cargo  = emp.cargo ?? '';
-
-                const $item = $(`
-                    <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3"
-                        style="cursor:pointer;"
-                        data-cedula="${cedula}">
-                        <div>
-                            <span class="fw-semibold small">${nombre}</span><br>
-                            <span class="text-muted" style="font-size:.78rem;">${cargo}</span>
-                        </div>
-                        <span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">${cedula}</span>
-                    </li>
-                `);
-
-                $item.on('click', function () {
-                    seleccionarEmpleado(cedula);
-                });
-
-                $lista.append($item);
-            });
-        },
-        error: function () {
-            $loader.addClass('d-none');
-            $vacio.removeClass('d-none');
-        }
+        });
     });
-}
+
+    function cargarEmpleadosPendientes() {
+        const $lista  = $('#listaEmpleadosPendientes');
+        const $loader = $('#modalEmpleadoLoader');
+        const $vacio  = $('#modalEmpleadoVacio');
+
+        $lista.empty();
+        $vacio.addClass('d-none');
+        $loader.removeClass('d-none');
+        $('#filtroEmpleadoModal').val('');
+
+        $.ajax({
+            url: '../PHP/CTR/Search_General.php',
+            type: 'POST',
+            data: { op: 2 },
+            success: function (response) {
+                $loader.addClass('d-none');
+
+                let empleados;
+                try { empleados = JSON.parse(response); } catch (e) { empleados = []; }
+
+                if (!Array.isArray(empleados) || empleados.length === 0) {
+                    $vacio.removeClass('d-none');
+                    return;
+                }
+
+                empleados.forEach(function (emp) {
+                    const nombre = emp.nombre + ' ' + emp.apellido;
+                    const cedula = emp.cedula;
+                    const cargo  = emp.cargo ?? '';
+
+                    const $item = $(`
+                        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3"
+                            style="cursor:pointer;">
+                            <div>
+                                <span class="fw-semibold small">${nombre}</span><br>
+                                <span class="text-muted" style="font-size:.78rem;">${cargo}</span>
+                            </div>
+                            <span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">${cedula}</span>
+                        </li>
+                    `);
+
+                    $item.on('click', function () {
+                        seleccionarEmpleado(cedula);
+                    });
+
+                    $lista.append($item);
+                });
+            },
+            error: function () {
+                $loader.addClass('d-none');
+                $vacio.removeClass('d-none');
+            }
+        });
+    }
+
+    function seleccionarEmpleado(cedula) {
+        $('#modalBuscarEmpleado').one('hidden.bs.modal', function () {
+            limpiarFormulario();
+            $('#cedula').val(cedula);
+            buscarEmpleado(cedula);
+        });
+        $('#modalBuscarEmpleado').modal('hide');
+    }
+
+}); // document.ready
 
 function limpiarFormulario() {
     $('#cedula').val('');
@@ -153,18 +169,5 @@ function limpiarFormulario() {
     $('#netoPagar').text('$ 0.00');
     $('#netoPagarBs').text('Bs 0.00');
     $('#alerts').html('');
-}
-
-function seleccionarEmpleado(cedula) {
-    // Registrar el callback ANTES de cerrar, usando .one() para que
-    // se ejecute una sola vez cuando el modal termine la animación
-    // de cierre. Esto evita el error aria-hidden y el TypeError del reset.
-    $('#modalBuscarEmpleado').one('hidden.bs.modal', function () {
-        limpiarFormulario();
-        $('#cedula').val(cedula);
-        buscarEmpleado(cedula);
-    });
-
-    $('#modalBuscarEmpleado').modal('hide');
 }
 </script>

@@ -166,7 +166,7 @@
 ════════════════════════════════════════ -->
 <div class="modal fade" id="modalBuscarEmpleadoISLR" tabindex="-1"
      aria-labelledby="modalBuscarEmpleadoISLRLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="min-height:540px; max-height:540px;">
 
             <div class="modal-header">
@@ -185,19 +185,29 @@
                         data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <div class="modal-body p-0">
-                <div class="px-3 pt-3 pb-2">
+            <div class="modal-body p-0" style="display:flex; flex-direction:column; overflow:hidden;">
+
+                <!-- Buscador fijo -->
+                <div class="px-3 pt-3 pb-2 flex-shrink-0">
                     <input type="text" id="filtroISLRModal" class="form-control form-control-sm"
-                           placeholder="Filtrar por nombre o cédula..." autocomplete="off">
+                           placeholder="Filtrar por nombre o cédula..." autocomplete="off" maxlength="20">
                 </div>
-                <div id="islrModalLoader" class="text-center py-4">
+
+                <!-- Estado de carga -->
+                <div id="islrModalLoader" class="text-center py-4 flex-shrink-0">
                     <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                     <span class="ms-2 text-muted small">Cargando empleados...</span>
                 </div>
-                <div id="islrModalVacio" class="text-center py-4 d-none">
+
+                <!-- Mensaje vacío -->
+                <div id="islrModalVacio" class="text-center py-4 d-none flex-shrink-0">
                     <p class="text-muted small mb-0">No hay empleados registrados.</p>
                 </div>
-                <ul class="list-group list-group-flush" id="listaEmpleadosISLR"></ul>
+
+                <!-- Lista scrolleable -->
+                <ul class="list-group list-group-flush" id="listaEmpleadosISLR"
+                    style="overflow-y:auto; flex:1;"></ul>
+
             </div>
 
             <div class="modal-footer">
@@ -352,34 +362,31 @@ function Guardar() {
 
 
 /* ================================================================
-   MODAL: BUSCAR EMPLEADO (Versión con Delegación de Eventos)
+   MODAL: BUSCAR EMPLEADO (para ISLR)
 ================================================================ */
 $(document).ready(function () {
 
-    // Usamos delegación en el body para asegurar que el input siempre responda
-    $('body').on('input', '#filtroISLRModal', function () {
-        var termino = $(this).val().toLowerCase().trim();
-        console.log("Buscando:", termino); // Verifica esto en tu consola
+    /* Array paralelo para filtrar — no depende de data-attributes ni del DOM */
+    var indiceEmpleados = [];
 
-        // Buscamos directamente en los items de la lista
-        $('#listaEmpleadosISLR li').each(function () {
-            var textoItem = $(this).text().toLowerCase();
-            
-            // Si el texto del <li> contiene el término, se muestra, si no se oculta
-            if (termino === "" || textoItem.indexOf(termino) > -1) {
-                $(this).attr('style', 'display: flex !important'); // Forzamos el display flex de Bootstrap
-            } else {
-                $(this).attr('style', 'display: none !important');
-            }
+    $('#modalBuscarEmpleadoISLR').on('show.bs.modal', function () {
+        cargarListaEmpleadosISLR();
+    });
+
+    $('#filtroISLRModal').on('input', function () {
+        var termino = $(this).val().toLowerCase().trim();
+        $('#listaEmpleadosISLR li').each(function (i) {
+            var entrada = indiceEmpleados[i] || '';
+            $(this).toggle(termino === '' || entrada.includes(termino));
         });
     });
 
-    // Función para cargar la lista (se mantiene similar, pero limpiamos estilos)
     function cargarListaEmpleadosISLR() {
         var $lista  = $('#listaEmpleadosISLR').empty();
         var $loader = $('#islrModalLoader').removeClass('d-none');
         var $vacio  = $('#islrModalVacio').addClass('d-none');
-        $('#filtroISLRModal').val(''); // Limpiar input al abrir
+        $('#filtroISLRModal').val('');
+        indiceEmpleados = [];
 
         $.ajax({
             url: '../PHP/CTR/Search_General.php',
@@ -396,8 +403,13 @@ $(document).ready(function () {
                 }
 
                 empleados.forEach(function (emp) {
-                    var pct = (emp.cargo || '').trim().toLowerCase() === 'gerente' ? 3 : 2;
-                    
+                    var pct    = porcentajePorCargo(emp.cargo);
+                    var nombre = (emp.nombre + ' ' + emp.apellido).toLowerCase();
+                    var cedula = String(emp.cedula);
+
+                    /* Guardar texto de búsqueda en el índice paralelo */
+                    indiceEmpleados.push(nombre + ' ' + cedula);
+
                     var $item = $(
                         '<li class="list-group-item list-group-item-action d-flex ' +
                         'justify-content-between align-items-center py-2 px-3"' +
@@ -408,7 +420,7 @@ $(document).ready(function () {
                         ' &nbsp;·&nbsp; ' + pct + '%</span>' +
                         '</div>' +
                         '<span class="badge bg-secondary rounded-pill" style="font-size:.75rem;">' +
-                        emp.cedula + '</span>' +
+                        cedula + '</span>' +
                         '</li>'
                     );
 
@@ -418,13 +430,22 @@ $(document).ready(function () {
 
                     $lista.append($item);
                 });
+            },
+            error: function () {
+                $loader.addClass('d-none');
+                $vacio.removeClass('d-none');
             }
         });
     }
 
-    // Evento para disparar la carga
-    $('#modalBuscarEmpleadoISLR').on('show.bs.modal', function () {
-        cargarListaEmpleadosISLR();
-    });
 }); // document.ready — modal buscar empleado
+
+function seleccionarEmpleadoISLR(cedula) {
+    $('#modalBuscarEmpleadoISLR').one('hidden.bs.modal', function () {
+        limpiarFormularioISLR();
+        $('#cedula').val(cedula);
+        buscarEmpleadoISLR(cedula);
+    });
+    $('#modalBuscarEmpleadoISLR').modal('hide');
+}
 </script>

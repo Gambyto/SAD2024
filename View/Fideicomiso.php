@@ -66,16 +66,25 @@
             <div class="empleados__content">
                 <label> Cédula:</label>
                 <div class="input-group input-group-sm mb-3">
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                    name="cedula" id="cedula" required 
-                    maxlength="8" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                    onkeyup="buscarEmpleado(this.value)">
-
+                    <input type="text" class="form-control" id="cedula" name="cedula"
+                        maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                        onkeyup="buscarEmpleado(this.value)">
+                
+                    <?php
+                    $modalBuscarConfig = [
+                        'op'       => 6,
+                        'modalId'  => 'modalBuscarEmpVac',
+                        'filtroId' => 'filtroBuscarEmpVac',
+                        'listaId'  => 'listaBuscarEmpVac',
+                        'loaderId' => 'loaderBuscarEmpVac',
+                        'vacioId'  => 'vacioBuscarEmpVac',
+                        'titulo'   => 'Buscar empleado',
+                        'onSelect' => 'seleccionarEmpleadoVac',
+                    ];
+                    include_once 'Components/Modals/Modal-BuscarEmpleadoGeneral.php';
+                    ?>
+                
                     <input type="hidden" id="cedula1" name="cedula1">
-
-                    <!--<input type="submit" class="btn btn-outline-info" 
-                    name="Buscar" value="Buscar" id="Buscar">-->
                 </div>
     		</div>
             
@@ -234,6 +243,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+function seleccionarEmpleadoVac(cedula) {
+    $('#cedula').val(cedula);
+    buscarEmpleado(cedula);   // función existente en la vista
+}
+
 function buscarEmpleado(cedula) {
     if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
         $.ajax({
