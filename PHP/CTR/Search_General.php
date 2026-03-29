@@ -5,14 +5,15 @@ include_once '../CLASS/user_Original.php';
 $op = isset($_POST['op']) ? (int)$_POST['op'] : null;
 
 /* ═══════════════════════════════════════════════════
+   op: 1  →  Requiere cédula (búsqueda individual nómina)
    op: 2  →  NO necesita cédula (lista sin pago semana)
+   op: 3  →  Requiere cédula (sueldo en Bs para ISLR/Fideicomiso)
    op: 4  →  NO necesita cédula (empleados para ISLR masivo)
    op: 5  →  NO necesita cédula (aportes ISLR por mes)
    op: 6  →  NO necesita cédula (todos los empleados activos)
    op: 7  →  NO necesita cédula (empleados sin préstamo activo)
    op: 8  →  NO necesita cédula (empleados sin usuario registrado)
-   op: 1  →  Requiere cédula (búsqueda individual nómina)
-   op: 3  →  Requiere cédula (sueldo en Bs para ISLR/Fideicomiso)
+   op: 9  →  NO necesita cédula (nómina filtrada por mes)
 ═══════════════════════════════════════════════════ */
 
 if ($op === 2) {
@@ -181,6 +182,27 @@ if ($op === 8) {
     exit;
 }
 
+ 
+if ($op === 9) {
+ 
+    /* ─────────────────────────────────────────────────────────────
+       Registros de nómina filtrados por mes (formato YYYY-MM).
+       Usado por Tablas-nomina.php para la paginación JS.
+    ───────────────────────────────────────────────────────────── */
+    $mes = isset($_POST['mes']) ? trim($_POST['mes']) : date('Y-m');
+    if (!preg_match('/^\d{4}-\d{2}$/', $mes)) {
+        $mes = date('Y-m');
+    }
+ 
+    $datos = $Nomina->Search_Nomina($mes);   // reutiliza el método ya existente
+    if (!$datos) {
+        $datos = [];
+    }
+ 
+    header('Content-Type: application/json');
+    echo json_encode($datos);
+    exit;
+}
 /* ─── Operaciones que sí requieren cédula ─── */
 if (!isset($_POST['cedula'])) {
     echo json_encode(['error' => 'Cédula no proporcionada.']);

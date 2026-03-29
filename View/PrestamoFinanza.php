@@ -83,7 +83,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" id="cedula" name="cedula"
                             maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                            onkeyup="buscarUsuario(this.value)">
+                            onchange="buscarUsuario(this.value)">
                     
                         <?php
                         $modalBuscarConfig = [
@@ -107,7 +107,7 @@
                     <label for="nombre" class="form-label">Nombre</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required 
                     readonly
-                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
+                    oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" >
                 </div>
 
                 <div>

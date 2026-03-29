@@ -76,14 +76,14 @@
                     <div class="a1">
                         <label>Nombres</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" id="nombre"
+                            <input type="text" class="form-control bg-light" id="nombre"
                                    name="nombre" readonly>
                         </div>
                     </div>
                     <div class="a1">
                         <label>Apellidos</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" id="apellido"
+                            <input type="text" class="form-control bg-light" id="apellido"
                                    name="apellido" readonly>
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                 <div class="empleados__content">
                     <label>Cargo</label>
                     <div class="input-group input-group-sm mb-3">
-                        <input type="text" class="form-control" id="cargo"
+                        <input type="text" class="form-control bg-light" id="cargo"
                                name="cargo" readonly>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                         <label>Sueldo</label>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">$</span>
-                            <input type="text" class="form-control" id="sueldo"
+                            <input type="text" class="form-control bg-light" id="sueldo"
                                    name="sueldo" readonly>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                         <label>&nbsp;</label>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">Bs.</span>
-                            <input type="text" class="form-control" id="sueldobs"
+                            <input type="text" class="form-control bg-light" id="sueldobs"
                                    name="sueldobs" readonly>
                         </div>
                     </div>
