@@ -1662,6 +1662,19 @@ public function cuentas_por_pagar_View()
   		return $data;
 	}
 
+	public function validaraportetrimestral($cedula) {
+		$query = "SELECT * FROM fideicomiso WHERE cedula_FK = '$cedula'
+					AND QUARTER(fecha) = QUARTER(CURDATE())
+					AND YEAR(fecha)    = YEAR(CURDATE())";
+		$result = $this->connect_db()->query($query);
+
+		if ($result->num_rows > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public function Search_Fide($fecha)
 	{
 		$query = "SELECT empleados.nombre, empleados.apellido, empleados.cedula, empleados.f_ingreso, empleados.sueldo, `tasa_utilidad`, `t_bonovacacional`, `a_utilidad`, `a_bonovacional`, `sueldo_integral`, `sueldod_integral`, `dias_antiguedad`, `dias_acumulados`, `total_dias`, `monto`,`anticipo`, `fecha` FROM fideicomiso 

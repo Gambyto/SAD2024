@@ -165,6 +165,15 @@ if (empty($_POST['cedula'])) {
                 exit;
             }
 
+            if ($Nomina->validaraportetrimestral($cedula)) {
+                $message = 'Error: Ya se ha emitido un aporte a este trabajador este trimestre';
+                ob_start();
+                include_once '../../View/Components/alerts.php';
+                $html = ob_get_clean();
+                echo json_encode(['message' => $message, 'html' => $html]);
+                exit;
+            }
+
             $Tservicio        = getPostValue('Tservicio', 0);
             $Tutilidad        = getPostValue('Tuitlidad', 0);
             $alicuotaU        = getPostValue('alicuotaU', 0);
