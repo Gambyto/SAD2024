@@ -14,6 +14,7 @@ $op = isset($_POST['op']) ? (int)$_POST['op'] : null;
    op: 7  →  NO necesita cédula (empleados sin préstamo activo)
    op: 8  →  NO necesita cédula (empleados sin usuario registrado)
    op: 9  →  NO necesita cédula (nómina filtrada por mes)
+   op: 10  →  NO necesita cédula (fideicomisos filtrados por mes)
 ═══════════════════════════════════════════════════ */
 
 if ($op === 2) {
@@ -203,6 +204,35 @@ if ($op === 9) {
     echo json_encode($datos);
     exit;
 }
+
+ 
+if ($op === 10) {
+ 
+    /* ─────────────────────────────────────────────────────────────
+       Registros de fideicomiso filtrados por mes (formato YYYY-MM).
+       Usado por Tablas-fideicomiso.php para la paginación JS.
+    ───────────────────────────────────────────────────────────── */
+    $mes = isset($_POST['mes']) ? trim($_POST['mes']) : date('Y-m');
+    if (!preg_match('/^\d{4}-\d{2}$/', $mes)) {
+        $mes = date('Y-m');
+    }
+ 
+    $datos = $Nomina->Search_Fide($mes);   // reutiliza el método ya existente
+    if (!$datos) {
+        $datos = [];
+    }
+ 
+    header('Content-Type: application/json');
+    echo json_encode($datos);
+    exit;
+}
+ 
+
+
+
+
+
+
 /* ─── Operaciones que sí requieren cédula ─── */
 if (!isset($_POST['cedula'])) {
     echo json_encode(['error' => 'Cédula no proporcionada.']);

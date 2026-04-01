@@ -511,6 +511,8 @@
       success: function (res) {
         $('#modalConfirmarPago').modal('hide');
         mostrarResultado(res);
+
+        window.refrescarTablaNomina();
       },
       error: function () {
         $('#modalConfirmarPago').modal('hide');

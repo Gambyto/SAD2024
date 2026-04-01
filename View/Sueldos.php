@@ -438,6 +438,13 @@ function Calcular() {
                 var data = JSON.parse(response);
                     if (data.html) {
                     $('#alerts').html(data.html);
+                     
+                    // Elimina la alerta del DOM cuando termina su animación
+                    $('#alerts .notification').one('animationend', function() {
+                        $('#alerts').empty();
+                    });
+                    
+                    window.refrescarTablaNomina();
                 } else {
                     alert(data.message);
                 }

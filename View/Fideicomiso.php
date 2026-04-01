@@ -21,7 +21,7 @@
 
     <main>
     <div id="alerts"></div>
-        <form id="form">
+        <form id="formFideicomiso">
             <div class="form">
 
                 <div class="block Name">
@@ -130,6 +130,7 @@
                 <div class="empleados__content">
 		    	<label> Tasa de utlidad:</label>
                 <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">$</span>
                     <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="Tutilidad" id="Tutilidad" readonly>
                 </div>
@@ -138,6 +139,7 @@
 		    <div class="empleados__content">
                 <label>Tasa Bono vacacional:</label>
                 <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">$</span>
                     <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="bonoVaca" id="bonoVaca" readonly>
                 </div>
@@ -146,6 +148,7 @@
 		    <div class="empleados__content">
                 <label> Alicuota Utilidad:</label>
                 <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">$</span>
                     <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="alicuotaU" id="alicuotaU" readonly>
                 </div>
@@ -154,6 +157,7 @@
 		    <div class="empleados__content">
                 <label> Alicuota Bono Vacacional:</label>
                 <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text">$</span>
 		    			<input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="alicuotaBV" id="alicuotaBV" readonly>
 		    		</div>
@@ -163,6 +167,8 @@
                     <div>
                         <label> Sueldo Integral:</label>
                         <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">$</span>
+
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             name="Sintegral" id="Sintegral" readonly>
                         </div>
@@ -170,6 +176,8 @@
                     <div>
                         <label> Diario Integral:</label>
                         <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">$</span>
+
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             name="Dintegral" id="Dintegral" readonly>
                         </div>
@@ -181,6 +189,7 @@
                 <div class="empleados__content">
                     <label> Antigüedad:</label>
                     <div class="input-group input-group-sm mb-3">
+
                         <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="antiguedad" id="antiguedad" readonly>
 
@@ -354,7 +363,7 @@ function Calcular() {
 
     function Guardar(){
         // Recoger todos los datos del formulario usando serialize
-        const formData = $('#form').serialize();
+        const formData = $('#formFideicomiso').serialize();
         $.ajax({
             url: '../PHP/CTR/SaveResult_CTR.php', 
             type: 'POST',
@@ -363,7 +372,23 @@ function Calcular() {
                 const data = JSON.parse(response);
                 if (response) {
                     $('#alerts').html(data.html);
-                    $('#nominaForm')[0].reset(); // Limpiar el formulario
+                    
+                    // Elimina la alerta del DOM cuando termina su animación
+                    $('#alerts .notification').one('animationend', function() {
+                        $('#alerts').empty();
+                    });
+                    
+                    window.refrescarTablaFideicomiso();
+
+                    // Reset manual — evita dependencia de id único en la página
+                    $('#cedula, #cedula1, #nombre, #apellido, #fechaingreso, #sueldo, #sueldobs').val('');
+                    $('#Tutilidad, #bonoVaca, #alicuotaU, #alicuotaBV').val('');
+                    $('#Sintegral, #Dintegral, #antiguedad, #Dvacaciones, #Tdias').val('');
+                    $('#tservicio, #fideicomiso1, #anticipo1').val('');
+                    $('#fideicomiso').text('$ 0.00');
+                    $('#fideicomisobs').text('Bs 0.00');
+                    $('#anticipo').text('$ 0.00');
+                    $('#anticipobs').text('Bs 0.00');
                 } else {
                     alert('Error al guardar los datos. Intente nuevamente.');
                 }
