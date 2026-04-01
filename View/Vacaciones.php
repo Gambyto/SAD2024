@@ -73,7 +73,7 @@
 			<div class="empleados__content">
 				<label> Nombres:</label>
 					<div class="input-group input-group-sm mb-3">
-		  				<input type="text" class="form-control" aria-label="Sizing example input" 
+		  				<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 						aria-describedby="inputGroup-sizing-sm" name="nombre" id="nombre" readonly>
 					</div>
 			</div>
@@ -81,7 +81,7 @@
 			<div class="empleados__content">
 				<label> Apellidos:</label>
 					<div class="input-group input-group-sm mb-3">
-		  				<input type="text" class="form-control" aria-label="Sizing example input" 
+		  				<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 						aria-describedby="inputGroup-sizing-sm" name="apellido" id="apellido" readonly>
 					</div>
 			</div>
@@ -91,7 +91,7 @@
                 <div class="empleados__content">
 					<label> Fecha de ingreso:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="date" class="form-control" aria-label="Sizing example input" 
+		  					<input type="date" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="f_ingreso" id="f_ingreso" readonly>
 						</div>
 				</div>
@@ -99,7 +99,7 @@
 				<div class="empleados__content">
 					<label> Sueldo Diario:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="text" class="form-control" aria-label="Sizing example input" 
+		  					<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="sueldoD" id="sueldoD" readonly>
 							<span class="input-group-text">$</span>
 						</div>
@@ -108,7 +108,7 @@
 				<div class="empleados__content">
 					<label> Días de vacaciones:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="text" class="form-control" aria-label="Sizing example input" 
+		  					<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="Dvacaciones" id="Dvacaciones" readonly>
 						</div>
 				</div>
@@ -119,7 +119,7 @@
                 <div class="empleados__content">
 					<label> Días Feriados:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="text" class="form-control" aria-label="Sizing example input" 
+		  					<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 							.aria-describedby="inputGroup-sizing-sm" name="feriados" id="feriados"
                             maxlength="2" 
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');">
@@ -129,7 +129,7 @@
 				<div class="empleados__content">
                     <label> Utilidades:</label>
                     <div class="input-group input-group-sm mb-3">
-                        <select class="form-control" name="utilidades" id="utilidades">
+                        <select class="form-control bg-light" name="utilidades" id="utilidades">
                             <option value="0">0</option>
                             <option value="30">30</option>
                             <option value="60">60</option>
@@ -142,7 +142,7 @@
 				<div class="empleados__content">
 					<label> Días pendientes:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="text" class="form-control" aria-label="Sizing example input" 
+		  					<input type="text" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="pendientes" id="pendientes"
                             maxlength="2" 
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');">
@@ -162,7 +162,7 @@
 				<div class="empleados__content">
 					<label> Fin de vacaciones:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="date" class="form-control" aria-label="Sizing example input" 
+		  					<input type="date" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="Vacacionesfin" id="Vacacionesfin" readonly>
 						</div>
 				</div>
@@ -170,7 +170,7 @@
 				<div class="empleados__content">
 					<label> Inicio laboral:</label>
 						<div class="input-group input-group-sm mb-3">
-		  					<input type="date" class="form-control" aria-label="Sizing example input" 
+		  					<input type="date" class="form-control bg-light" aria-label="Sizing example input" 
 							aria-describedby="inputGroup-sizing-sm" name="inilaboral" id="inilaboral" readonly>
 						</div>
 				</div>

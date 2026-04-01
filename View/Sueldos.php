@@ -99,7 +99,7 @@
                     <div class="a1">
                         <label for="nombre"> Nombres</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" 
+                            <input type="text" class="form-control bg-light" 
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             id="nombre" name="nombre" readonly>
                         </div>
@@ -107,7 +107,7 @@
                     <div class="a1">
                         <label for="apellido"> Apellidos</label>
                             <div class="input-group input-group-sm mb-3">
-                                <input type="text" class="form-control" 
+                                <input type="text" class="form-control bg-light" 
                                 aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                                 id="apellido" name="apellido" readonly>
                             </div>
@@ -117,7 +117,7 @@
                 <div class="empleados__content">
                     <label for="cargo"> Cargo</label>
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" 
+                            <input type="text" class="form-control bg-light" 
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             id="cargo" name="cargo" readonly>
                         </div>
@@ -128,7 +128,7 @@
                         <label for="sueldoM"> Sueldo mensual </label>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">$</span>
-                            <input type="text" class="form-control" 
+                            <input type="text" class="form-control bg-light" 
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             id="sueldoM" name="sueldoM" readonly>
                         </div>
@@ -138,7 +138,7 @@
                         <label for="sueldoS"> Sueldo semanal </label>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">$</span>
-                            <input type="text" class="form-control" 
+                            <input type="text" class="form-control bg-light" 
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             id="sueldoS" name="sueldoS" readonly>
                         </div>
@@ -179,7 +179,7 @@
 				<label for="deduc"> Total deducciones </label>
 					<div class="input-group input-group-sm mb-3">
 						<span class="input-group-text">$</span>
-		  				<input type="text" class="form-control" 
+		  				<input type="text" class="form-control bg-light" 
                         aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         id="deduc" name="deduc" readonly
                         oninput="formatInput(this)">
@@ -221,7 +221,7 @@
 				<label for="asig"> Total asignaciones </label>
 					<div class="input-group input-group-sm mb-3">
 						<span class="input-group-text">$</span>
-		  				<input type="text" class="form-control"
+		  				<input type="text" class="form-control bg-light"
                         aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         id="asig" name="asig" readonly>
 					</div>
@@ -443,7 +443,7 @@ function Calcular() {
                     $('#alerts .notification').one('animationend', function() {
                         $('#alerts').empty();
                     });
-                    
+
                     window.refrescarTablaNomina();
                 } else {
                     alert(data.message);

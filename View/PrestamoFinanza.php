@@ -105,14 +105,14 @@
 
                 <div>
                     <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" required 
+                    <input type="text" class="form-control bg-light" id="nombre" name="nombre" required 
                     readonly
                     oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" >
                 </div>
 
                 <div>
                     <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="apellido" name="apellido" required
+                    <input type="text" class="form-control bg-light" id="apellido" name="apellido" required
                     readonly
                     oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')">
                 </div>
@@ -149,7 +149,7 @@
                     <label for="descuento" class="form-label">Monto a descontar por cuota</label>
                     <div class="input-group has-validation"> 
                         <span class="input-group-text" id="inputGroupPrepend">$</span>
-                        <input type="text" class="form-control" 
+                        <input type="text" class="form-control bg-light"
                         name="descuento" id="descuento" readonly>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
                 <div class="a2">	
                     <label for="fechasolicitud" class="form-label">Fecha de solicitud</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control" 
+                        <input type="date" class="form-control bg-light" 
                         id="fechasolicitud" name="fechasolicitud" 
                         aria-describedby="inputGroupPrepend" required readonly>
                     </div> 
@@ -168,7 +168,7 @@
                 <div class="a2">
                     <label for="fechalimite" class="form-label">Fecha limite del pago</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control" id="fechalimite" 
+                        <input type="date" class="form-control bg-light" id="fechalimite" 
                         name="fechalimite" 
                         aria-describedby="inputGroupPrepend"
                          required readonly 

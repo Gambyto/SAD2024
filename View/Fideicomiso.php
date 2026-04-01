@@ -91,7 +91,7 @@
 			<div class="empleados__content">
                 <label> Nombres:</label>
                 <div class="input-group input-group-sm mb-3">
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="nombre" id="nombre" readonly>
                 </div>
 			</div>
@@ -99,7 +99,7 @@
 	        <div class="empleados__content">
                 <label> Apellidos:</label>
                 <div class="input-group input-group-sm mb-3">
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="apellido" id="apellido" readonly>
                 </div>
 	        </div>
@@ -108,11 +108,11 @@
                 <label> Sueldo:</label>
 					<div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">$</span>
-						<input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+						<input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="sueldo" id="sueldo" readonly>
                         
 						<span style="margin-left: 1rem;" class="input-group-text">Bs</span>
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                        <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="sueldobs" id="sueldobs" readonly>
 					</div>
                 </div>
@@ -120,7 +120,7 @@
                 <div class="empleados__content">
                     <label> Fecha de ingreso:</label>
 					<div class="input-group input-group-sm mb-3">
-                        <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                        <input type="date" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="fechaingreso" id="fechaingreso" readonly>
 					</div>
                 </div>
@@ -131,7 +131,7 @@
 		    	<label> Tasa de utlidad:</label>
                 <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text">$</span>
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="Tutilidad" id="Tutilidad" readonly>
                 </div>
 		    </div>
@@ -140,7 +140,7 @@
                 <label>Tasa Bono vacacional:</label>
                 <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text">$</span>
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="bonoVaca" id="bonoVaca" readonly>
                 </div>
 		    </div>
@@ -149,7 +149,7 @@
                 <label> Alicuota Utilidad:</label>
                 <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text">$</span>
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="alicuotaU" id="alicuotaU" readonly>
                 </div>
 		    </div>
@@ -158,7 +158,7 @@
                 <label> Alicuota Bono Vacacional:</label>
                 <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text">$</span>
-		    			<input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+		    			<input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="alicuotaBV" id="alicuotaBV" readonly>
 		    		</div>
                 </div>
@@ -169,7 +169,7 @@
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">$</span>
 
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                            <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             name="Sintegral" id="Sintegral" readonly>
                         </div>
                     </div>
@@ -178,7 +178,7 @@
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">$</span>
 
-                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                            <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                             name="Dintegral" id="Dintegral" readonly>
                         </div>
                     </div>    
@@ -190,7 +190,7 @@
                     <label> Antigüedad:</label>
                     <div class="input-group input-group-sm mb-3">
 
-                        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                        <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                         name="antiguedad" id="antiguedad" readonly>
 
                         <input type="hidden" name="tservicio" id="tservicio">
@@ -201,7 +201,7 @@
             <div class="empleados__content">
                 <label> Días acumulados adicionales:</label>
                 <div class="input-group input-group-sm mb-3">
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
                     name="Dvacaciones" id="Dvacaciones" readonly>
                 </div>
             </div>
@@ -209,7 +209,7 @@
             <div class="empleados__content">
                 <label> Total días deparar:</label>
                 <div class="input-group input-group-sm mb-3">
-                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
+                    <input type="text" class="form-control bg-light" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
                      name="Tdias" id="Tdias"  readonly>
                 </div>
             </div>
