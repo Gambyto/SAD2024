@@ -55,7 +55,22 @@
 						aria-describedby="inputGroup-sizing-sm" id="cedula1" name="cedula"
 						required maxlength="8" 
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                            
+                            <?php
+                            $modalBuscarConfig = [
+                                'op'       => 6,
+                                'modalId'  => 'modalBuscarEmpVac',
+                                'filtroId' => 'filtroBuscarEmpVac',
+                                'listaId'  => 'listaBuscarEmpVac',
+                                'loaderId' => 'loaderBuscarEmpVac',
+                                'vacioId'  => 'vacioBuscarEmpVac',
+                                'titulo'   => 'Buscar empleado',
+                                'onSelect' => 'seleccionarEmpleadoVac',
+                            ];
+                            include_once 'Components/Modals/Modal-BuscarEmpleadoGeneral.php';
+                            ?>
 					</div>
+
                 <?php } ?>
                     <label> Concepto:</label>
                     <div class="input-group input-group-sm mb-3">
@@ -95,4 +110,39 @@
         function openModal() {
         $('#solicitudes').modal('show');
         }
+
+        function seleccionarEmpleadoVac(cedula) {
+    $('#cedula').val(cedula);
+    buscarEmpleado(cedula);   // función existente en la vista
+}
+
+function buscarEmpleado(cedula) {
+    if (cedula.length >= 7 && cedula.length <= 8) { // Asegúrate de que la cédula tenga 8 dígitos
+        $.ajax({
+            url: '../PHP/CTR/Search_General.php', // Cambia esto por la ruta a tu script PHP
+            type: 'POST',
+            data: { cedula: cedula ,
+                op : 3,
+                tasa : <?php echo json_encode($_SESSION['TasaBCV']); ?> },
+            success: function(response) {
+                // Suponiendo que la respuesta es un objeto JSON con nombre y apellido
+                const datos = JSON.parse(response);
+                if (datos) {
+                    console.log(datos);
+                    $('#cedula1').val(datos.cedula);
+                    cambiarPagina(1, datos.cedula, concepto, fecha); // Actualizar la tabla con la cédula del empleado seleccionado
+                } else {
+                    // Si no se encuentra el usuario, puedes limpiar los campos o mostrar un mensaje
+                    $('#cedula1').val('');
+                }
+            },
+            error: function() {
+                alert('Error en la búsqueda del empleado. Intente nuevamente.');
+            }
+        });
+    } else {
+        // Limpiar los campos si la cédula no tiene 8 dígitos
+		$('#cedula1').val('');
+}
+}
     </script>

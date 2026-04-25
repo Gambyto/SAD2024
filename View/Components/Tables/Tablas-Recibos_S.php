@@ -36,7 +36,7 @@
 <!-- Script de paginación y búsqueda -->
 <script>
 var paginaActual = 1;
-var totalPaginas = 0; // Inicializar totalPaginas
+var totalPaginas = 0; // Inicializar totalPaginas 
  // Inicializar parametros de busqueda
 var cedula = "";
 var concepto = "";

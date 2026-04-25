@@ -858,6 +858,7 @@ public function View_Empleados_Sin_Pago_Semana()
 					empleados.cedula,
 					empleados.nombre,
 					empleados.apellido,
+					v.dia_correspondido AS dias_habiles,
 					v.ini_vacaciones,
 					v.fin_vacaciones,
 					v.monto
@@ -872,10 +873,10 @@ public function View_Empleados_Sin_Pago_Semana()
 		while ($row = mysqli_fetch_assoc($result)) {
 	
 			// ── Calcular días hábiles entre ini y fin ─────────────────────────
-			$row['dias_habiles'] = $this->calcularDiasHabiles(
+			/**$row['dias_habiles'] = $this->calcularDiasHabiles(
 				$row['ini_vacaciones'],
 				$row['fin_vacaciones']
-			);
+			);**/
 	
 			// Formatear fechas para mostrar después de calcular
 			$row['ini_vacaciones'] = date('d/m/Y', strtotime($row['ini_vacaciones']));
