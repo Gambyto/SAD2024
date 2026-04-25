@@ -34,15 +34,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display&display=swap" rel="stylesheet">
     
                         <!-- link CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../CSS/alerts.css"> 
-    <link rel="stylesheet" href="../CSS/bootstrap.css">
     <link rel="stylesheet" href="../CSS/menu1.css"> <!-- Estilos del menu -->
     <link rel="stylesheet" href="../CSS/Search-box.css"> <!-- Estilos del caja de busqueda -->
     <link rel="stylesheet" href="../CSS/struct.css"> <!-- Cuerpo de la pagina -->
+    <link rel="stylesheet" href="../CSS/bootstrap.css"> 
                        
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <title>SAD 2024</title>
 </head>
@@ -59,6 +60,14 @@
             <h5 class="BCV_Tasa"> Tasa del día: No disponible </h5>
         <?php  include_once 'Modals/Modal-tasabcv.php'; } ?>
 
+        <script>
+            // Evita que el error de Popper bloquee la ejecución del resto del JS
+            window.addEventListener('error', function(e) {
+                if (e.message && (e.message.includes('nodeName') || e.message.includes('toLowerCase'))) {
+                    e.stopImmediatePropagation();
+                }
+            }, true);
+        </script>
 
 
     

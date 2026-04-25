@@ -826,6 +826,66 @@ public function View_Empleados_Sin_Pago_Semana()
 		}
 	}
 
+	private function calcularDiasHabiles(string $fechaIni, string $fechaFin): int
+	{
+		$inicio = new DateTime($fechaIni);
+		$fin    = new DateTime($fechaFin);
+	
+		// Si las fechas son iguales o están al revés, devolvemos 0
+		if ($inicio > $fin) return 0;
+	
+		$diasHabiles = 0;
+		$actual = clone $inicio;
+	
+		while ($actual <= $fin) {
+			// dayOfWeek: 1=lunes … 5=viernes, 6=sábado, 7=domingo
+			$dow = (int)$actual->format('N');
+			if ($dow < 6) {
+				$diasHabiles++;
+			}
+			$actual->modify('+1 day');
+		}
+	
+		return $diasHabiles;
+	}
+
+	public function Vacation_Detail_By_Year(int $anio): array
+	{
+		$anio = (int)$anio;
+	
+		// Traemos las fechas en formato Y-m-d para poder operar con DateTime
+		$query = "SELECT
+					empleados.cedula,
+					empleados.nombre,
+					empleados.apellido,
+					v.ini_vacaciones,
+					v.fin_vacaciones,
+					v.monto
+				FROM vacaciones_y_utilidades v
+				INNER JOIN empleados ON v.cedula_FK = empleados.cedula
+				WHERE YEAR(v.ini_vacaciones) = $anio
+				ORDER BY v.ini_vacaciones ASC";
+	
+		$result = $this->connect_db()->query($query);
+	
+		$data = [];
+		while ($row = mysqli_fetch_assoc($result)) {
+	
+			// ── Calcular días hábiles entre ini y fin ─────────────────────────
+			$row['dias_habiles'] = $this->calcularDiasHabiles(
+				$row['ini_vacaciones'],
+				$row['fin_vacaciones']
+			);
+	
+			// Formatear fechas para mostrar después de calcular
+			$row['ini_vacaciones'] = date('d/m/Y', strtotime($row['ini_vacaciones']));
+			$row['fin_vacaciones'] = date('d/m/Y', strtotime($row['fin_vacaciones']));
+	
+			$data[] = $row;
+		}
+		return $data;
+	}
+
 	public function DaysOff($cedula, $fechActual) //función para los dias de vacaciones en función de los años de servicio 
 	{
 		$dato = $this->View_Active_Search_Nomina($cedula); // llama la función "" para tomar la fecha de ingreso
@@ -946,22 +1006,164 @@ public function View_Empleados_Sin_Pago_Semana()
   		return $data;
 	}
 
-	public function ISLR_Grap()
-	{
-		$query = "SELECT YEAR(fecha) AS anio, MONTH(fecha) AS mes, SUM(monto) AS monto
-				FROM `islr` 
-				WHERE YEAR(fecha) = YEAR(CURDATE())
-				GROUP BY YEAR(fecha), MONTH(fecha)
-				ORDER BY fecha DESC";
-  		$result = $this->connect_db()->query($query);
+	    public function ISLR_Grap()
+    {
+        $query = "SELECT
+						m.mes,
+						COALESCE(SUM(i.monto), 0) AS monto
+					FROM (
+						SELECT 1 AS mes UNION SELECT 2 UNION SELECT 3  UNION SELECT 4
+						UNION SELECT 5 UNION SELECT 6 UNION SELECT 7  UNION SELECT 8
+						UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+					) AS m
+					LEFT JOIN islr i
+						ON  MONTH(i.fecha) = m.mes
+						AND YEAR(i.fecha)  = YEAR(CURDATE())
+					GROUP BY m.mes
+					ORDER BY m.mes ASC
+				";
+ 
+        $result = $this->connect_db()->query($query);
+ 
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;   // array de 12 elementos, índice 0 = enero … índice 11 = diciembre
+    }
+ 
+    /**
+     * Igual que ISLR_Grap() pero para un año específico (útil para comparativas).
+     */
+    public function ISLR_Grap_Anio($anio)
+    {
+        $anio = (int) $anio;
+        $query = "SELECT
+						m.mes,
+						COALESCE(SUM(i.monto), 0) AS monto
+					FROM (
+						SELECT 1 AS mes UNION SELECT 2 UNION SELECT 3  UNION SELECT 4
+						UNION SELECT 5 UNION SELECT 6 UNION SELECT 7  UNION SELECT 8
+						UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+					) AS m
+					LEFT JOIN islr i
+						ON  MONTH(i.fecha) = m.mes
+						AND YEAR(i.fecha)  = $anio
+					GROUP BY m.mes
+					ORDER BY m.mes ASC
+				";
+ 
+        $result = $this->connect_db()->query($query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 
-  		$data = array();
-  		while ($row = mysqli_fetch_assoc($result)) {
-    	$data[] = $row;
-  		}
-  		return $data;
-	}
 
+	public function ISLR_GetAnios(): array
+{
+    $con  = $this->connect_db();
+    $sql  = "SELECT DISTINCT YEAR(fecha) AS anio
+             FROM islr         -- ← Cambia al nombre real de tu tabla
+             ORDER BY anio DESC";
+ 
+    $res  = mysqli_query($con, $sql);
+    $rows = [];
+ 
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+    }
+    return $rows;
+}
+ 
+ 
+// ────────────────────────────────────────────────────────────────────────
+// 2. ISLR_GrapByAnio($anio)
+//    Igual que ISLR_Grap() pero filtrando por el año indicado.
+//    Devuelve 12 filas (una por mes), siempre, con monto = 0 si no hay dato.
+// ────────────────────────────────────────────────────────────────────────
+public function ISLR_GrapByAnio(int $anio): array
+{
+    $con = $this->connect_db();
+    $anio = (int)$anio;   // sanitize
+ 
+    // Genera una tabla de 12 meses y hace LEFT JOIN con los datos reales.
+    // Ajusta la tabla y los campos (mes, monto, anio) a tu schema.
+    $sql = "SELECT
+            m.mes,
+            COALESCE(SUM(p.monto), 0) AS monto
+        FROM (
+            SELECT 1 AS mes UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+            UNION SELECT 5  UNION SELECT 6 UNION SELECT 7 UNION SELECT 8
+            UNION SELECT 9  UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+        ) m
+        LEFT JOIN islr p          -- ← Cambia al nombre real de tu tabla
+            ON MONTH(p.fecha) = m.mes   -- ← Ajusta si usas campo 'mes' en vez de MONTH(fecha)
+            AND YEAR(p.fecha) = $anio   -- ← Ajusta si usas campo 'anio'
+        GROUP BY m.mes
+        ORDER BY m.mes ASC
+    ";
+ 
+    $res  = mysqli_query($con, $sql);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+    }
+    return $rows;
+}
+ 
+ 
+// ────────────────────────────────────────────────────────────────────────
+// 3. ISLR_Detail($anio)
+//    Detalle por empleado: nombre + monto aportado cada mes + total anual.
+//    Devuelve array de empleados con claves: nombre, mes_1…mes_12, total.
+// ────────────────────────────────────────────────────────────────────────
+public function ISLR_Detail(int $anio): array
+{
+    $con = $this->connect_db();
+    $anio = (int)$anio;
+ 
+    // Ajusta los nombres de tabla y campos a tu schema.
+    // Asumimos:
+    //   islr_pagos: id, empleado_id, fecha, monto
+    //   empleados:  id, nombre (o primer_nombre + apellido)
+    $sql = "SELECT
+            e.nombre AS nombre,                  -- ← Ajusta campo nombre
+            SUM(CASE WHEN MONTH(p.fecha) = 1  THEN p.monto ELSE 0 END) AS mes_1,
+            SUM(CASE WHEN MONTH(p.fecha) = 2  THEN p.monto ELSE 0 END) AS mes_2,
+            SUM(CASE WHEN MONTH(p.fecha) = 3  THEN p.monto ELSE 0 END) AS mes_3,
+            SUM(CASE WHEN MONTH(p.fecha) = 4  THEN p.monto ELSE 0 END) AS mes_4,
+            SUM(CASE WHEN MONTH(p.fecha) = 5  THEN p.monto ELSE 0 END) AS mes_5,
+            SUM(CASE WHEN MONTH(p.fecha) = 6  THEN p.monto ELSE 0 END) AS mes_6,
+            SUM(CASE WHEN MONTH(p.fecha) = 7  THEN p.monto ELSE 0 END) AS mes_7,
+            SUM(CASE WHEN MONTH(p.fecha) = 8  THEN p.monto ELSE 0 END) AS mes_8,
+            SUM(CASE WHEN MONTH(p.fecha) = 9  THEN p.monto ELSE 0 END) AS mes_9,
+            SUM(CASE WHEN MONTH(p.fecha) = 10 THEN p.monto ELSE 0 END) AS mes_10,
+            SUM(CASE WHEN MONTH(p.fecha) = 11 THEN p.monto ELSE 0 END) AS mes_11,
+            SUM(CASE WHEN MONTH(p.fecha) = 12 THEN p.monto ELSE 0 END) AS mes_12,
+            SUM(p.monto) AS total
+        FROM islr p                        -- ← Cambia al nombre real
+        INNER JOIN empleados e ON e.cedula = p.cedula_FK  -- ← Ajusta el JOIN
+        WHERE YEAR(p.fecha) = $anio              -- ← Ajusta si usas campo 'anio'
+        GROUP BY e.cedula, e.nombre
+        ORDER BY total DESC
+    ";
+ 
+    $res  = mysqli_query($con, $sql);
+    $rows = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+    }
+    return $rows;
+}
 	public function Search_ISLR($fecha)
 	{
 		$query = "SELECT empleados.nombre, empleados.apellido, empleados.cedula, empleados.f_ingreso, empleados.cargo, aporte, monto, fecha
@@ -1896,6 +2098,152 @@ public function View_Fideicomiso_Historial()
     }
     return null;
 }
+
+
+// ── Dashboard: resumen ejecutivo ─────────────────────────────────────────────────────
+ 
+    /**
+     * Devuelve un resumen ejecutivo de la semana actual para el widget del dashboard.
+     * Incluye: total nómina semana, promedio por empleado, empleados pagados, tasa BCV del día.
+     */
+    public function Dashboard_Resumen_Semana()
+    {
+        $query = "SELECT
+					COUNT(*)                                           AS empleados_pagados,
+					SUM(n.neto)                                        AS total_neto_usd,
+					SUM(TRUNCATE(n.neto * t.tasa_del_dia, 2))          AS total_neto_bs,
+					ROUND(AVG(n.neto), 2)                              AS promedio_neto_usd,
+					MAX(t.tasa_del_dia)                                AS tasa_hoy
+				FROM nomina n
+				JOIN tasa_dolar t ON n.tasaBCV_FK = t.id_tasa
+				WHERE n.estado = 1
+				AND WEEK(n.fecha, 1)  = WEEK(CURDATE(), 1)
+				AND YEAR(n.fecha)     = YEAR(CURDATE())
+			";
+        $result = $this->connect_db()->query($query);
+        return $result->fetch_assoc();
+    }
+ 
+    /**
+     * Nómina de los últimos N meses agrupada mensualmente (para mini-sparkline).
+     * @param int $meses  Cantidad de meses hacia atrás (default 6)
+     */
+    public function Nomina_Ultimos_Meses($meses = 6)
+    {
+        $meses = (int) $meses;
+        $query = "SELECT
+					DATE_FORMAT(n.fecha, '%Y-%m')   AS periodo,
+					SUM(n.neto)                     AS total_neto,
+					COUNT(*)                        AS registros
+				FROM nomina n
+				WHERE n.estado = 1
+				AND n.fecha >= DATE_SUB(CURDATE(), INTERVAL $meses MONTH)
+				GROUP BY DATE_FORMAT(n.fecha, '%Y-%m')
+				ORDER BY periodo ASC
+			";
+        $result = $this->connect_db()->query($query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+ 
+    /**
+     * Indicador de mora: préstamos cuyo date_limit ya venció y aún tienen saldo.
+     */
+    public function Prestamos_Vencidos()
+    {
+        $query = "SELECT
+					COUNT(*)        AS cantidad,
+					SUM(monto_desc) AS monto_total
+				FROM prestamos
+				WHERE estado = 1
+				AND monto_desc > 0
+				AND date_limit < CURDATE()
+			";
+        $result = $this->connect_db()->query($query);
+        return $result->fetch_assoc();
+    }
+ 
+    /**
+     * Comparativo de nómina semana actual vs semana anterior.
+     */
+    public function Nomina_Comparativo_Semanas()
+    {
+        $query = "SELECT
+						WEEK(fecha, 1) AS semana,
+						YEAR(fecha)    AS anio,
+						SUM(neto)      AS total
+					FROM nomina
+					WHERE estado = 1
+					AND fecha >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
+					GROUP BY WEEK(fecha, 1), YEAR(fecha)
+					ORDER BY anio DESC, semana DESC
+					LIMIT 2
+				";
+        $result = $this->connect_db()->query($query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+ 
+    /**
+     * Top 5 empleados con mayor neto acumulado en el mes actual.
+     */
+    public function Top_Empleados_Mes()
+    {
+        $query = "SELECT
+					e.nombre,
+					e.apellido,
+					e.cargo,
+					ROUND(SUM(n.neto), 2) AS total_mes
+				FROM nomina n
+				JOIN empleados e ON n.cedula_FK = e.cedula
+				WHERE n.estado = 1
+				AND MONTH(n.fecha) = MONTH(CURDATE())
+				AND YEAR(n.fecha)  = YEAR(CURDATE())
+				GROUP BY n.cedula_FK
+				ORDER BY total_mes DESC
+				LIMIT 5
+			";
+        $result = $this->connect_db()->query($query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+ 
+    /**
+     * Distribución de sueldo base de empleados activos en rangos.
+     * Útil para gráfico de distribución salarial.
+     */
+    public function Distribucion_Salarial()
+    {
+        $query = "SELECT
+                CASE
+                    WHEN sueldo < 200            THEN '< 200'
+                    WHEN sueldo BETWEEN 200  AND 499  THEN '200-499'
+                    WHEN sueldo BETWEEN 500  AND 999  THEN '500-999'
+                    WHEN sueldo BETWEEN 1000 AND 1499 THEN '1000-1499'
+                    ELSE '≥ 1500'
+                END                AS rango,
+                COUNT(*)           AS cantidad
+            FROM empleados
+            WHERE estado = 1
+            GROUP BY rango
+            ORDER BY MIN(sueldo) ASC
+        ";
+        $result = $this->connect_db()->query($query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 
 		
 	}

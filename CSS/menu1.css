@@ -97,6 +97,7 @@ body.collapsed
 .sidebar-links ul {
   list-style-type: none;
   display: flex;
+  margin-left: -35px;
   row-gap: 0.5rem;
   flex-direction: column;
 }
