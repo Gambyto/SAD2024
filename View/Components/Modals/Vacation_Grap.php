@@ -11,14 +11,23 @@ $anioMaximo      = $maxRow['anio']  ?? '—';
 $montoMaximo     = $maxRow['monto'] ?? 0;
 
 // ── Detalle por año (función nueva: Vacation_Detail_By_Year) ──────────────────
-// Si el método existe, cargamos el detalle del año actual para la tabla
-$anioFiltro      = date('Y');
+// Siempre usamos el año actual como default del filtro
+$anioFiltro      = (int)date('Y');
 $detalleVacaciones = method_exists($Nomina, 'Vacation_Detail_By_Year')
     ? $Nomina->Vacation_Detail_By_Year($anioFiltro)
     : [];
 
+// Total del año del filtro activo (puede ser 0 si no hay datos)
+$totalAnioFiltro = array_sum(array_column($detalleVacaciones, 'monto'));
+
 // ── Años disponibles para el filtro ───────────────────────────────────────────
+// Incluir el año actual aunque no tenga datos, para que siempre aparezca en el select
 $aniosDisponibles = array_column($data, 'anio');
+if (!in_array($anioFiltro, $aniosDisponibles)) {
+    array_unshift($aniosDisponibles, $anioFiltro);
+}
+// Ordenar descendente para que el más reciente quede primero
+rsort($aniosDisponibles);
 ?>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -68,11 +77,11 @@ $aniosDisponibles = array_column($data, 'anio');
                     <div class="col-md-4">
                         <div class="card border-0 shadow-sm h-100" style="background:#f0fdf4;">
                             <div class="card-body text-center">
-                                <small class="text-muted d-block mb-1">Total Acumulado</small>
+                                <small class="text-muted d-block mb-1">Total del Año <span id="vacKpiAnioLabel"><?= $anioFiltro ?></span></small>
                                 <h4 class="fw-bold text-success mb-0">
-                                    $ <?= number_format($totalAcumulado, 2) ?>
+                                    $ <span id="vacKpiTotal"><?= number_format($totalAnioFiltro, 2) ?></span>
                                 </h4>
-                                <small class="text-muted"><?= count($data) ?> año(s) registrados</small>
+                                <small class="text-muted"><span id="vacKpiEmpleados"><?= count($detalleVacaciones) ?></span> empleado(s)</small>
                             </div>
                         </div>
                     </div>
@@ -291,6 +300,13 @@ function filtrarVacaciones(anio) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Sin datos para ${anio}</td></tr>`;
                 document.getElementById('vacTotalEmpleados').textContent = '0';
                 document.getElementById('vacTotalMonto').textContent = '0.00';
+                // Actualizar KPI card superior a 0
+                const kpiTotal = document.getElementById('vacKpiTotal');
+                const kpiAnio  = document.getElementById('vacKpiAnioLabel');
+                const kpiEmps  = document.getElementById('vacKpiEmpleados');
+                if (kpiTotal) kpiTotal.textContent = '0.00';
+                if (kpiAnio)  kpiAnio.textContent  = anio;
+                if (kpiEmps)  kpiEmps.textContent  = '0';
                 return;
             }
 
@@ -313,6 +329,13 @@ function filtrarVacaciones(anio) {
             document.getElementById('vacTotalEmpleados').textContent = rows.length;
             document.getElementById('vacTotalMonto').textContent =
                 total.toLocaleString('es-ES', { minimumFractionDigits: 2 });
+            // Actualizar KPI card superior
+            const kpiTotal = document.getElementById('vacKpiTotal');
+            const kpiAnio  = document.getElementById('vacKpiAnioLabel');
+            const kpiEmps  = document.getElementById('vacKpiEmpleados');
+            if (kpiTotal) kpiTotal.textContent = total.toLocaleString('es-ES', { minimumFractionDigits: 2 });
+            if (kpiAnio)  kpiAnio.textContent  = anio;
+            if (kpiEmps)  kpiEmps.textContent  = rows.length;
         })
         .catch(() => {
             badge.classList.add('d-none');
