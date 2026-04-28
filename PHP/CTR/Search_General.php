@@ -226,8 +226,43 @@ if ($op === 10) {
     echo json_encode($datos);
     exit;
 }
- 
 
+if ($op === 11) {
+
+    /* ─────────────────────────────────────────────────────────────
+       op: 11 → Empleados activos CON préstamo activo (monto_desc > 0).
+       Devuelve también monto_desc y descuento para pre-llenar
+       el formulario de aportes sin necesidad de una segunda
+       llamada AJAX.
+       Usado por Modal-BuscarEmpleadoAporte.php
+    ───────────────────────────────────────────────────────────── */
+    $query = "SELECT
+                e.cedula,
+                e.nombre,
+                e.apellido,
+                e.cargo,
+                p.id_prestamos,
+                p.monto      AS monto_prestamo,
+                p.monto_desc,
+                p.descuento
+              FROM empleados e
+              INNER JOIN prestamos p
+                      ON p.cedula_FK = e.cedula
+                     AND p.monto_desc > 0
+                     AND p.estado = 1
+              WHERE e.estado = 1
+              ORDER BY e.apellido ASC, e.nombre ASC";
+
+    $db     = $Nomina->connect_db();
+    $result = $db->query($query);
+    $data   = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
 
 
 

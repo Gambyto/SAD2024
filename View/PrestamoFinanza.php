@@ -83,7 +83,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" id="cedula" name="cedula"
                             maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                            onchange="buscarUsuario(this.value)">
+                            onchange="buscarUsuario(this.value)" onkeyup="buscarUsuario(this.value)">
                     
                         <?php
                         $modalBuscarConfig = [
@@ -340,6 +340,11 @@ function Guardar(){
                 
                 if (data.html) {
                     $('#alerts').html(data.html);
+
+                    // Elimina la alerta del DOM cuando termina su animación
+                    $('#alerts .notification').one('animationend', function() {
+                        $('#alerts').empty();
+                    });
 
                     // Reset solo si NO es un error
                     if (!data.html.includes('notification--failure')) {

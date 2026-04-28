@@ -11,241 +11,286 @@ ob_start();
 
 ?>
 <!DOCTYPE html>
-	<html lang="es">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-		<title>Document</title>
-		<style type="text/css">
-			table,th{
-				border:1px solid black;
-				border-collapse: collapse; 
-			}
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Recibo de Pago — Sueldos y Salarios</title>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: Arial, sans-serif; font-size: 11px; color: #1a1a1a; }
+
+		/* ── Encabezado corporativo ── */
+		.header-wrap {
+			width: 100%;
+			border-bottom: 2px solid #1a1a2e;
+			padding-bottom: 8px;
+			margin-bottom: 1px;
+		}
+		.header-table { width: 100%; border: none; border-collapse: collapse; }
+		.header-table td { border: none; vertical-align: middle; }
+		.logo { width: 70px; height: 70px; }
+		.company-name { font-size: 15px; font-weight: bold; color: #1a1a2e; letter-spacing: 0.5px; }
+		.doc-title { font-size: 11px; color: #4b5563; margin-top: 3px; }
+		.header-right { text-align: right; font-size: 10px; color: #6b7280; }
+
+		/* ── Sección título ── */
+		.section-title {
+			font-size: 12px;
+			font-weight: bold;
+			color: #1a1a2e;
+			border-left: 4px solid #1a1a2e;
+			padding-left: 8px;
+			margin: 14px 0 8px 0;
+		}
+
+		/* ── Strip de recibo ── */
+		.recibo-strip {
+			background: #f1f5f9;
+			border: 1px solid #e2e8f0;
+			padding: 6px 10px;
+			margin-bottom: 14px;
+		}
+		.recibo-strip-inner {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.recibo-strip-inner td { border: none; vertical-align: middle; font-size: 10px; color: #374151; }
+		.badge {
 			
-			th#dir{
-				padding: 0px;
-				text-align: right;
-			}
-			
-			div#texto{
-				text-align: center;
-			}
-			
-			th#datos{
-				padding: 0px;
-			}
-			
-			.row {
-				display: flex;
-				justify-content: space-between;
-				margin-bottom: -140px;
-			}
+			color: #000000;
+			padding: 2px 8px;
+			font-size: 9px;
+			font-weight: bold;
+			letter-spacing: 0.5px;
+		}
 
-			table#tablados, th, td { 
-				border: 1px solid black;
-				text-align: center;
-				margin-top: -0.25%;
-			}
-			
-			td{
-				padding: 5px
-			}
-			
-			td {text-align: left;
-			}
+		/* ── KPI cards ── */
+		.kpi-table { width: 100%; border-collapse: separate; border-spacing: 6px; }
+		.kpi-cell {
+			width: 25%;
+			background: #f8fafc;
+			border: 1px solid #e2e8f0;
+			padding: 10px 8px;
+			text-align: center;
+			vertical-align: middle;
+		}
+		.kpi-label { font-size: 9px; color: #6b7280; display: block; margin-bottom: 4px; }
+		.kpi-value { font-size: 14px; font-weight: bold; color: #1a1a2e; display: block; }
+		.kpi-sub   { font-size: 9px; color: #9ca3af; display: block; margin-top: 2px; }
 
-			th#NP{
-				text-align: left;
-			}
+		/* ── Tabla empleado ── */
+		.emp-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+		.emp-table td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #374151; }
+		.emp-table td.lbl { color: #6b7280; width: 160px; }
+		.emp-table tr.even td { background-color: #f9fafb; }
 
-			th#Bs{
-				text-align: left;
-			}
+		/* ── Tabla detalle ── */
+		.detail-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+		.detail-table thead tr { background-color: #1a1a2e; color: #ffffff; }
+		.detail-table th {
+			padding: 7px 6px;
+			text-align: left;
+			font-size: 10px;
+			font-weight: bold;
+			border: none;
+			color: #ffffff;
+		}
+		.detail-table td {
+			padding: 6px 6px;
+			border-bottom: 1px solid #e5e7eb;
+			font-size: 10px;
+			color: #374151;
+		}
+		.detail-table tr.even td { background-color: #f9fafb; }
+		.text-right { text-align: right; }
+		.muted { color: #9ca3af; }
+		.detail-table tfoot td {
+			background-color: #f1f5f9;
+			font-weight: bold;
+			font-size: 10px;
+			padding: 7px 6px;
+			border-top: 2px solid #1a1a2e;
+		}
 
-			th#TT{
-				text-align: left;
-			}
+		/* ── Neto ── */
+		.neto-table { width: 100%; border-collapse: collapse; background-color: #1a1a2e; }
+		.neto-table td { padding: 10px 14px; border: none; vertical-align: middle; }
+		.neto-label { font-size: 9px; color: #9ca3af; display: block; }
+		.neto-value { font-size: 16px; font-weight: bold; color: #ffffff; display: block; }
 
-			.left-image {
-	    		float: left;
-	    		margin-right: 10px; /* Añade un margen derecho para separar el texto de la imagen */
-	  		}
+		/* ── Firmas ── */
+		.firmas-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+		.firmas-table td { width: 50%; text-align: center; padding: 0 20px; border: none; }
+		.firma-line { border-top: 1px solid #1a1a2e; padding-top: 6px; font-size: 10px; color: #374151; }
 
-			.fila-gruesa {
-	    		height: 70px; 
-	  		}
+		/* ── Footer ── */
+		.footer {
+			margin-top: 20px;
+			border-top: 1px solid #e5e7eb;
+			padding-top: 8px;
+			font-size: 9px;
+			color: #9ca3af;
+			text-align: right;
+		}
+	</style>
+</head>
+<body>
 
-	 		.RIF {
-	  			text-align: left;
-	  			margin-bottom: -1px;
-	  		}
+<?php
+if ($_GET['id']) {
+	$id   = $_GET['id'];
+	$dato = $Nomina->GetID_nomina($id);
+}
 
-			.encabezado {
-				text-align: center;
-				margin: auto;
-				padding-right: 84px;
-			}
+$sueldoMens = $dato['sueldo'] * $dato['TasaBCV'];
+$asigTotal  = ($dato['sueldosem'] + $dato['bonificaciones'] + $dato['comisiones']) * $dato['TasaBCV'];
+$dedTotal   = (-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'];
+?>
 
-			.recibo {
-				text-align: center;
-				margin: auto;
-			}
+<!-- ══ ENCABEZADO CORPORATIVO ══ -->
+<div class="header-wrap">
+	<table class="header-table">
+		<tr>
+			<td style="width:80px;">
+				<img src="http://<?= $_SERVER['HTTP_HOST'] ?>/PIUT_V1/IMG/Logo_Comple_Black.png" class="logo">
+			</td>
+			<td>
+				<span class="company-name">DISORIENT, C.A.</span>
+				<div class="doc-title">Recibo de pago del trabajador &mdash; Sueldos y Salarios 
+					<br> J-080199936 </div>
+			</td>
+			<td class="header-right">
+				Fecha de emisión:<br>
+				<strong><?= date('d-m-Y') ?></strong>
+			</td>
+		</tr>
+	</table>
+</div>
 
-		</style>
-	</head>
-	<body>
-		<?php if ($_GET['id']) {
-			$id = $_GET['id'];
-			$dato = $Nomina->GetID_nomina($id);
-		} ?>
-		<table style="width: 100%">
-			<tr>
-				<th id="dir">
-					<img src="http://<?php echo $_SERVER['HTTP_HOST']; ?>/PIUT_V1/IMG/Logo_Comple_Black.png" style="height: 70px; margin-left: 11px;" class="left-image">
-					<p class="encabezado">DISORIENT, C.A.<br>
-					Dir: Av. Cancamure, N°69, Cumaná-Edo.Sucre<br>
-					Correo Electronico: disorientca@hotmail.com <br>
-					Tlf: 0293-4315813</p> <br>
-					<br>
-					<br>
-					<div style="overflow: auto;">
-						<p class="RIF">J-080199936</p>
-						<p class="recibo">Recibo de pago del trabajador</p>
-						<br>
-					</div>
-				</th>
-			</tr>
-			<tr>
-				<th>
-						<div class="row">
-							<p style="text-align: left;"> Nombres y Apellidos: <?=$dato['nombre']?> <?=$dato['apellido']?><br> 
-							 Cédula: <?=$dato['cedula']?><br>
-							 Fecha de ingreso: <?=date('d-m-Y',strtotime($dato['f_ingreso'])) ?><br>
-							 Salario mensual: <?=$dato['sueldo'] * $dato['TasaBCV']?> Bs.<br>
-							 Cargo: <?=$dato['cargo']?></p>
-							 
-							<p style="text-align: right; margin-right: 75px;"> Fecha: <br>
-							 Nº:  <br> 							 
+<!-- ══ STRIP RECIBO ══ -->
+<div class="recibo-strip">
+	<table class="recibo-strip-inner">
+		<tr>
+			<td>
+				<span class="badge section-title">RECIBO DE PAGO</span>
+				&nbsp;&nbsp;&bull;&nbsp;&nbsp;
+				Per&iacute;odo: <strong><?= date('d-m-Y', strtotime($dato['fecha'])) ?></strong>
+			</td>
+			<td style="text-align:right; color:#6b7280;">&nbsp;&nbsp;N&ordm; <strong><?= str_pad($dato['id_nomina'], 9, '0', STR_PAD_LEFT) ?></strong></td>
+		</tr>
+	</table>
+</div>
 
-							 <p style="text-align: right;"> <?=date('d-m-Y', strtotime($dato['fecha']))?><br>
-							 <?=str_pad($dato['id_nomina'], 9, '0', STR_PAD_LEFT)?>
-							</p>
-						</div>
-				</th>
-			</tr>
-
-			
-
-		
-
-		</table>
-
-		
-		<table id="tablados" style="width: 100%">
-			
-			<tr>
-				
-				<th>Concepto</th>
-				<th>%</th>
-				<th>Asignaciones</th>
-				<th>Deducciones</th>
-		
-
-
-
-			</tr>
-
-			<tr>
-				
-				<td>Sueldo Semanal</td>
-				<td></td>
-				<td style="text-align: right;"><?=$dato['sueldosem'] * $dato['TasaBCV']?> Bs.</td>
-				<td></td>			
-		
-
-			</tr>
-
-			<tr>
-				
-				<td>Bonificaciones</td>
-				<td></td>
-				<td style="text-align: right;"><?=$dato['bonificaciones'] * $dato['TasaBCV']?> Bs.</td>
-				<td></td>			
-			
-
-			</tr>
-
-
+<!-- ══ DATOS DEL EMPLEADO ══ -->
+<div class="section-title" style="margin-top:18px;">Datos del trabajador</div>
+<table class="emp-table">
 	<tr>
-				
-				<td> Comisiones </td>
-				<td></td>
-				<td style="text-align: right;"><?=$dato['comisiones'] *$dato['TasaBCV']?> Bs.</td>
-				<td></td>			
-			
+		<td class="lbl">Nombres y apellidos</td>
+		<td><strong><?= htmlspecialchars($dato['nombre'] . ' ' . $dato['apellido']) ?></strong></td>
+		<td class="lbl" style="width:130px;">Cargo</td>
+		<td><?= htmlspecialchars($dato['cargo']) ?></td>
+	</tr>
+	<tr class="even">
+		<td class="lbl">C&eacute;dula de identidad</td>
+		<td><?= htmlspecialchars($dato['cedula']) ?></td>
+		<td class="lbl">Fecha de ingreso</td>
+		<td><?= date('d-m-Y', strtotime($dato['f_ingreso'])) ?></td>
+	</tr>
+</table>
 
-			</tr>
+<!-- ══ TABLA DETALLE ══ -->
+<div class="section-title" style="margin-top:18px;">Detalle de pago</div>
+<table class="detail-table">
+	<thead>
+		<tr>
+			<th>Concepto</th>
+			<th>%</th>
+			<th class="text-right">Asignaciones (Bs.)</th>
+			<th class="text-right">Deducciones (Bs.)</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Sueldo Semanal</td>
+			<td class="muted">&mdash;</td>
+			<td class="text-right"><?= number_format($dato['sueldosem'] * $dato['TasaBCV'], 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr class="even">
+			<td>Bonificaciones</td>
+			<td class="muted">&mdash;</td>
+			<td class="text-right"><?= number_format($dato['bonificaciones'] * $dato['TasaBCV'], 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr>
+			<td>Comisiones</td>
+			<td class="muted">&mdash;</td>
+			<td class="text-right"><?= number_format($dato['comisiones'] * $dato['TasaBCV'], 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr class="even">
+			<td>Pr&eacute;stamos y cuentas por pagar</td>
+			<td class="muted">&mdash;</td>
+			<td class="text-right muted">&mdash;</td>
+			<td class="text-right" style="color:#dc2626;"><?= number_format($dedTotal, 2, '.', ',') ?></td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="2" class="text-right">TOTALES</td>
+			<td class="text-right"><?= number_format($asigTotal, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($dedTotal, 2, '.', ',') ?></td>
+		</tr>
+	</tfoot>
+</table>
 
-			<tr>
-				
-				<td>Prestamos y cuentas por pagar</td>
-				<td></td>
-				<td></td>			
-				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> Bs.</td>
-			
+<!-- ══ NETO ══ -->
+<table class="neto-table">
+	<tr>
+		<td>
+			<span class="neto-label">NETO A PAGAR</span>
+			<span class="neto-value"><?= $dato['netobs'] ?> Bs.</span>
+		</td>
+		<td style="text-align:right;">
+			<span class="neto-label">MONTO EN DIVISAS</span>
+			<span class="neto-value"><?= $dato['neto'] ?> $</span>
+		</td>
+	</tr>
+</table>
 
-			</tr>
-			<tr>
-			    <th id="TT" colspan="2">Totales</th>
-				<td style="text-align: right;"><?=($dato['sueldosem'] + $dato['bonificaciones'] + $dato['comisiones']) * $dato['TasaBCV']?> Bs.</td>
-				<td style="text-align: right;"> <?= number_format((-$dato['cpp'] - $dato['Ptm']) * $dato['TasaBCV'], 2, '.', '')?> Bs.</td>
-			</tr>
-			<tr>
-				<th id="NP" colspan="4">NETO PAGAR:  <?=$dato['netobs']?> Bs.</th>
-		
-			</tr>
-			<tr>
-				<th id="Bs" colspan="4">Monto en divisas: <?=$dato['neto']?> $</th>
+<!-- ══ DECLARACIÓN ══ -->
+<p style="font-size:10px; color:#374151; margin-top:14px; line-height:1.6;">
+	He recibido la cantidad de <strong><?= $dato['netobs'] ?> Bs.</strong> por la empresa DISORIENT, C.A.,
+	correspondiente a mi semana de salario.
+</p>
 
+<!-- ══ FIRMAS ══ -->
+<table class="firmas-table">
+	<tr>
+		<td><div style="height:44px; margin-bottom:11px;"></div><div class="firma-line">Firma Gerente General<br><strong>DISORIENT, C.A.</strong></div></td>
+		<td><div style="height:44px;"></div><div class="firma-line">Firma del Trabajador</div></td>
+	</tr>
+</table>
 
-			</tr>	
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+	Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?> &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de N&oacute;mina
+</div>
 
-		</table>		
-
-
-		<p>He recibido la cantidad de <?=$dato['netobs']?> Bs. Por la empresa DISORIENT, C.A.<br>
-	   Correspondiente a mi semana de salario.</p>
-
-				<p style="text-align: center; margin-right: 577px;">Firma Gerente General<br>
-					DISORIENT, C.A.
-				</p>
-				<p style="text-align: center; margin-left: 594px; margin-top: -120px;">Firma del trabajador</p>
-				<br>
-				<br>
-
-			
-	</body>
-	</html>
-<?php /* Este es el pie de pagina que tienes que copiar */
-
+</body>
+</html>
+<?php
 $html = ob_get_clean();
-
 
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
 
-$dompdf = new Dompdf();
-
+$dompdf  = new Dompdf();
 $options = $dompdf->getOptions();
-$options->set(array('isRemoteEnabled' => true));
+$options->set(['isRemoteEnabled' => true]);
 $dompdf->setOptions($options);
-
 $dompdf->loadHtml($html);
-
 $dompdf->setPaper('letter');
-// $dompdf->setPaper('A4','landscape');
-
 $dompdf->render();
-$dompdf->stream("Nomin_General.pdf", array("Attachment" => false));
- ?>
+$dompdf->stream('Nomin_General.pdf', ['Attachment' => false]);
+?>

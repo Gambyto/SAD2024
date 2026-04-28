@@ -1,306 +1,335 @@
 <?php 
 session_start(); 
 
-
-
-include '../../PHP/CLASS/conexion_Original.php';
-include '../../PHP/CLASS/user_Original.php'; 
+	include '../../PHP/CLASS/conexion_Original.php';
+	include '../../PHP/CLASS/user_Original.php'; 
 
 ob_start();
 
 ?>
 <!DOCTYPE html>
-	<html lang="es">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-		<title>Document</title>
-		<style type="text/css">
-			table,th{
-				border:1px solid black;
-				border-collapse: collapse; 
-			}
-			th#dir{
-				padding: 0px;
-				text-align: right;
-			}
-			div#texto{
-				text-align: center;
-			}
-			th#datos{
-				padding: 0px;
-			}
-			.row {
-				display: flex;
-				justify-content: space-between;
-			}
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Recibo de Pago — Vacaciones y Utilidades</title>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: Arial, sans-serif; font-size: 11px; color: #1a1a1a; }
 
-			table#tablados, th, td { border: 1px solid black;
-				margin-top: -0.25%;
-				text-align: center;
+		/* ── Encabezado corporativo ── */
+		.header-wrap {
+			width: 100%;
+			border-bottom: 2px solid #1a1a2e;
+			padding-bottom: 8px;
+			margin-bottom: 1px;
+		}
+		.header-table { width: 100%; border: none; border-collapse: collapse; }
+		.header-table td { border: none; vertical-align: middle; }
+		.logo { width: 70px; height: 70px; }
+		.company-name { font-size: 15px; font-weight: bold; color: #1a1a2e; letter-spacing: 0.5px; }
+		.doc-title { font-size: 11px; color: #4b5563; margin-top: 3px; }
+		.header-right { text-align: right; font-size: 10px; color: #6b7280; }
 
+		/* ── Sección título ── */
+		.section-title {
+			font-size: 12px;
+			font-weight: bold;
+			color: #1a1a2e;
+			border-left: 4px solid #1a1a2e;
+			padding-left: 8px;
+			margin: 14px 0 8px 0;
+		}
 
+		/* ── Strip de recibo ── */
+		.recibo-strip {
+			background: #f1f5f9;
+			border: 1px solid #e2e8f0;
+			padding: 6px 10px;
+			margin-bottom: 14px;
+		}
+		.recibo-strip-inner { width: 100%; border-collapse: collapse; }
+		.recibo-strip-inner td { border: none; vertical-align: middle; font-size: 10px; color: #374151; }
+		.badge {
+			color: #000000;
+			padding: 2px 8px;
+			font-size: 9px;
+			font-weight: bold;
+			letter-spacing: 0.5px;
+		}
 
-			}
-			td{
-				padding: 5px
-			}
-			td {text-align: left;}
+		/* ── Tabla empleado ── */
+		.emp-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+		.emp-table td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #374151; }
+		.emp-table td.lbl { color: #6b7280; width: 160px; }
+		.emp-table tr.even td { background-color: #f9fafb; }
 
-			th#NP{
-				text-align: left;
+		/* ── Tabla detalle ── */
+		.detail-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+		.detail-table thead tr { background-color: #1a1a2e; color: #ffffff; }
+		.detail-table th {
+			padding: 7px 6px;
+			text-align: left;
+			font-size: 10px;
+			font-weight: bold;
+			border: none;
+			color: #ffffff;
+		}
+		.detail-table td {
+			padding: 6px 6px;
+			border-bottom: 1px solid #e5e7eb;
+			font-size: 10px;
+			color: #374151;
+		}
+		.detail-table tr.even td { background-color: #f9fafb; }
+		.text-right { text-align: right; }
+		.muted { color: #9ca3af; }
 
+		/* sub-sección dentro del tbody */
+		.sub-header td {
+			background-color: #e8edf4;
+			font-weight: bold;
+			font-size: 9px;
+			color: #1a1a2e;
+			padding: 5px 6px;
+			border-bottom: 1px solid #c8d0dc;
+		}
 
-			}
+		.detail-table tfoot td {
+			background-color: #f1f5f9;
+			font-weight: bold;
+			font-size: 10px;
+			padding: 7px 6px;
+			border-top: 2px solid #1a1a2e;
+		}
 
-			th#Bs{
-				text-align: left;
+		/* ── Neto ── */
+		.neto-table { width: 100%; border-collapse: collapse; background-color: #1a1a2e; }
+		.neto-table td { padding: 10px 14px; border: none; vertical-align: middle; }
+		.neto-label { font-size: 9px; color: #9ca3af; display: block; }
+		.neto-value { font-size: 16px; font-weight: bold; color: #ffffff; display: block; }
 
+		/* ── Firmas ── */
+		.firmas-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+		.firmas-table td { width: 50%; text-align: center; padding: 0 20px; border: none; }
+		.firma-line { border-top: 1px solid #1a1a2e; padding-top: 6px; font-size: 10px; color: #374151; }
 
-			}
+		/* ── Footer ── */
+		.footer {
+			margin-top: 20px;
+			border-top: 1px solid #e5e7eb;
+			padding-top: 8px;
+			font-size: 9px;
+			color: #9ca3af;
+			text-align: right;
+		}
+	</style>
+</head>
+<body>
 
-			th#TT{
-				text-align: left;
+<?php
+if ($_GET['id']) {
+	$id   = $_GET['id'];
+	$dato = $Nomina->GetID_Vacation($id);
 
+	$sueldo_parse        = $dato['sueldo'] * 0.33;
+	$dato['sueldo_diario'] = $sueldo_parse / 30;
+}
 
-			}
+$sd         = $dato['sueldo_diario'];
+$tasa       = $dato['tasa'];
+$totalDias  = $dato['utilidades']
+            + (2 * $dato['dia_correspondido'])
+            + $dato['dia_descanso']
+            + $dato['dia_feriado']
+            + $dato['dia_otorgado'];
+$totalAsig  = $sd * $totalDias * $tasa;
+$totalDed   = $dato['ince'] * $tasa;
+?>
 
-			.left-image {
-	    float: left;
-	    margin-right: 10px; /* Añade un margen derecho para separar el texto de la imagen */
-	  }
-
-
-	.fila-gruesa {
-	    height: 70px; 
-	}
-
-	.RIF {
-	  	margin-bottom: -2px;
-	  	text-align: left;
-	}
-
-	.encabezado {
-		text-align: center;
-		margin: auto;
-		padding-right: 83px;
-	}
-	
-	.recibo {
-		text-align: center;
-		margin-bottom: -30px;
-		margin-top: -5px;
-	}
-
-	.datosSolicitados{
-		margin-left: 0.1%; 
-		margin-top: -0.10%; 		 
-		width: 720px;
-		height: 120px;
-		justify-content: space-between;
-		display: flex;
-	}
-	p {
-		text-align: justify;
-	}
-		</style>
-	</head>
-	<body>
-		<table style="width: 100%; margin-top: 1%">
-			<tr>
-				<th id="dir">
-					<img src="http://<?php echo $_SERVER['HTTP_HOST']; ?>/PIUT_V1/IMG/Logo_Comple_Black.png" style="height: 73px; margin-left: 10px;" class="left-image">
-					<p class="encabezado">DISORIENT, C.A.<br>
-					Dir: Av. Cancamure, N°69, Cumaná-Edo.Sucre<br>
-					Correo Electronico: disorientca@hotmail.com <br>
-					Tlf: 0293-4315813</p> <br>
-					<br>
-					<br>
-					<div style="overflow: auto;">
-						<p class="RIF">J-080199936</p>
-						<p class="recibo">Recibo de pago de vacaciones y utilidades<p>
-					</div>
-		</table>
-		<?php if ($_GET['id']) {
-			$id = $_GET['id'];
-			$dato = $Nomina->GetID_Vacation($id);
-
-			$sueldo_parse = $dato['sueldo'] * 0.33;
-			$dato['sueldo_diario'] = $sueldo_parse / 30;
-		} ?>
-		<table style="width: 100%; border: solid black 1px;">
-			<tr>
-				<th>
-					<div class="datosSolicitados";>
-						<p style="text-align: left; padding-top: -35px;">Nombres y apellidos: <?=$dato['nombre']?> <?=$dato['apellido']?><br>	
-							Cédula: <?=$dato['cedula']?> <br>
-							Fecha de ingreso: <?=$dato['f_ingreso']?> <br>
-							Tiempo de servicio: <?=$dato['t_servicio']?> años<br>
-							Sueldo mensual: <?=number_format($dato['sueldo'] * $dato['tasa'],2)?> Bs. / <?=$dato['sueldo']?> $<br>
-							Inicio de vacaciones: <?=$dato['ini_vacaciones']?> <br>
-							Culminación de vacaciones: <?=$dato['fin_vacaciones']?> <br>
-							Inicio de labores: <?=$dato['ini_laboral']?> 
-						</p>
-
-						<p style="text-align: right; margin-right: 80px;"> Fecha:<br>
-							Nº:
-						</p> 							 
-
-						<p style="text-align: right;"> <?=date('d-m-Y')?><br>
-							0000000<?=$dato['vacaciones_id']?>
-						</p>
-					</div>
-				</th>	
-			</tr>
-		</table>
-		
-		<table id="tablados" style="width: 100%; margin-top: -0.20%">
-			
-			<tr>
+<!-- ══ ENCABEZADO CORPORATIVO ══ -->
+<div class="header-wrap">
+	<table class="header-table">
+		<tr>
+			<td style="width:80px;">
+				<img src="http://<?= $_SERVER['HTTP_HOST'] ?>/PIUT_V1/IMG/Logo_Comple_Black.png" class="logo">
+			</td>
+			<td>
+				<span class="company-name">DISORIENT, C.A.</span>
+				<div class="doc-title">Recibo de pago de Vacaciones y Utilidades <br> J-080199936 </div>
 				
-				<th>Concepto</th>
-				<th>Días</th>
-				<th>Salario Diario</th>
-				<th>Monto</th>
-				<th>Deducciones</th>
-		
+			</td>
+			<td class="header-right">
+				Fecha de emisión:<br>
+				<strong><?= date('d-m-Y') ?></strong>
+			</td>
+		</tr>
+	</table>
+</div>
 
-
-
-			</tr>
-
-			<tr>
+<!-- ══ STRIP RECIBO ══ -->
+<div class="recibo-strip">
+	<table class="recibo-strip-inner">
+		<tr>
+			<td>
+				<span class="badge section-title">RECIBO DE VACACIONES</span>
 				
-				<td>Vacaciones</td>
-				<td style="text-align: right;"><?=$dato['dia_correspondido']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_correspondido']) * $dato['tasa'],2)?> Bs.</td>			
-				<td></td>		
-		
+			</td>
+			<td style="text-align:right;">&nbsp;&nbsp;N&ordm; <strong>0000000<?= $dato['vacaciones_id'] ?></strong></td>
+		</tr>
+	</table>
+</div>
 
-			</tr>
-
-			<tr>
-				
-				<td>Bono Vacacional</td>
-				<td style="text-align: right;"><?=$dato['dia_correspondido']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_correspondido']) * $dato['tasa'],2)?> Bs.</td>		
-				<td></td>		
-
-			</tr>
-
-
+<!-- ══ DATOS DEL EMPLEADO ══ -->
+<div class="section-title" style="margin-top:18px;">Datos del trabajador</div>
+<table class="emp-table">
 	<tr>
-				
-				<td>Días descanso</td>
-				<td style="text-align: right;"><?=$dato['dia_descanso']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario'] * $dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_descanso'])*$dato['tasa'],2)?> Bs.</td>			
-				<td></td>		
-
-			</tr>
-
-
+		<td class="lbl">Nombres y apellidos</td>
+		<td><strong><?= htmlspecialchars($dato['nombre'] . ' ' . $dato['apellido']) ?></strong></td>
+		<td class="lbl" style="width:140px;">C&eacute;dula</td>
+		<td><?= htmlspecialchars($dato['cedula']) ?></td>
+	</tr>
+	<tr class="even">
+		<td class="lbl">Fecha de ingreso</td>
+		<td><?= htmlspecialchars($dato['f_ingreso']) ?></td>
+		<td class="lbl">Tiempo de servicio</td>
+		<td><?= htmlspecialchars($dato['t_servicio']) ?> a&ntilde;o(s)</td>
+	</tr>
 	<tr>
-				
-				<td>Días feriados</td>
-				<td style="text-align: right;"><?=$dato['dia_feriado']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_feriado'])*$dato['tasa'],2)?> Bs.</td>		
-				<td></td>		
+		<td class="lbl">Inicio de vacaciones</td>
+		<td><?= htmlspecialchars($dato['ini_vacaciones']) ?></td>
+		<td class="lbl">Culminaci&oacute;n</td>
+		<td><?= htmlspecialchars($dato['fin_vacaciones']) ?></td>
+	</tr>
+	<tr class="even">
+		<td class="lbl">Inicio de labores</td>
+		<td><?= htmlspecialchars($dato['ini_laboral']) ?></td>
+		<td class="lbl"></td>
+		<td></td>
+	</tr>
+</table>
 
-			</tr>
+<!-- ══ TABLA DETALLE ══ -->
+<div class="section-title" style="margin-top:18px;">Detalle de pago</div>
+<table class="detail-table">
+	<thead>
+		<tr>
+			<th>Concepto</th>
+			<th class="text-right">D&iacute;as</th>
+			<th class="text-right">Salario Diario (Bs.)</th>
+			<th class="text-right">Monto (Bs.)</th>
+			<th class="text-right">Deducciones (Bs.)</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="sub-header"><td colspan="5">VACACIONES</td></tr>
+		<tr>
+			<td>Vacaciones</td>
+			<td class="text-right"><?= $dato['dia_correspondido'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['dia_correspondido'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr class="even">
+			<td>Bono Vacacional</td>
+			<td class="text-right"><?= $dato['dia_correspondido'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['dia_correspondido'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr>
+			<td>D&iacute;as de descanso</td>
+			<td class="text-right"><?= $dato['dia_descanso'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['dia_descanso'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr class="even">
+			<td>D&iacute;as feriados</td>
+			<td class="text-right"><?= $dato['dia_feriado'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['dia_feriado'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr>
+			<td>D&iacute;as pendientes</td>
+			<td class="text-right"><?= $dato['dia_otorgado'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['dia_otorgado'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr class="sub-header"><td colspan="5">UTILIDADES</td></tr>
+		<tr class="even">
+			<td>D&iacute;as utilidades</td>
+			<td class="text-right"><?= $dato['utilidades'] ?></td>
+			<td class="text-right"><?= number_format($sd * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format($sd * $dato['utilidades'] * $tasa, 2, '.', ',') ?></td>
+			<td class="text-right muted">&mdash;</td>
+		</tr>
+		<tr>
+			<td>INCE</td>
+			<td class="text-right muted">&mdash;</td>
+			<td class="text-right muted">&mdash;</td>
+			<td class="text-right muted">&mdash;</td>
+			<td class="text-right" style="color:#dc2626;"><?= number_format(-$dato['ince'] * $tasa, 2, '.', ',') ?></td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="3" class="text-right">TOTALES</td>
+			<td class="text-right"><?= number_format($totalAsig, 2, '.', ',') ?></td>
+			<td class="text-right"><?= number_format(-$totalDed, 2, '.', ',') ?></td>
+		</tr>
+	</tfoot>
+</table>
 
-
+<!-- ══ NETO ══ -->
+<table class="neto-table">
 	<tr>
-				
-				<td>Días pendientes</td>
-				<td style="text-align: right;"><?=$dato['dia_otorgado']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['dia_otorgado'])*$dato['tasa'],2)?> Bs.</td>			
-				<td></td>		
+		<td>
+			<span class="neto-label">NETO A PAGAR</span>
+			<span class="neto-value"><?= number_format($dato['monto'] * $tasa, 2, '.', ',') ?> Bs.</span>
+		</td>
+		<td style="text-align:right;">
+			<span class="neto-label">NETO EN DIVISAS</span>
+			<span class="neto-value"><?= number_format($dato['monto'], 2, '.', ',') ?> $</span>
+		</td>
+	</tr>
+</table>
 
-			</tr>
-			<tr>
-				
-				<th>Utilidades</th>
-				<td></td>
-				<td></td>
-				<td></td>			
-				<td></td>
+<!-- ══ DECLARACIÓN ══ -->
+<p style="font-size:10px; color:#374151; margin-top:14px; line-height:1.6;">
+	Recib&iacute; conforme: <strong><?= number_format($dato['monto'] * $tasa, 2, '.', ',') ?> Bs.</strong>
+	Calculado a la tasa del Banco Central de Venezuela del <?= date('d-m-Y', strtotime($dato['ini_vacaciones'])) ?>
+	establecida en <?= $tasa ?> Bs.
+</p>
 
-			</tr>
-
+<!-- ══ FIRMAS ══ -->
+<table class="firmas-table">
 	<tr>
-				
-				<td>Días utilidades</td>
-				<td style="text-align: right;"><?=$dato['utilidades']?></td>
-				<td style="text-align: right;"><?=number_format($dato['sueldo_diario']*$dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;"><?=number_format(($dato['sueldo_diario'] * $dato['utilidades'])*$dato['tasa'],2)?> Bs.</td>		
-				<td></td>		
+		<td><div style="height:44px; margin-bottom:11px;"></div><div class="firma-line">Firma Gerente General<br><strong>DISORIENT, C.A.</strong></div></td>
+		<td><div style="height:44px;"></div><div class="firma-line">Firma del Trabajador</div></td>
+	</tr>
+</table>
 
-			</tr>
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+	Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?> &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de N&oacute;mina
+</div>
 
-	<tr>
-				
-				<td>INCE</td>
-				<td></td>
-				<td></td>
-				<td></td>		
-				<td style="text-align: right;"> <?=number_format(-$dato['ince'] * $dato['tasa'],2)?> Bs.</td>			
-
-			</tr>
-
-
-			<tr>
-			    <th id="TT" colspan="3">Totales</th>
-				<td style="text-align: right;"> <?=number_format(($dato['sueldo_diario'] * ($dato['utilidades'] + ( 2 * $dato['dia_correspondido']) +  $dato['dia_descanso'] + $dato['dia_feriado'] + $dato['dia_otorgado']))* $dato['tasa'],2)?> Bs.</td>
-				<td style="text-align: right;">  <?=number_format(-$dato['ince'] * $dato['tasa'],2)?> Bs.</td>
-			</tr>
-			<tr>
-				<th id="NP" colspan="5">NETO PAGAR:  <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.</th>
-		
-			</tr>
-			<tr>
-				<th id="Bs" colspan="5">NETO DIVISAS: <?=$dato['monto']?> $</th>
-
-
-			</tr>
-
-		</table>
-
-		<p>Recibí conforme: <?=number_format($dato['monto'] * $dato['tasa'],2)?> Bs.
-			Esto calculado a la tasa del Banco Central de Venezuela del <?=date('d-m-Y', strtotime($dato['ini_vacaciones']))?> establecida en <?=$dato['tasa']?> Bs.</p>
-
-			<p style="text-align: center; margin-right: 577px;">Firma Gerente General<br>
-					DISORIENT, C.A.
-				</p>
-				<p style="text-align: center; margin-left: 594px; margin-top: -120px;">Firma del trabajador</p>
-				<br>
-				<br>
-	</body>
-	</html>
-<?php /* Este es el pie de pagina que tienes que copiar */
-
+</body>
+</html>
+<?php
 $html = ob_get_clean();
-
 
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
 
-$dompdf = new Dompdf();
-
+$dompdf  = new Dompdf();
 $options = $dompdf->getOptions();
-$options->set(array('isRemoteEnabled' => true));
+$options->set(['isRemoteEnabled' => true]);
 $dompdf->setOptions($options);
-
 $dompdf->loadHtml($html);
-
 $dompdf->setPaper('letter');
-// $dompdf->setPaper('A4','landscape');
-
 $dompdf->render();
-$dompdf->stream("Nomin_General.pdf", array("Attachment" => false));
- ?>
+$dompdf->stream('Nomin_General.pdf', ['Attachment' => false]);
+?>
