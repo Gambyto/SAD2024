@@ -35,39 +35,42 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
 // Preparar la respuesta en formato JSON
 $respuesta = [
     'datos' => '',
-    'totalPaginas' => $totalPaginas
+    'totalPaginas' => $totalPaginas,
+    'totalElementos' => $totalElementos
 ];
 
 
 try {
     foreach ($datosPagina as $dato) {
         $respuesta['datos'] .= '<tr id="registro-' . $dato['id_solicitud'] . '">';
-        $respuesta['datos'] .= '<th scope="col">' . $dato['cedula'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col">' . $dato['nombre'].' '.$dato['apellido']. '</th>';
-        $respuesta['datos'] .= '<th scope="col" style="text-align: right;">' . $dato['monto'] . ' $</th>';
-        $respuesta['datos'] .= '<th scope="col" style="text-align: right;">' . $dato['descuento'] . ' $</th>';
-        $respuesta['datos'] .= '<th scope="col">' . $dato['cuotas'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col" colspan="2">' . $dato['concepto'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col">' . $dato['f_solicitud'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col" class="text-warning">' . $dato['estado'] . '</th>';
-        $respuesta['datos'] .= '<th scope="col">
-        <button name="btn2" title="Aceptar Prestamo" class="btn btn-outline-success" onclick="return aprobarSolicitud(\'' . $dato['id_solicitud'] . '\')">
-        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-        </button>
-        <button name="btn2" title="Denegar Prestamo" class="btn btn-outline-danger" onclick="return denegarSolicitud(\'' . $dato['id_solicitud'] . '\')">
-        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-        </button>
-    </th>';
+        $respuesta['datos'] .= '<td>' . htmlspecialchars($dato['cedula']) . '</td>';
+        $respuesta['datos'] .= '<td><span class="nombre-empleado">' . htmlspecialchars($dato['nombre']) . ' ' . htmlspecialchars($dato['apellido']) . '</span></td>';
+        $respuesta['datos'] .= '<td><span class="monto-badge">' . number_format($dato['monto'], 2) . ' $</span></td>';
+        $respuesta['datos'] .= '<td><span class="descuento-badge">' . number_format($dato['descuento'], 2) . ' $</span></td>';
+        $respuesta['datos'] .= '<td><span class="cuotas-badge">' . $dato['cuotas'] . '</span></td>';
+        $respuesta['datos'] .= '<td colspan="2"><span class="concepto-text">' . htmlspecialchars($dato['concepto']) . '</span></td>';
+        $respuesta['datos'] .= '<td><span class="fecha-text">' . $dato['f_solicitud'] . '</span></td>';
+        $respuesta['datos'] .= '<td><span class="estado-pendiente">' . htmlspecialchars($dato['estado']) . '</span></td>';
+        $respuesta['datos'] .= '<td>
+            <div class="acciones-group">
+                <button class="btn-accion btn-aprobar" title="Aprobar solicitud" onclick="return aprobarSolicitud(\'' . $dato['id_solicitud'] . '\')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+                    <span>Aprobar</span>
+                </button>
+                <button class="btn-accion btn-denegar" title="Denegar solicitud" onclick="return denegarSolicitud(\'' . $dato['id_solicitud'] . '\')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                    <span>Denegar</span>
+                </button>
+            </div>
+        </td>';
         $respuesta['datos'] .= '</tr>';
     }
 } catch (Exception $e) {
-    // Si ocurre un error, devuelve un JSON con un mensaje de error
     $respuesta = [
         'error' => 'Ocurrió un error al procesar la solicitud',
         'mensaje' => $e->getMessage()
     ];
 }
 
-// Devuelve la respuesta en formato JSON
 echo json_encode($respuesta);
 ?>
