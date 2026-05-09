@@ -1,6 +1,6 @@
 <!--
   ============================================================
-  Modal-Aporte-Prestamo.php  —  OPCIÓN 1
+  Modal-Aporte-Prestamo.php
   Buscador embebido como panel deslizante dentro del modal.
   Sin segundo modal. Sin conflicto de Bootstrap.
   ============================================================
@@ -232,10 +232,9 @@ function abrirBuscadorAporte() {
     // Deslizar a pantalla B
     $('#aporte-slider-track').css('transform', 'translateX(-50%)');
 
-    // Cargar lista solo la primera vez
+    // Cargar lista solo la primera vez (el flag se setea dentro del success)
     if (!_buscadorCargado) {
         cargarEmpleadosAporte();
-        _buscadorCargado = true;
     }
 
     // Enfocar filtro
@@ -252,29 +251,29 @@ function cerrarBuscadorAporte() {
 // Resetear al cerrar el modal principal
 $('#aporte').on('hidden.bs.modal', function () {
     $('#aporte-slider-track').css('transform', 'translateX(0)');
-    // Opcional: forzar recarga la próxima vez
-    // _buscadorCargado = false;
 });
 
 function cargarEmpleadosAporte() {
     var $lista  = $('#listaBuscadorAporte').empty();
     var $loader = $('#loaderBuscadorAporte').removeClass('d-none');
-    var $vacio  = $('#vacioBuscadorAporte').addClass('d-none');
+    var $vacio  = $('#vacioBuscadorAporte').addClass('d-none'); // siempre ocultar al inicio
     $('#filtroBuscadorAporte').val('');
 
     $.ajax({
-        url : '../PHP/CTR/Search_General.php',
-        type: 'POST',
-        data: { op: 11 },
-        success: function (raw) {
+        url     : '../PHP/CTR/Search_General.php',
+        type    : 'POST',
+        data    : { op: 11 },
+        dataType: 'json', // FIX: jQuery parsea automáticamente; evita el JSON.parse() doble que rompía la lista
+        success : function (empleados) {
             $loader.addClass('d-none');
-            var empleados;
-            try { empleados = JSON.parse(raw); } catch (e) { empleados = []; }
 
             if (!Array.isArray(empleados) || !empleados.length) {
                 $vacio.removeClass('d-none');
                 return;
             }
+
+            // FIX: marcar como cargado solo cuando el AJAX tiene éxito real
+            _buscadorCargado = true;
 
             empleados.forEach(function (emp) {
                 var $item = $(
@@ -321,9 +320,11 @@ function cargarEmpleadosAporte() {
                 $lista.append($item);
             });
         },
-        error: function () {
+        error: function (xhr) {
             $loader.addClass('d-none');
             $vacio.removeClass('d-none');
+            // _buscadorCargado queda en false → permite reintentar al abrir de nuevo
+            console.error('Error cargando empleados con préstamo:', xhr.responseText);
         }
     });
 }
@@ -345,6 +346,13 @@ function cerrarModal() {
 }
 $('#aporte-btn, #cancel').on('click', function () {
     cerrarModal.call(this);
+    $('#Mnombre').val('');
+    $('#Mapellido').val('');
+    $('#Mmonto').val('');
+    $('#monto_desc').val('');
+    $('#Mdescuento').val('');
+    $('#idp').val('');
+    $('#parcial').val('');
 });
 
 function agg_aporte() {

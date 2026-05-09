@@ -1334,6 +1334,8 @@ public function GetID_Prestamos($ID)
 public function Display_Prestamos($cedula)
 {
     $query = "SELECT 
+				e.nombre,
+				e.apellido,
                 p.id_prestamos,
                 p.descuento,
                 p.monto,
