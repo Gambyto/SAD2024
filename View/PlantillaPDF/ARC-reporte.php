@@ -64,6 +64,7 @@ ob_start();
         font-size: 10px;
         color: #1a1a1a;
         background: #fff;
+        padding: 20px;
     }
 
     /* ── Separador de página para dompdf ── */
@@ -439,7 +440,7 @@ foreach ($empleados as $idx => $empBase):
             <!-- Separador visual -->
             <tr class="sep-bono"><td colspan="6"></td></tr>
 
-            <!-- BONO VACACIONAL -->
+            <!-- BONO VACACIONAL 
             <tr class="bono-row">
                 <td class="mes-label">BONO VACACIONAL</td>
                 <td class="<?= $bonos['bono_vacacional'] == 0 ? 'zero' : '' ?>">
@@ -451,7 +452,7 @@ foreach ($empleados as $idx => $empBase):
                 <td>—</td>
             </tr>
 
-            <!-- BONO FIN DE AÑO -->
+            <!-- BONO FIN DE AÑO 
             <tr class="bono-row">
                 <td class="mes-label">BONO FIN DE AÑO</td>
                 <td class="<?= $bonos['bono_fin_anio'] == 0 ? 'zero' : '' ?>">
@@ -464,7 +465,7 @@ foreach ($empleados as $idx => $empBase):
             </tr>
 
             <?php if ($esVendedor): ?>
-            <!-- BONO ESPECIAL (comisiones anuales si es vendedor) -->
+            <!-- BONO ESPECIAL (comisiones anuales si es vendedor) 
             <tr class="bono-row">
                 <td class="mes-label">BONO ESPECIAL / COMISIONES ANUALES</td>
                 <td class="<?= $bonos['bono_especial'] == 0 ? 'zero' : '' ?>">
@@ -474,7 +475,7 @@ foreach ($empleados as $idx => $empBase):
                 <td class="zero">0,00</td>
                 <td>—</td>
                 <td>—</td>
-            </tr>
+            </tr> -->
             <?php endif; ?>
         </tbody>
 
@@ -499,7 +500,7 @@ foreach ($empleados as $idx => $empBase):
     </div>
 
     <!-- SECCIÓN DE FIRMAS -->
-    <div class="firma-section">
+    <div class="firma-section" style="margin-top: 5rem;">
         <table class="firma-table">
             <tr>
                 <td>
