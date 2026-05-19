@@ -2249,7 +2249,237 @@ public function View_Fideicomiso_Historial()
         return $data;
     }
 
-		
+/**
+ * ══════════════════════════════════════════════════════════════════════════════
+ *  FUNCIONES PARA EL COMPROBANTE AR-C (Retención ISLR anual por empleado)
+ *  Añadir dentro de la clase  Nomina  en user_Original.php
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ *  Tablas involucradas (según el schema existente):
+ *    - empleados   : cedula, nombre, apellido, cargo, f_ingreso, departamento
+ *    - nomina      : cedula_FK, sueldosem, bonificaciones, comisiones, fecha, estado
+ *    - vacaciones_y_utilidades : cedula_FK, monto, ini_vacaciones  (bono vacacional)
+ *    - islr        : cedula_FK, aporte (%), monto (retención), fecha
+ *    - tasa_dolar  : id_tasa, tasa_del_dia
+ *
+ *  ¿Cómo se distingue un vendedor?
+ *    El cargo del empleado contiene la palabra "vendedor" o "vendedora" (case-insensitive).
+ *    Los vendedores tienen comisiones > 0 en la tabla nomina; los demás solo bonificaciones.
+ */
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1.  ARC_GetEmpleados($anio)
+//     Lista todos los empleados que tuvieron algún pago en el año indicado.
+//     Devuelve: cedula, nombre, apellido, cargo, f_ingreso, es_vendedor (bool)
+// ─────────────────────────────────────────────────────────────────────────────
+public function ARC_GetEmpleados(int $anio): array
+{
+    $anio = (int)$anio;
+
+    $sql = "SELECT DISTINCT
+                e.cedula,
+                e.nombre,
+                e.apellido,
+                e.cargo,
+                e.f_ingreso,
+                (LOWER(e.cargo) LIKE '%vendedor%' OR LOWER(e.cargo) LIKE '%vendedora%') AS es_vendedor
+            FROM empleados e
+            INNER JOIN nomina n ON n.cedula_FK = e.cedula
+            WHERE n.estado = 1
+              AND YEAR(n.fecha) = $anio
+            ORDER BY e.apellido ASC, e.nombre ASC";
+
+    $result = $this->connect_db()->query($sql);
+    $data   = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $row['es_vendedor'] = (bool)(int)$row['es_vendedor'];
+        $data[] = $row;
+    }
+    return $data;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2.  ARC_GetDetalle($cedula, $anio)
+//     Devuelve el detalle mensual de remuneraciones + ISLR para un empleado.
+//
+//     Retorna un array con claves:
+//       empleado   → datos personales (cedula, nombre, apellido, cargo, f_ingreso, es_vendedor)
+//       meses      → array[1..12] con {remuneracion, porcentaje_islr, retencion_mensual,
+//                                       acumulado_devengado, acumulado_retencion}
+//       bonos      → {bono_vacacional, bono_fin_anio, bono_especial}  (anuales)
+//       total      → total_devengado (suma de todo lo declarado)
+// ─────────────────────────────────────────────────────────────────────────────
+public function ARC_GetDetalle(string $cedula, int $anio): array
+{
+    $anio   = (int)$anio;
+    $cedula = $this->connect_db()->real_escape_string($cedula);
+
+    // ── Datos del empleado ────────────────────────────────────────────────
+    $sqlEmp = "SELECT
+                    e.cedula,
+                    e.nombre,
+                    e.apellido,
+                    e.cargo,
+                    e.f_ingreso,
+                    (LOWER(e.cargo) LIKE '%vendedor%'
+                     OR LOWER(e.cargo) LIKE '%vendedora%') AS es_vendedor
+               FROM empleados e
+               WHERE e.cedula = '$cedula'
+               LIMIT 1";
+
+    $resEmp   = $this->connect_db()->query($sqlEmp);
+    $empleado = mysqli_fetch_assoc($resEmp);
+
+    if (!$empleado) {
+        return [];   // empleado no encontrado
+    }
+    $empleado['es_vendedor'] = (bool)(int)$empleado['es_vendedor'];
+
+    // ── Pagos mensuales de nómina ─────────────────────────────────────────
+    // IMPORTANTE: sueldosem y neto están en USD → se multiplica neto * tasa_del_dia
+    // para obtener el monto en Bs.
+    // bonificaciones y comisiones ya están almacenadas en Bs directamente.
+    $sqlNomina = "SELECT
+                    MONTH(n.fecha)                                     AS mes,
+                    SUM(TRUNCATE(n.neto * t.tasa_del_dia, 2))          AS neto_bs,
+                    COALESCE(SUM(n.bonificaciones), 0)                 AS bonificaciones_mes,
+                    COALESCE(SUM(n.comisiones),     0)                 AS comisiones_mes
+                  FROM nomina n
+                  JOIN tasa_dolar t ON n.tasaBCV_FK = t.id_tasa
+                  WHERE n.cedula_FK = '$cedula'
+                    AND n.estado    = 1
+                    AND YEAR(n.fecha) = $anio
+                  GROUP BY MONTH(n.fecha)
+                  ORDER BY mes ASC";
+
+    $resNomina   = $this->connect_db()->query($sqlNomina);
+    $pagosMes    = [];              // indexado por número de mes (1-12)
+    while ($row = mysqli_fetch_assoc($resNomina)) {
+        $pagosMes[(int)$row['mes']] = $row;
+    }
+
+    // ── ISLR mensual ──────────────────────────────────────────────────────
+    $sqlIslr = "SELECT
+                    MONTH(i.fecha)  AS mes,
+                    AVG(i.aporte)   AS porcentaje,
+                    SUM(i.monto)    AS retencion
+                FROM islr i
+                WHERE i.cedula_FK = '$cedula'
+                  AND YEAR(i.fecha) = $anio
+                GROUP BY MONTH(i.fecha)
+                ORDER BY mes ASC";
+
+    $resIslr  = $this->connect_db()->query($sqlIslr);
+    $islrMes  = [];
+    while ($row = mysqli_fetch_assoc($resIslr)) {
+        $islrMes[(int)$row['mes']] = $row;
+    }
+
+    // ── Bono vacacional del año ───────────────────────────────────────────
+    // monto en vacaciones_y_utilidades está en USD → convertir con tasa_del_dia
+    $sqlVac = "SELECT COALESCE(SUM(TRUNCATE(v.monto * t.tasa_del_dia, 2)), 0) AS bono_vacacional
+               FROM vacaciones_y_utilidades v
+               JOIN tasa_dolar t ON v.TasaBCV_FK = t.id_tasa
+               WHERE v.cedula_FK = '$cedula'
+                 AND YEAR(v.ini_vacaciones) = $anio";
+    $resVac         = $this->connect_db()->query($sqlVac);
+    $rowVac         = mysqli_fetch_assoc($resVac);
+    $bonoVacacional = (float)($rowVac['bono_vacacional'] ?? 0);
+
+    // ── Bonificaciones anuales (fin de año / especiales) ─────────────────
+    // bonificaciones y comisiones en nomina se guardan en Bs directamente
+    // (a diferencia de neto/sueldosem que son USD).
+    // Registros con sueldosem = 0 corresponden a pagos puros de bonos (ej: aguinaldo).
+    $sqlBonoAnual = "SELECT
+                        COALESCE(SUM(n.bonificaciones), 0) AS total_bonificaciones,
+                        COALESCE(SUM(n.comisiones),     0) AS total_comisiones
+                     FROM nomina n
+                     WHERE n.cedula_FK = '$cedula'
+                       AND n.estado    = 1
+                       AND n.sueldosem = 0
+                       AND (n.bonificaciones > 0 OR n.comisiones > 0)
+                       AND YEAR(n.fecha) = $anio";
+    $resBA        = $this->connect_db()->query($sqlBonoAnual);
+    $rowBA        = mysqli_fetch_assoc($resBA);
+    $bonoFinAnio  = (float)($rowBA['total_bonificaciones'] ?? 0);
+    $bonoEspecial = (float)($rowBA['total_comisiones']     ?? 0);  // comisiones de pago anual
+
+    // ── Construir array de 12 meses con acumulados ────────────────────────
+    $meses             = [];
+    $acumDevengado     = 0.0;
+    $acumRetencion     = 0.0;
+
+    for ($m = 1; $m <= 12; $m++) {
+        $pago = $pagosMes[$m] ?? null;
+
+        if ($pago) {
+            $netoBs = (float)$pago['neto_bs'];          // sueldosem USD → Bs (ya convertido en SQL)
+            $bono   = (float)$pago['bonificaciones_mes']; // ya en Bs
+            $comis  = (float)$pago['comisiones_mes'];     // ya en Bs
+
+            // neto_bs incluye el sueldo base + deducciones.
+            // Las bonificaciones y comisiones se suman POR SEPARADO porque
+            // ya están en Bs y NO forman parte del campo neto (ver estructura BD).
+            // Para vendedor se añaden las comisiones; para el resto solo bonificaciones.
+            $remuneracion = $empleado['es_vendedor']
+                ? $netoBs + $bono + $comis
+                : $netoBs + $bono;
+        } else {
+            $remuneracion = 0.0;
+        }
+
+        $islr = $islrMes[$m] ?? null;
+        $pct  = $islr ? (float)$islr['porcentaje']  : 0.0;
+        $ret  = $islr ? (float)$islr['retencion']   : 0.0;
+
+        $acumDevengado += $remuneracion;
+        $acumRetencion += $ret;
+
+        $meses[$m] = [
+            'remuneracion'        => $remuneracion,
+            'porcentaje_islr'     => $pct,
+            'retencion_mensual'   => $ret,
+            'acumulado_devengado' => $acumDevengado,
+            'acumulado_retencion' => $acumRetencion,
+        ];
+    }
+
+    // Suma final incluyendo bonos anuales (no suman retención, solo devengado)
+    $totalDevengado = $acumDevengado + $bonoVacacional + $bonoFinAnio + $bonoEspecial;
+
+    return [
+        'empleado' => $empleado,
+        'meses'    => $meses,
+        'bonos'    => [
+            'bono_vacacional' => $bonoVacacional,
+            'bono_fin_anio'   => $bonoFinAnio,
+            'bono_especial'   => $bonoEspecial,
+        ],
+        'total'    => $totalDevengado,
+    ];
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3.  ARC_GetAnios()
+//     Años disponibles en la nómina (para el selector del reporte).
+// ─────────────────────────────────────────────────────────────────────────────
+public function ARC_GetAnios(): array
+{
+    $sql = "SELECT DISTINCT YEAR(fecha) AS anio
+            FROM nomina
+            WHERE estado = 1
+            ORDER BY anio DESC";
+
+    $result = $this->connect_db()->query($sql);
+    $data   = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    return $data;
+}
 	}
 
 
