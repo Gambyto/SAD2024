@@ -200,10 +200,8 @@
         </div> 
         
         <div class="block indicator">
-        <?php include_once 'Components/Indicator/PromedioPrestamos.php'; ?>
-        <?php include_once 'Components/Indicator/Tasadeuso.php'; ?>
-        <?php include_once 'Components/Indicator/Tasa_de_reembolso.php'; ?>
-        <?php include_once 'Components/Indicator/Frecuencia_Renovación.php'; ?>
+        <?php include_once 'Components/Indicator/Indicadores_Prestamos.php'; ?>
+        <?php include_once 'Components/Modals/Modal_Prestamos.php'; ?>
         </div>
 
         <div class="block info">
