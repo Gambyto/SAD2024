@@ -105,6 +105,7 @@
                 <div class="a2">
                     <label for="validationCustom13" class="form-label">Fecha de nacimiento</label>
                     <input type="date" name="edad" class="form-control" id="validationCustom13" required >
+                    <div id="alert-edad" style="display:none;" class="invalid-feedback" style="display:block;"></div>
                 </div>
             </div>
             
@@ -240,7 +241,65 @@
         
        
 
-        <script>            
+        <script>       
+(function () {
+    const input = document.getElementById('validationCustom13');
+    const alertBox = document.getElementById('alert-edad');
+
+    // Calcular límites dinámicos
+    const hoy = new Date();
+
+    const maxDate = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+    const minDate = new Date(hoy.getFullYear() - 70, hoy.getMonth(), hoy.getDate());
+
+    // Restringir el input visualmente
+    input.max = maxDate.toISOString().split('T')[0];
+    input.min = minDate.toISOString().split('T')[0];
+
+    function validarEdad() {
+        const valor = input.value;
+
+        // Limpiar estado previo
+        alertBox.style.display = 'none';
+        alertBox.textContent = '';
+        input.classList.remove('is-invalid', 'is-valid');
+
+        if (!valor) return; // No validar si está vacío aún
+
+        const nacimiento = new Date(valor + 'T00:00:00'); // Evitar desfase de zona horaria
+        const edad = calcularEdad(nacimiento);
+
+        if (edad < 18) {
+            mostrarError(`El empleado debe ser mayor de 18 años (edad ingresada: ${edad} años).`);
+        } else if (edad > 70) {
+            mostrarError(`El empleado no puede tener más de 70 años (edad ingresada: ${edad} años).`);
+        } else {
+            input.classList.add('is-valid');
+        }
+    }
+
+    function calcularEdad(nacimiento) {
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const m = hoy.getMonth() - nacimiento.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--;
+        }
+        return edad;
+    }
+
+    function mostrarError(mensaje) {
+        input.classList.add('is-invalid');
+        alertBox.textContent = mensaje;
+        alertBox.style.display = 'block';
+    }
+
+    // Validar en tiempo real al cambiar el valor
+    input.addEventListener('change', validarEdad);
+    input.addEventListener('blur', validarEdad); // También al salir del campo
+})();  
+        
+
 // Obtén el tipo de usuario desde la variable de sesión
 var userType = '<?php echo $_SESSION['type'] ?? ''; ?>';
 

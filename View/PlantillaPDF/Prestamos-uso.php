@@ -1,6 +1,12 @@
 <?php
 /**
- * Prestamos-uso.php — Reporte PDF: Tasa de Uso de Préstamos
+ * Prestamos-uso.php  — PDF Tasa de Uso de Préstamos
+ * Secciones (orientación landscape, A4):
+ *   1. KPIs generales
+ *   2. Resumen + detalle de préstamos del mes
+ *   3. Uso por departamento  |  Top 5 mayor deuda  (en la misma fila, layout tabla)
+ *   4. Trabajadores sin préstamos activos
+ *
  * Ubicación: View/PlantillaPDF/Prestamos-uso.php
  */
 session_start();
@@ -9,186 +15,396 @@ if (!isset($_SESSION['user'])) { header('Location: index.php'); exit; }
 include '../../PHP/CLASS/conexion_Original.php';
 include '../../PHP/CLASS/user_Original.php';
 
-$totalEmp    = count($Empleado->View());
-$promedio    = $Empleado->PromedioPrestamos();
-$activos     = $Nomina->Prestamos_View_report();
-$conPrestamo = count(array_unique(array_column($activos, 'cedula')));
-$sinPrestamo = $totalEmp - $conPrestamo;
+$db = $Nomina->connect_db();
 
-// Agrupar por departamento
-$todos   = $Empleado->View();
-$deptos  = [];
-foreach ($todos as $e) {
-    $dep = $e['departamento'] ?? 'Sin depto.';
+/* ── Empleados activos ──────────────────────────────── */
+$todosEmp = $Empleado->View();
+$totalEmp = count($todosEmp);
+
+/* ── Cédulas con préstamo activo ────────────────────── */
+$r = $db->query("SELECT DISTINCT cedula_FK FROM prestamos WHERE estado = 1");
+$cedsConPrestamo = [];
+while ($row = $r->fetch_assoc()) $cedsConPrestamo[$row['cedula_FK']] = true;
+$conPrestamoCnt = count($cedsConPrestamo);
+$sinPrestamo    = $totalEmp - $conPrestamoCnt;
+$tasaUso        = $totalEmp > 0 ? round(($conPrestamoCnt / $totalEmp) * 100, 2) : 0;
+$estadoLabel    = $tasaUso <= 40 ? 'BAJO' : ($tasaUso <= 60 ? 'MODERADO' : 'ALTO');
+$estadoColor    = $tasaUso <= 40 ? '#166534' : ($tasaUso <= 60 ? '#854d0e' : '#991b1b');
+$estadoBg       = $tasaUso <= 40 ? '#dcfce7' : ($tasaUso <= 60 ? '#fef9c3' : '#fee2e2');
+
+/* ── Préstamos del mes actual ───────────────────────── */
+$mesActual  = date('Y-m');
+$mesIdx     = (int)date('n') - 1;
+$mesesNom   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+$mesNombre  = $mesesNom[$mesIdx];
+$anioActual = date('Y');
+
+$mesEsc  = $db->real_escape_string($mesActual);
+$rMes    = $db->query("
+    SELECT p.id_prestamos, e.nombre, e.apellido, e.cedula,
+           e.departamento, e.cargo,
+           p.monto, p.descuento, p.cuotas, p.concepto, p.fecha, p.date_limit
+    FROM prestamos p
+    INNER JOIN empleados e ON p.cedula_FK = e.cedula
+    WHERE p.estado = 1
+      AND DATE_FORMAT(p.fecha,'%Y-%m') = '$mesEsc'
+    ORDER BY p.fecha DESC
+");
+$prestamosMes  = [];
+$montoTotalMes = 0;
+while ($row = $rMes->fetch_assoc()) {
+    $prestamosMes[] = $row;
+    $montoTotalMes += (float)$row['monto'];
+}
+$cantMes = count($prestamosMes);
+$promMes = $cantMes > 0 ? round($montoTotalMes / $cantMes, 2) : 0;
+
+/* ── Por departamento ───────────────────────────────── */
+$deptos = [];
+foreach ($todosEmp as $e) {
+    $dep = trim($e['departamento'] ?? '') ?: 'Sin depto.';
     if (!isset($deptos[$dep])) $deptos[$dep] = ['total' => 0, 'con_prestamo' => 0];
     $deptos[$dep]['total']++;
+    if (isset($cedsConPrestamo[$e['cedula']])) $deptos[$dep]['con_prestamo']++;
 }
-foreach ($activos as $p) {
-    foreach ($todos as $e) {
-        if ($e['cedula'] == $p['cedula']) {
-            $dep = $e['departamento'] ?? 'Sin depto.';
-            if (isset($deptos[$dep])) $deptos[$dep]['con_prestamo']++;
-            break;
-        }
-    }
+uasort($deptos, fn($a, $b) => $b['con_prestamo'] <=> $a['con_prestamo']);
+
+/* ── Top 5 mayor deuda ──────────────────────────────── */
+$activos = $Nomina->Prestamos_View_report();
+usort($activos, fn($a, $b) => (float)$b['monto_desc'] <=> (float)$a['monto_desc']);
+$top5 = array_slice($activos, 0, 5);
+
+/* ── Sin préstamo ───────────────────────────────────── */
+$sinLista = [];
+foreach ($todosEmp as $e) {
+    if (!isset($cedsConPrestamo[$e['cedula']])) $sinLista[] = $e;
 }
-arsort($deptos);
+usort($sinLista, fn($a, $b) => strcmp($a['nombre'], $b['nombre']));
 
-$vencidos = $Nomina->Prestamos_Vencidos();
-$estado   = $promedio < 41 ? ['ÓPTIMO','#16a34a'] : ($promedio <= 60 ? ['MODERADO','#d97706'] : ['CRÍTICO','#dc2626']);
+/* ── Helper ─────────────────────────────────────────── */
+function fmtN($n, $d = 2) { return number_format((float)$n, $d, ',', '.'); }
+function fmtF($f)          { return $f ? date('d/m/Y', strtotime($f)) : '—'; }
 
+/* ─────────────────────────────────────────────────────
+   HTML
+──────────────────────────────────────────────────── */
 ob_start();
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reporte Tasa de Uso — Préstamos</title>
+<title>Reporte — Tasa de Uso de Préstamos</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:Arial, sans-serif; font-size:11px; color:#1a1a1a; }
-.header-wrap { border-bottom:3px solid #0f2027; padding-bottom:8px; margin-bottom:16px; }
-.header-table { width:100%; border-collapse:collapse; }
-.header-table td { border:none; vertical-align:middle; }
-.logo { width:65px; height:65px; }
-.company-name { font-size:14px; font-weight:bold; color:#0f2027; }
-.doc-title { font-size:11px; color:#4b5563; margin-top:3px; }
-.header-right { text-align:right; font-size:9px; color:#6b7280; }
-.section-title { font-size:12px; font-weight:bold; color:#0f2027;
-    border-left:4px solid #3b82f6; padding-left:8px; margin:14px 0 8px 0; }
-.kpi-table { width:100%; border-collapse:separate; border-spacing:6px; }
-.kpi-cell { width:25%; background:#f8fafc; border:1px solid #e2e8f0;
-    border-radius:6px; padding:10px 8px; text-align:center; vertical-align:middle; }
-.kpi-label { font-size:9px; color:#6b7280; display:block; margin-bottom:4px;
-    text-transform:uppercase; letter-spacing:.3px; }
-.kpi-value { font-size:14px; font-weight:bold; color:#1a1a2e; }
-.kpi-sub { font-size:9px; color:#9ca3af; display:block; margin-top:2px; }
-.dep-table { width:100%; border-collapse:collapse; font-size:9.5px; margin-top:4px; }
-.dep-table thead tr { background:#3b82f6; color:#fff; }
-.dep-table th, .dep-table td { padding:6px 8px; border-bottom:1px solid #e5e7eb; }
-.dep-table td.muted { color:#9ca3af; }
-.bar-bg { background:#e5e7eb; border-radius:3px; height:8px; }
-.bar-fill { height:8px; border-radius:3px; }
-.footer { margin-top:20px; border-top:1px solid #e5e7eb; padding-top:8px;
-    font-size:9px; color:#9ca3af; text-align:right; }
+*   { box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:Arial,sans-serif; font-size:10px; color:#1a1a1a; }
+
+/* ── encabezado ── */
+.hdr          { border-bottom:3px solid #0f2027; padding-bottom:7px; margin-bottom:12px; }
+.hdr table    { width:100%; border-collapse:collapse; }
+.hdr td       { border:none; vertical-align:middle; }
+.logo         { width:60px; height:60px; }
+.co-name      { font-size:13px; font-weight:bold; color:#0f2027; }
+.co-sub       { font-size:10px; color:#4b5563; margin-top:2px; }
+.hdr-right    { text-align:right; font-size:9px; color:#6b7280; }
+
+/* ── título sección ── */
+.stitle       { font-size:10.5px; font-weight:bold; color:#0f2027;
+                border-left:4px solid #3b82f6; padding-left:6px;
+                margin:11px 0 6px 0; }
+
+/* ── KPI strip ── */
+.kpi-wrap     { width:100%; border-collapse:separate; border-spacing:4px; margin-bottom:2px; }
+.kpi-cell     { background:#f8fafc; border:1px solid #e2e8f0; border-radius:5px;
+                padding:8px 5px; text-align:center; vertical-align:middle; }
+.kpi-lbl      { font-size:8px; color:#6b7280; display:block; text-transform:uppercase;
+                letter-spacing:.3px; margin-bottom:2px; }
+.kpi-val      { font-size:14px; font-weight:bold; color:#0f2027; }
+.kpi-sub      { font-size:8px; color:#9ca3af; display:block; margin-top:1px; }
+
+/* ── tablas de datos ── */
+.dt           { width:100%; border-collapse:collapse; font-size:9px; }
+.dt thead tr  { background:#0f2027; color:#fff; }
+.dt th        { padding:4px 4px; font-size:8.5px; text-align:left; }
+.dt th.r      { text-align:right; }
+.dt th.c      { text-align:center; }
+.dt td        { padding:4px 4px; border-bottom:1px solid #e5e7eb; color:#374151; }
+.dt td.r      { text-align:right; }
+.dt td.c      { text-align:center; }
+.dt tbody tr:nth-child(even) td { background:#f9fafb; }
+.dt tfoot td  { background:#f1f5f9; font-weight:bold; font-size:9px;
+                border-top:2px solid #0f2027; padding:4px; }
+
+/* ── badge inline ── */
+.bdg          { display:inline-block; border-radius:3px; padding:2px 5px;
+                font-size:8px; font-weight:bold; }
+
+/* ── footer ── */
+.footer       { margin-top:16px; border-top:1px solid #e5e7eb; padding-top:6px;
+                font-size:8.5px; color:#9ca3af; text-align:right; }
 </style>
 </head>
 <body>
-<div class="header-wrap">
-    <table class="header-table">
+
+<!-- ENCABEZADO -->
+<div class="hdr">
+    <table>
         <tr>
-            <td style="width:75px;">
+            <td style="width:68px;">
                 <img src="http://<?= $_SERVER['HTTP_HOST'] ?>/PIUT_V1/IMG/Logo_Comple_Black.png" class="logo">
             </td>
             <td>
-                <span class="company-name">DISORIENT, C.A.</span>
-                <div class="doc-title">Reporte de Tasa de Uso de Préstamos</div>
+                <span class="co-name">DISORIENT, C.A.</span>
+                <div class="co-sub">Reporte de Tasa de Uso de Préstamos</div>
             </td>
-            <td class="header-right">Fecha de emisión:<br><strong><?= date('d-m-Y') ?></strong></td>
+            <td class="hdr-right">
+                Emisión: <strong><?= date('d/m/Y H:i') ?></strong><br>
+                Período: <strong><?= $mesNombre . ' ' . $anioActual ?></strong>
+            </td>
         </tr>
     </table>
 </div>
 
-<div class="section-title">Resumen ejecutivo</div>
-<table class="kpi-table">
+<!-- KPIs GENERALES -->
+<div class="stitle">Indicadores Generales</div>
+<table class="kpi-wrap">
     <tr>
         <td class="kpi-cell">
-            <span class="kpi-label">Tasa de uso</span>
-            <span class="kpi-value"><?= number_format($promedio, 2) ?>%</span>
-            <span class="kpi-sub" style="color:<?= $estado[1] ?>; font-weight:bold;"><?= $estado[0] ?></span>
+            <span class="kpi-lbl">Tasa de Uso</span>
+            <span class="kpi-val"><?= $tasaUso ?>%</span>
+            <span class="kpi-sub"><?= $conPrestamoCnt ?> de <?= $totalEmp ?> emp.</span>
         </td>
         <td class="kpi-cell">
-            <span class="kpi-label">Total empleados</span>
-            <span class="kpi-value"><?= $totalEmp ?></span>
-            <span class="kpi-sub">activos</span>
-        </td>
-        <td class="kpi-cell">
-            <span class="kpi-label">Con préstamo activo</span>
-            <span class="kpi-value"><?= $conPrestamo ?></span>
+            <span class="kpi-lbl">Con Préstamo Activo</span>
+            <span class="kpi-val"><?= $conPrestamoCnt ?></span>
             <span class="kpi-sub">empleados</span>
         </td>
         <td class="kpi-cell">
-            <span class="kpi-label">Sin préstamo</span>
-            <span class="kpi-value"><?= $sinPrestamo ?></span>
-            <span class="kpi-sub">empleados</span>
+            <span class="kpi-lbl">Sin Préstamo</span>
+            <span class="kpi-val"><?= $sinPrestamo ?></span>
+            <span class="kpi-sub">empleados activos</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Total Empleados</span>
+            <span class="kpi-val"><?= $totalEmp ?></span>
+            <span class="kpi-sub">activos en nómina</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Estado</span>
+            <span class="kpi-val">
+                <span class="bdg" style="background:<?= $estadoBg ?>; color:<?= $estadoColor ?>;">
+                    <?= $estadoLabel ?>
+                </span>
+            </span>
         </td>
     </tr>
 </table>
 
-<div class="section-title" style="margin-top:18px;">Uso por departamento</div>
-<table class="dep-table">
-    <thead>
-        <tr>
-            <th>Departamento</th>
-            <th class="text-center">Total Emp.</th>
-            <th class="text-center">Con Préstamo</th>
-            <th class="text-center">Tasa %</th>
-            <th style="width:30%;">Distribución</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($deptos as $nombre => $vals): 
-        $pct = $vals['total'] > 0 ? round(($vals['con_prestamo'] / $vals['total']) * 100, 1) : 0;
-        $color = $pct > 60 ? '#ef4444' : ($pct > 40 ? '#f59e0b' : '#22c55e');
-    ?>
-        <tr>
-            <td style="font-weight:600;"><?= htmlspecialchars($nombre) ?></td>
-            <td style="text-align:center;"><?= $vals['total'] ?></td>
-            <td style="text-align:center;"><?= $vals['con_prestamo'] ?></td>
-            <td style="text-align:center; font-weight:bold; color:<?= $color ?>;"><?= $pct ?>%</td>
-            <td><div class="bar-bg"><div class="bar-fill" style="width:<?= $pct ?>%; background:<?= $color ?>;"></div></div></td>
-        </tr>
-    <?php endforeach; ?>
-    </tbody>
+<!-- RESUMEN MES -->
+<div class="stitle" style="border-left-color:#10b981;">
+    Préstamos Otorgados — <?= $mesNombre . ' ' . $anioActual ?>
+</div>
+<table class="kpi-wrap">
+    <tr>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Cantidad otorgada</span>
+            <span class="kpi-val"><?= $cantMes ?></span>
+            <span class="kpi-sub">en el mes</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Monto total del mes</span>
+            <span class="kpi-val"><?= fmtN($montoTotalMes) ?> $</span>
+            <span class="kpi-sub">suma</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Promedio por préstamo</span>
+            <span class="kpi-val"><?= fmtN($promMes) ?> $</span>
+            <span class="kpi-sub">este mes</span>
+        </td>
+    </tr>
 </table>
 
-<div class="section-title" style="margin-top:18px;">Top 10 — Mayor deuda pendiente</div>
-<table class="dep-table">
+<!-- DETALLE MES -->
+<?php if (!empty($prestamosMes)): ?>
+<div class="stitle" style="margin-top:9px; border-left-color:#10b981;">
+    Detalle de Préstamos — <?= $mesNombre . ' ' . $anioActual ?>
+</div>
+<table class="dt">
     <thead>
         <tr>
-            <th>#</th>
             <th>Empleado</th>
             <th>Cédula</th>
-            <th class="text-end">Monto Original $</th>
-            <th class="text-end">Deuda Pendiente $</th>
-            <th>Progreso</th>
+            <th>Departamento</th>
+            <th>Cargo</th>
+            <th class="r">Monto $</th>
+            <th class="r">Cuota Sem. $</th>
+            <th class="c">Cuotas</th>
+            <th>Concepto</th>
+            <th class="c">Fecha</th>
+            <th class="c">Vence</th>
         </tr>
     </thead>
     <tbody>
-    <?php
-    usort($activos, fn($a, $b) => $b['monto_desc'] <=> $a['monto_desc']);
-    $top10 = array_slice($activos, 0, 10);
-    foreach ($top10 as $i => $p):
-        $prog = $p['monto'] > 0 ? round((1 - $p['monto_desc'] / $p['monto']) * 100, 1) : 100;
-        $col2 = $prog >= 70 ? '#22c55e' : ($prog >= 40 ? '#f59e0b' : '#ef4444');
-    ?>
-    <tr>
-        <td><?= $i + 1 ?></td>
-        <td style="font-weight:600;"><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellido']) ?></td>
-        <td><?= $p['cedula'] ?></td>
-        <td style="text-align:right;"><?= number_format($p['monto'], 2) ?></td>
-        <td style="text-align:right; font-weight:bold; color:#dc2626;"><?= number_format($p['monto_desc'], 2) ?></td>
-        <td><div class="bar-bg"><div class="bar-fill" style="width:<?= $prog ?>%; background:<?= $col2 ?>;"></div></div>
-        <span style="font-size:8px; color:#6b7280;"><?= $prog ?>%</span></td>
-    </tr>
+    <?php $totMes = 0; foreach ($prestamosMes as $p): $totMes += (float)$p['monto']; ?>
+        <tr>
+            <td><?= htmlspecialchars($p['nombre'].' '.$p['apellido']) ?></td>
+            <td><?= $p['cedula'] ?></td>
+            <td><?= htmlspecialchars($p['departamento'] ?? '—') ?></td>
+            <td><?= htmlspecialchars($p['cargo'] ?? '—') ?></td>
+            <td class="r" style="font-weight:bold;"><?= fmtN($p['monto']) ?></td>
+            <td class="r"><?= fmtN($p['descuento']) ?></td>
+            <td class="c"><?= $p['cuotas'] ?></td>
+            <td><?= htmlspecialchars($p['concepto'] ?? '—') ?></td>
+            <td class="c"><?= fmtF($p['fecha']) ?></td>
+            <td class="c"><?= fmtF($p['date_limit']) ?></td>
+        </tr>
     <?php endforeach; ?>
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4" style="text-align:right; padding-right:5px;">TOTAL MES</td>
+            <td class="r" style="color:#0f2027;"><?= fmtN($totMes) ?></td>
+            <td colspan="5"></td>
+        </tr>
+    </tfoot>
+</table>
+<?php else: ?>
+<p style="color:#9ca3af; text-align:center; padding:12px; font-style:italic; font-size:9px;">
+    No se registraron préstamos en <?= $mesNombre . ' ' . $anioActual ?>.
+</p>
+<?php endif; ?>
+
+<!-- USO POR DEPTO + TOP 5  — misma fila, sin floats -->
+<table style="width:100%; border-collapse:collapse; margin-top:10px;">
+    <tr style="vertical-align:top;">
+
+        <!-- columna izquierda: Departamentos -->
+        <td style="width:50%; padding-right:8px;">
+            <div class="stitle" style="border-left-color:#6366f1; margin-top:0;">Uso por Departamento</div>
+            <table class="dt">
+                <thead>
+                    <tr>
+                        <th>Departamento</th>
+                        <th class="c">Total Emp.</th>
+                        <th class="c">Con Prést.</th>
+                        <th class="c">% Uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($deptos as $depNom => $dv):
+                    $pct      = $dv['total'] > 0 ? round(($dv['con_prestamo'] / $dv['total']) * 100, 1) : 0;
+                    $barClr   = $pct > 60 ? '#ef4444' : ($pct > 40 ? '#f59e0b' : '#22c55e');
+                ?>
+                    <tr>
+                        <td><?= htmlspecialchars($depNom) ?></td>
+                        <td class="c"><?= $dv['total'] ?></td>
+                        <td class="c"><?= $dv['con_prestamo'] ?></td>
+                        <td class="c" style="color:<?= $barClr ?>; font-weight:bold;"><?= $pct ?>%</td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </td>
+
+        <!-- separador visual -->
+        <td style="width:1px; background:#e2e8f0; padding:0;"></td>
+
+        <!-- columna derecha: Top 5 -->
+        <td style="width:50%; padding-left:8px;">
+            <div class="stitle" style="border-left-color:#ef4444; margin-top:0;">Top 5 — Mayor Deuda Pendiente</div>
+            <table class="dt">
+                <thead>
+                    <tr>
+                        <th class="c">#</th>
+                        <th>Empleado</th>
+                        <th>Cédula</th>
+                        <th class="r">Monto Orig. $</th>
+                        <th class="r">Pendiente $</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($top5 as $ii => $p): ?>
+                    <tr <?= $ii===0 ? 'style="background:#fffbeb;"' : '' ?>>
+                        <td class="c" style="font-weight:bold;">
+                            <?= $ii===0?'1°':($ii===1?'2°':($ii===2?'3°':($ii+1).'.')) ?>
+                        </td>
+                        <td style="font-weight:<?= $ii===0?'bold':'normal' ?>;">
+                            <?= htmlspecialchars($p['nombre'].' '.$p['apellido']) ?>
+                        </td>
+                        <td><?= $p['cedula'] ?></td>
+                        <td class="r"><?= fmtN($p['monto']) ?></td>
+                        <td class="r" style="color:#dc2626; font-weight:bold;"><?= fmtN($p['monto_desc']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </td>
+    </tr>
 </table>
 
-<div class="footer">
-    Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?> &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de Nómina
+<!-- TRABAJADORES SIN PRÉSTAMO -->
+<div class="stitle" style="margin-top:12px; border-left-color:#dc2626;">
+    Trabajadores Sin Préstamos Activos
+    <span class="bdg" style="background:#fee2e2; color:#991b1b; margin-left:5px;
+                              font-size:8.5px;"><?= count($sinLista) ?> trabajadores</span>
 </div>
+<?php if (!empty($sinLista)): ?>
+<table class="dt">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Cédula</th>
+            <th>Departamento</th>
+            <th>Cargo</th>
+            <th class="c">F. Ingreso</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($sinLista as $e): ?>
+        <tr>
+            <td><?= htmlspecialchars($e['nombre']) ?></td>
+            <td><?= htmlspecialchars($e['apellido']) ?></td>
+            <td><?= $e['cedula'] ?></td>
+            <td><?= htmlspecialchars($e['departamento'] ?? '—') ?></td>
+            <td><?= htmlspecialchars($e['cargo'] ?? '—') ?></td>
+            <td class="c"><?= isset($e['f_ingreso']) ? fmtF($e['f_ingreso']) : '—' ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2" style="text-align:right; padding-right:5px;">TOTAL SIN PRÉSTAMO:</td>
+            <td colspan="4"><strong><?= count($sinLista) ?> de <?= $totalEmp ?> empleados activos</strong></td>
+        </tr>
+    </tfoot>
+</table>
+<?php else: ?>
+<p style="color:#16a34a; padding:10px; text-align:center; font-style:italic; font-size:9px;">
+    Todos los empleados activos tienen al menos un préstamo activo.
+</p>
+<?php endif; ?>
+
+<!-- FOOTER -->
+<div class="footer">
+    Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?>
+    &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de Nómina
+</div>
+
 </body>
 </html>
 <?php
 $html = ob_get_clean();
+
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
-$dompdf = new Dompdf();
-$opts   = $dompdf->getOptions();
-$opts->set(['isRemoteEnabled' => true]);
-$dompdf->setOptions($opts);
+
+$dompdf  = new Dompdf();
+$options = $dompdf->getOptions();
+$options->set(['isRemoteEnabled' => true]);
+$dompdf->setOptions($options);
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'landscape');
 $dompdf->render();
-$dompdf->stream('Prestamos-uso-' . date('Y-m-d') . '.pdf', ['Attachment' => false]);
+$dompdf->stream('Prestamos-uso-' . date('Y-m') . '.pdf', ['Attachment' => false]);

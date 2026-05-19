@@ -1,6 +1,13 @@
 <?php
 /**
- * Prestamos-reembolso.php — Reporte PDF: Tasa de Reembolso
+ * Prestamos-reembolso.php  — PDF Tasa de Reembolso
+ *
+ * Secciones:
+ *   1. KPIs: tasa global, vencidos, años con datos, estado
+ *   2. Balance por año (prestado vs reembolsado vs pendiente)
+ *   3. Ranking — trabajadores con más préstamos adquiridos
+ *   4. Detalle de reembolso por empleado (progreso individual)
+ *
  * Ubicación: View/PlantillaPDF/Prestamos-reembolso.php
  */
 session_start();
@@ -9,14 +16,96 @@ if (!isset($_SESSION['user'])) { header('Location: index.php'); exit; }
 include '../../PHP/CLASS/conexion_Original.php';
 include '../../PHP/CLASS/user_Original.php';
 
-$balance  = $Nomina->Balance_Prestamos();
+$db = $Nomina->connect_db();
+
+/* ── Balance anual ──────────────────────────────────── */
+$rBal = $db->query("
+    SELECT
+        YEAR(fecha)                     AS anio,
+        COUNT(*)                        AS cantidad,
+        SUM(monto)                      AS total_prestado,
+        SUM(monto - monto_desc)         AS total_reembolsado,
+        SUM(monto_desc)                 AS total_pendiente
+    FROM prestamos
+    WHERE estado = 1
+    GROUP BY YEAR(fecha)
+    ORDER BY anio DESC
+");
+$porAnio  = [];
+$balance0 = null;
+while ($row = $rBal->fetch_assoc()) {
+    if ($balance0 === null) $balance0 = $row;
+    $pct = $row['total_prestado'] > 0
+        ? round(($row['total_reembolsado'] / $row['total_prestado']) * 100, 2) : 0;
+    $porAnio[] = [
+        'anio'              => $row['anio'],
+        'cantidad'          => (int)$row['cantidad'],
+        'total_prestado'    => (float)$row['total_prestado'],
+        'total_reembolsado' => (float)$row['total_reembolsado'],
+        'total_pendiente'   => (float)$row['total_pendiente'],
+        'porcentaje'        => $pct,
+    ];
+}
+
+$global = ($balance0 && $balance0['total_prestado'] > 0)
+    ? round(($balance0['total_reembolsado'] / $balance0['total_prestado']) * 100, 2)
+    : 0;
+
+/* ── Totales globales ───────────────────────────────── */
+$grandPrestado    = array_sum(array_column($porAnio, 'total_prestado'));
+$grandReembolsado = array_sum(array_column($porAnio, 'total_reembolsado'));
+$grandPendiente   = array_sum(array_column($porAnio, 'total_pendiente'));
+$grandCantidad    = array_sum(array_column($porAnio, 'cantidad'));
+$globalTotal      = $grandPrestado > 0
+    ? round(($grandReembolsado / $grandPrestado) * 100, 2) : 0;
+
+/* ── Vencidos ───────────────────────────────────────── */
 $vencidos = $Nomina->Prestamos_Vencidos();
-$todos    = $Nomina->Prestamos_View_report();
+$vencCnt  = (int)($vencidos['cantidad']     ?? 0);
+$vencMont = (float)($vencidos['monto_total'] ?? 0);
 
-$global = (isset($balance[0]) && $balance[0]['total_prestado'] > 0)
-    ? round(($balance[0]['total_reembolsado'] / $balance[0]['total_prestado']) * 100, 2) : 0;
+/* ── Estado general ─────────────────────────────────── */
+$estadoLabel = $global > 50 ? 'SALUDABLE' : ($global >= 31 ? 'ATENCIÓN' : 'CRÍTICO');
+$estadoBg    = $global > 50 ? '#dcfce7'   : ($global >= 31 ? '#fef9c3'  : '#fee2e2');
+$estadoColor = $global > 50 ? '#166534'   : ($global >= 31 ? '#854d0e'  : '#991b1b');
 
-$estado = $global > 50 ? ['SALUDABLE','#16a34a'] : ($global >= 31 ? ['ATENCIÓN','#d97706'] : ['CRÍTICO','#dc2626']);
+/* ── Ranking top trabajadores ───────────────────────── */
+$rTop = $db->query("
+    SELECT
+        e.cedula, e.nombre, e.apellido, e.departamento,
+        COUNT(p.id_prestamos)   AS cantidad,
+        SUM(p.monto)            AS monto_total,
+        SUM(p.monto_desc)       AS deuda_pendiente,
+        SUM(p.monto-p.monto_desc) AS pagado_total
+    FROM prestamos p
+    INNER JOIN empleados e ON p.cedula_FK = e.cedula
+    WHERE p.estado = 1
+    GROUP BY e.cedula, e.nombre, e.apellido, e.departamento
+    ORDER BY cantidad DESC, monto_total DESC
+    LIMIT 10
+");
+$topTrabajadores = [];
+while ($row = $rTop->fetch_assoc()) $topTrabajadores[] = $row;
+
+/* ── Detalle por empleado ───────────────────────────── */
+$todos   = $Nomina->Prestamos_View_report();
+$detalle = [];
+foreach ($todos as $p) {
+    $progreso = $p['monto'] > 0
+        ? round((1 - $p['monto_desc'] / $p['monto']) * 100, 1) : 100;
+    $detalle[] = [
+        'nombre'    => $p['nombre'] . ' ' . $p['apellido'],
+        'cedula'    => $p['cedula'],
+        'monto'     => (float)$p['monto'],
+        'pendiente' => (float)$p['monto_desc'],
+        'pagado'    => round((float)$p['monto'] - (float)$p['monto_desc'], 2),
+        'progreso'  => $progreso,
+        'vencido'   => ($p['date_limit'] && $p['date_limit'] < date('Y-m-d') && $p['monto_desc'] > 0) ? 1 : 0,
+    ];
+}
+
+/* ── Helper ─────────────────────────────────────────── */
+function fmtN3($n, $d = 2) { return number_format((float)$n, $d, ',', '.'); }
 
 ob_start();
 ?>
@@ -24,165 +113,288 @@ ob_start();
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reporte Tasa de Reembolso</title>
+<title>Reporte — Tasa de Reembolso</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:Arial, sans-serif; font-size:11px; color:#1a1a1a; }
-.header-wrap { border-bottom:3px solid #0f2027; padding-bottom:8px; margin-bottom:16px; }
-.header-table { width:100%; border-collapse:collapse; }
-.header-table td { border:none; vertical-align:middle; }
-.logo { width:65px; height:65px; }
-.company-name { font-size:14px; font-weight:bold; color:#0f2027; }
-.doc-title { font-size:11px; color:#4b5563; margin-top:3px; }
-.header-right { text-align:right; font-size:9px; color:#6b7280; }
-.section-title { font-size:12px; font-weight:bold; color:#0f2027;
-    border-left:4px solid #ef4444; padding-left:8px; margin:14px 0 8px 0; }
-.kpi-table { width:100%; border-collapse:separate; border-spacing:6px; }
-.kpi-cell { width:25%; background:#f8fafc; border:1px solid #e2e8f0;
-    border-radius:6px; padding:10px 8px; text-align:center; }
-.kpi-label { font-size:9px; color:#6b7280; display:block; margin-bottom:4px;
-    text-transform:uppercase; letter-spacing:.3px; }
-.kpi-value { font-size:14px; font-weight:bold; color:#1a1a2e; }
-.kpi-sub { font-size:9px; color:#9ca3af; display:block; margin-top:2px; }
-.anio-table { width:100%; border-collapse:collapse; font-size:9.5px; margin-top:4px; }
-.anio-table thead tr { background:#ef4444; color:#fff; }
-.anio-table th, .anio-table td { padding:6px 8px; border-bottom:1px solid #e5e7eb; }
-.det-table { width:100%; border-collapse:collapse; font-size:9px; margin-top:4px; }
-.det-table thead tr { background:#1a1a2e; color:#fff; }
-.det-table th, .det-table td { padding:5px 6px; border-bottom:1px solid #e5e7eb; }
-.det-table tbody tr:nth-child(even) td { background:#f9fafb; }
-.bar-bg { background:#e5e7eb; border-radius:3px; height:7px; display:inline-block; width:80px; vertical-align:middle; }
-.bar-fill { height:7px; border-radius:3px; }
-.footer { margin-top:20px; border-top:1px solid #e5e7eb; padding-top:8px;
-    font-size:9px; color:#9ca3af; text-align:right; }
+*    { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Arial,sans-serif; font-size:10px; color:#1a1a1a; }
+
+.hdr        { border-bottom:3px solid #0f2027; padding-bottom:7px; margin-bottom:12px; }
+.hdr table  { width:100%; border-collapse:collapse; }
+.hdr td     { border:none; vertical-align:middle; }
+.logo       { width:60px; height:60px; }
+.co-name    { font-size:13px; font-weight:bold; color:#0f2027; }
+.co-sub     { font-size:10px; color:#4b5563; margin-top:2px; }
+.hdr-right  { text-align:right; font-size:9px; color:#6b7280; }
+
+.stitle     { font-size:10.5px; font-weight:bold; color:#0f2027;
+              border-left:4px solid #3b82f6; padding-left:6px; margin:11px 0 6px 0; }
+
+.kpi-wrap   { width:100%; border-collapse:separate; border-spacing:4px; }
+.kpi-cell   { background:#f8fafc; border:1px solid #e2e8f0; border-radius:5px;
+              padding:8px 5px; text-align:center; vertical-align:middle; }
+.kpi-lbl    { font-size:8px; color:#6b7280; display:block; text-transform:uppercase;
+              letter-spacing:.3px; margin-bottom:2px; }
+.kpi-val    { font-size:14px; font-weight:bold; color:#0f2027; }
+.kpi-sub    { font-size:8px; color:#9ca3af; display:block; margin-top:1px; }
+
+.dt         { width:100%; border-collapse:collapse; font-size:9px; }
+.dt thead tr{ background:#0f2027; color:#fff; }
+.dt th      { padding:4px; font-size:8.5px; text-align:left; }
+.dt th.r    { text-align:right; }
+.dt th.c    { text-align:center; }
+.dt td      { padding:4px; border-bottom:1px solid #e5e7eb; color:#374151; }
+.dt td.r    { text-align:right; }
+.dt td.c    { text-align:center; }
+.dt tbody tr:nth-child(even) td { background:#f9fafb; }
+.dt tfoot td{ background:#f1f5f9; font-weight:bold;
+              border-top:2px solid #0f2027; padding:4px; }
+
+.bdg        { display:inline-block; border-radius:3px; padding:2px 5px;
+              font-size:8px; font-weight:bold; }
+
+.footer     { margin-top:16px; border-top:1px solid #e5e7eb; padding-top:6px;
+              font-size:8.5px; color:#9ca3af; text-align:right; }
 </style>
 </head>
 <body>
-<div class="header-wrap">
-    <table class="header-table">
+
+<!-- ENCABEZADO -->
+<div class="hdr">
+    <table>
         <tr>
-            <td style="width:75px;">
+            <td style="width:68px;">
                 <img src="http://<?= $_SERVER['HTTP_HOST'] ?>/PIUT_V1/IMG/Logo_Comple_Black.png" class="logo">
             </td>
             <td>
-                <span class="company-name">DISORIENT, C.A.</span>
-                <div class="doc-title">Reporte de Tasa de Reembolso de Préstamos</div>
+                <span class="co-name">DISORIENT, C.A.</span>
+                <div class="co-sub">Reporte de Tasa de Reembolso de Préstamos</div>
             </td>
-            <td class="header-right">Fecha de emisión:<br><strong><?= date('d-m-Y') ?></strong></td>
+            <td class="hdr-right">
+                Emisión: <strong><?= date('d/m/Y H:i') ?></strong><br>
+                Año: <strong><?= date('Y') ?></strong>
+            </td>
         </tr>
     </table>
 </div>
 
-<div class="section-title">Resumen ejecutivo</div>
-<table class="kpi-table">
+<!-- KPIs -->
+<div class="stitle">Indicadores Generales de Reembolso</div>
+<table class="kpi-wrap">
     <tr>
         <td class="kpi-cell">
-            <span class="kpi-label">Tasa global de reembolso</span>
-            <span class="kpi-value"><?= $global ?>%</span>
-            <span class="kpi-sub" style="color:<?= $estado[1] ?>; font-weight:bold;"><?= $estado[0] ?></span>
+            <span class="kpi-lbl">Tasa Global de Reembolso</span>
+            <span class="kpi-val" style="color:<?= $estadoColor ?>;"><?= $globalTotal ?>%</span>
+            <span class="kpi-sub">del total prestado</span>
         </td>
         <td class="kpi-cell">
-            <span class="kpi-label">Total prestado (año actual)</span>
-            <span class="kpi-value">$ <?= isset($balance[0]) ? number_format($balance[0]['total_prestado'], 2) : '—' ?></span>
-            <span class="kpi-sub"><?= isset($balance[0]) ? $balance[0]['anio'] : '' ?></span>
+            <span class="kpi-lbl">Total Prestado</span>
+            <span class="kpi-val"><?= fmtN3($grandPrestado) ?> $</span>
+            <span class="kpi-sub">acumulado</span>
         </td>
         <td class="kpi-cell">
-            <span class="kpi-label">Total reembolsado</span>
-            <span class="kpi-value" style="color:#16a34a;">$ <?= isset($balance[0]) ? number_format($balance[0]['total_reembolsado'], 2) : '—' ?></span>
-            <span class="kpi-sub">este año</span>
+            <span class="kpi-lbl">Total Reembolsado</span>
+            <span class="kpi-val" style="color:#166534;"><?= fmtN3($grandReembolsado) ?> $</span>
+            <span class="kpi-sub">cobrado</span>
         </td>
         <td class="kpi-cell">
-            <span class="kpi-label">Préstamos vencidos</span>
-            <span class="kpi-value" style="color:#dc2626;"><?= $vencidos['cantidad'] ?? 0 ?></span>
-            <span class="kpi-sub">$ <?= number_format($vencidos['monto_total'] ?? 0, 2) ?> pendiente</span>
+            <span class="kpi-lbl">Total Pendiente</span>
+            <span class="kpi-val" style="color:#dc2626;"><?= fmtN3($grandPendiente) ?> $</span>
+            <span class="kpi-sub">por cobrar</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Préstamos Vencidos</span>
+            <span class="kpi-val" style="color:#dc2626;"><?= $vencCnt ?></span>
+            <span class="kpi-sub"><?= fmtN3($vencMont) ?> $ pendiente</span>
+        </td>
+        <td class="kpi-cell">
+            <span class="kpi-lbl">Estado</span>
+            <span class="kpi-val">
+                <span class="bdg" style="background:<?= $estadoBg ?>; color:<?= $estadoColor ?>;">
+                    <?= $estadoLabel ?>
+                </span>
+            </span>
         </td>
     </tr>
 </table>
 
-<div class="section-title" style="margin-top:18px;">Balance histórico por año</div>
-<table class="anio-table">
+<!-- BALANCE POR AÑO -->
+<div class="stitle" style="border-left-color:#6366f1;">Balance por Año</div>
+<table class="dt">
     <thead>
         <tr>
             <th>Año</th>
-            <th class="text-end">Total Prestado $</th>
-            <th class="text-end">Total Reembolsado $</th>
-            <th class="text-end">Pendiente $</th>
-            <th class="text-center">Tasa Reembolso</th>
-            <th>Progreso</th>
+            <th class="c">Cantidad</th>
+            <th class="r">Total Prestado $</th>
+            <th class="r">Reembolsado $</th>
+            <th class="r">Pendiente $</th>
+            <th class="c">% Reembolso</th>
+            <th class="c">Estado</th>
         </tr>
     </thead>
     <tbody>
-    <?php foreach ($balance as $b): 
-        $pct = $b['total_prestado'] > 0 ? round(($b['total_reembolsado'] / $b['total_prestado']) * 100, 1) : 0;
-        $col = $pct > 50 ? '#16a34a' : ($pct >= 31 ? '#d97706' : '#dc2626');
-        $pend = $b['total_prestado'] - $b['total_reembolsado'];
+    <?php foreach ($porAnio as $a):
+        $aLbl = $a['porcentaje'] > 50 ? 'BIEN'     : ($a['porcentaje'] >= 31 ? 'REGULAR' : 'BAJO');
+        $aBg  = $a['porcentaje'] > 50 ? '#dcfce7'  : ($a['porcentaje'] >= 31 ? '#fef9c3' : '#fee2e2');
+        $aClr = $a['porcentaje'] > 50 ? '#166534'  : ($a['porcentaje'] >= 31 ? '#854d0e' : '#991b1b');
     ?>
-    <tr>
-        <td style="font-weight:600;"><?= $b['anio'] ?></td>
-        <td style="text-align:right;"><?= number_format($b['total_prestado'], 2) ?></td>
-        <td style="text-align:right; color:#16a34a; font-weight:bold;"><?= number_format($b['total_reembolsado'], 2) ?></td>
-        <td style="text-align:right; color:#dc2626;"><?= number_format($pend, 2) ?></td>
-        <td style="text-align:center; font-weight:bold; color:<?= $col ?>;"><?= $pct ?>%</td>
-        <td><div class="bar-bg"><div class="bar-fill" style="width:<?= $pct ?>%; background:<?= $col ?>;"></div></div></td>
-    </tr>
+        <tr>
+            <td style="font-weight:bold;"><?= $a['anio'] ?></td>
+            <td class="c"><?= $a['cantidad'] ?></td>
+            <td class="r"><?= fmtN3($a['total_prestado']) ?></td>
+            <td class="r" style="color:#166534;"><?= fmtN3($a['total_reembolsado']) ?></td>
+            <td class="r" style="color:#dc2626; font-weight:bold;"><?= fmtN3($a['total_pendiente']) ?></td>
+            <td class="c" style="font-weight:bold; color:<?= $aClr ?>;"><?= $a['porcentaje'] ?>%</td>
+            <td class="c">
+                <span class="bdg" style="background:<?= $aBg ?>; color:<?= $aClr ?>;"><?= $aLbl ?></span>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>TOTAL GLOBAL</td>
+            <td class="c"><?= $grandCantidad ?></td>
+            <td class="r"><?= fmtN3($grandPrestado) ?></td>
+            <td class="r" style="color:#166534;"><?= fmtN3($grandReembolsado) ?></td>
+            <td class="r" style="color:#dc2626;"><?= fmtN3($grandPendiente) ?></td>
+            <td class="c" style="color:<?= $estadoColor ?>;"><?= $globalTotal ?>%</td>
+            <td class="c">
+                <span class="bdg" style="background:<?= $estadoBg ?>; color:<?= $estadoColor ?>;">
+                    <?= $estadoLabel ?>
+                </span>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- RANKING TRABAJADORES CON MÁS PRÉSTAMOS -->
+<div class="stitle" style="margin-top:12px; border-left-color:#f59e0b;">
+    Trabajadores con Más Préstamos Adquiridos — Top 10
+</div>
+<table class="dt">
+    <thead>
+        <tr>
+            <th class="c">#</th>
+            <th>Empleado</th>
+            <th>Cédula</th>
+            <th>Departamento</th>
+            <th class="c">Préstamos</th>
+            <th class="r">Monto Total $</th>
+            <th class="r">Pagado $</th>
+            <th class="r">Deuda Pend. $</th>
+            <th class="c">% Pagado</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($topTrabajadores as $i => $t):
+        $pctPag = $t['monto_total'] > 0
+            ? round(($t['pagado_total'] / $t['monto_total']) * 100, 1) : 0;
+        $pctClr = $pctPag >= 70 ? '#166534' : ($pctPag >= 40 ? '#854d0e' : '#991b1b');
+        $pos    = $i + 1;
+        $rowBg  = $i === 0 ? 'background:#fffbeb;' : '';
+    ?>
+        <tr style="<?= $rowBg ?>">
+            <td class="c" style="font-weight:bold;">
+                <?= $pos === 1 ? '1°' : ($pos === 2 ? '2°' : ($pos === 3 ? '3°' : $pos.'.')) ?>
+            </td>
+            <td style="font-weight:<?= $i===0?'bold':'600' ?>;">
+                <?= htmlspecialchars($t['nombre'].' '.$t['apellido']) ?>
+            </td>
+            <td><?= $t['cedula'] ?></td>
+            <td><?= htmlspecialchars($t['departamento'] ?? '—') ?></td>
+            <td class="c">
+                <span class="bdg" style="background:#dbeafe; color:#1e40af;">
+                    <?= $t['cantidad'] ?>
+                </span>
+            </td>
+            <td class="r"><?= fmtN3($t['monto_total']) ?></td>
+            <td class="r" style="color:#166534;"><?= fmtN3($t['pagado_total']) ?></td>
+            <td class="r" style="color:#dc2626; font-weight:bold;"><?= fmtN3($t['deuda_pendiente']) ?></td>
+            <td class="c" style="font-weight:bold; color:<?= $pctClr ?>;"><?= $pctPag ?>%</td>
+        </tr>
     <?php endforeach; ?>
     </tbody>
 </table>
 
-<div class="section-title" style="margin-top:18px;">Detalle por empleado — Préstamos activos</div>
-<table class="det-table">
+<!-- DETALLE POR EMPLEADO -->
+<div class="stitle" style="margin-top:12px; border-left-color:#10b981;">
+    Detalle de Reembolso por Empleado
+</div>
+<table class="dt">
     <thead>
         <tr>
             <th>Empleado</th>
             <th>Cédula</th>
-            <th class="text-end">Monto Orig. $</th>
-            <th class="text-end">Pagado $</th>
-            <th class="text-end">Pendiente $</th>
-            <th class="text-center">Progreso</th>
-            <th class="text-center">Estado</th>
-            <th>Vence</th>
+            <th class="r">Monto Orig. $</th>
+            <th class="r">Pagado $</th>
+            <th class="r">Pendiente $</th>
+            <th class="c">% Progreso</th>
+            <th class="c">Estado</th>
         </tr>
     </thead>
     <tbody>
-    <?php foreach ($todos as $p):
-        $prog  = $p['monto'] > 0 ? round((1 - $p['monto_desc'] / $p['monto']) * 100, 1) : 100;
-        $pagado = round($p['monto'] - $p['monto_desc'], 2);
-        $venc  = ($p['date_limit'] < date('Y-m-d') && $p['monto_desc'] > 0);
-        $colP  = $prog >= 70 ? '#16a34a' : ($prog >= 40 ? '#d97706' : '#dc2626');
+    <?php
+    $dTotMonto = $dTotPagado = $dTotPend = 0;
+    foreach ($detalle as $p):
+        $dTotMonto  += $p['monto'];
+        $dTotPagado += $p['pagado'];
+        $dTotPend   += $p['pendiente'];
+        $prgClr = $p['progreso'] >= 70 ? '#166534' : ($p['progreso'] >= 40 ? '#854d0e' : '#991b1b');
+        $estLbl = $p['vencido'] ? 'Vencido' : ($p['pendiente'] == 0 ? 'Pagado' : 'Al día');
+        $estBg  = $p['vencido'] ? '#fee2e2' : ($p['pendiente'] == 0 ? '#dcfce7' : '#dbeafe');
+        $estClr = $p['vencido'] ? '#991b1b' : ($p['pendiente'] == 0 ? '#166534' : '#1e40af');
     ?>
-    <tr>
-        <td style="font-weight:600; white-space:nowrap;"><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellido']) ?></td>
-        <td><?= $p['cedula'] ?></td>
-        <td style="text-align:right;"><?= number_format($p['monto'], 2) ?></td>
-        <td style="text-align:right; color:#16a34a;"><?= number_format($pagado, 2) ?></td>
-        <td style="text-align:right; color:#dc2626; font-weight:bold;"><?= number_format($p['monto_desc'], 2) ?></td>
-        <td style="text-align:center;">
-            <div class="bar-bg"><div class="bar-fill" style="width:<?= $prog ?>%; background:<?= $colP ?>;"></div></div>
-            <span style="font-size:8px; color:#6b7280;"> <?= $prog ?>%</span>
-        </td>
-        <td style="text-align:center; font-weight:bold; color:<?= $venc?'#dc2626':'#16a34a' ?>;">
-            <?= $venc ? 'VENCIDO' : 'AL DÍA' ?>
-        </td>
-        <td style="font-size:8.5px;"><?= $p['date_limit'] ? date('d/m/Y', strtotime($p['date_limit'])) : '—' ?></td>
-    </tr>
+        <tr>
+            <td style="font-weight:600;"><?= htmlspecialchars($p['nombre']) ?></td>
+            <td><?= $p['cedula'] ?></td>
+            <td class="r"><?= fmtN3($p['monto']) ?></td>
+            <td class="r" style="color:#166534;"><?= fmtN3($p['pagado']) ?></td>
+            <td class="r" style="color:<?= $p['pendiente']>0?'#dc2626':'#374151' ?>;
+                                   font-weight:<?= $p['pendiente']>0?'bold':'normal' ?>;">
+                <?= fmtN3($p['pendiente']) ?>
+            </td>
+            <td class="c" style="font-weight:bold; color:<?= $prgClr ?>;"><?= $p['progreso'] ?>%</td>
+            <td class="c">
+                <span class="bdg" style="background:<?= $estBg ?>; color:<?= $estClr ?>;">
+                    <?= $estLbl ?>
+                </span>
+            </td>
+        </tr>
     <?php endforeach; ?>
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2" style="text-align:right; padding-right:5px;">TOTAL</td>
+            <td class="r"><?= fmtN3($dTotMonto) ?></td>
+            <td class="r" style="color:#166534;"><?= fmtN3($dTotPagado) ?></td>
+            <td class="r" style="color:#dc2626;"><?= fmtN3($dTotPend) ?></td>
+            <td class="c" style="color:<?= $estadoColor ?>;">
+                <?= $dTotMonto > 0 ? round(($dTotPagado/$dTotMonto)*100,1) : 0 ?>%
+            </td>
+            <td></td>
+        </tr>
+    </tfoot>
 </table>
 
+<!-- FOOTER -->
 <div class="footer">
-    Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?> &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de Nómina
+    Generado el <?= date('d/m/Y') ?> a las <?= date('H:i') ?>
+    &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de Nómina
 </div>
+
 </body>
 </html>
 <?php
 $html = ob_get_clean();
+
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
-$dompdf = new Dompdf();
-$opts   = $dompdf->getOptions();
-$opts->set(['isRemoteEnabled' => true]);
-$dompdf->setOptions($opts);
+
+$dompdf  = new Dompdf();
+$options = $dompdf->getOptions();
+$options->set(['isRemoteEnabled' => true]);
+$dompdf->setOptions($options);
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'landscape');
 $dompdf->render();
-$dompdf->stream('Prestamos-reembolso-' . date('Y-m-d') . '.pdf', ['Attachment' => false]);
+$dompdf->stream('Prestamos-reembolso-' . date('Y') . '.pdf', ['Attachment' => false]);

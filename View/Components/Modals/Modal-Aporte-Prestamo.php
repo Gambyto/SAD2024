@@ -1,10 +1,3 @@
-<!--
-  ============================================================
-  Modal-Aporte-Prestamo.php
-  Buscador embebido como panel deslizante dentro del modal.
-  Sin segundo modal. Sin conflicto de Bootstrap.
-  ============================================================
--->
 
 <div class="modal fade" id="aporte" tabindex="-1"
      aria-labelledby="empleadoModalLabel" aria-hidden="true">

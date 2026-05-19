@@ -1778,6 +1778,7 @@ public function cuentas_por_pagar_View()
 
 
 	public function TasaDolar($periodo = 'diario', $mes = null, $anio = null) {
+		$query = "";	
         if ($periodo === 'diario') {
             $query = "SELECT DATE(fecha) as fecha, MAX(tasa_del_dia) as tasa_del_dia 
                       FROM tasa_dolar 

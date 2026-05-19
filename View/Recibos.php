@@ -41,6 +41,10 @@
             <h4> </h4>
 
         <?php include_once 'Components/Indicator/TasaPromedio.php';?>
+
+        <?php if ($_SESSION['type'] == "Trabajador") { 
+            include_once 'Components/Indicator/Constancia.php';
+            }?>
         </div>
         
         <div class="block indicator">

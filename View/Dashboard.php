@@ -32,18 +32,8 @@ use PhpParser\Node\Expr\Include_;
                 <div class="kpi-l kf2 indicator_l">
                     <?php include_once '../View/Components/Indicator/Vendedores.php';?>
                 </div>
-                <div class="kpi-s kf3">
-                    <?php include_once '../View/Components/Indicator/PromedioPrestamos.php';?>
-                </div>
-                <div class="kpi-s kf4">
-                <?php include_once '../View/Components/Indicator/Frecuencia_Renovación.php';?>
-                </div>
-                <div class="kpi-s kf5">
-                <?php include_once '../View/Components/Indicator/Tasa_de_reembolso.php';?>
-                </div>
-                <div class="kpi-s kf6">
-                <?php include_once '../View/Components/Indicator/Tasadeuso.php';?>
-                </div>
+           <?php include_once '../View/Components/Indicator/Indicadores_Prestamos.php';?>
+           <?php include_once '../View/Components/Modals/Modal_Prestamos.php';?>
             </div>
             <div class="k3">
                 <div class="kpi-s kf7">

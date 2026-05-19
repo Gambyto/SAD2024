@@ -8,156 +8,175 @@ include '../../PHP/CLASS/conexion_Original.php';
 include '../../PHP/CLASS/user_Original.php'; 
 
 ob_start();
-
-/*   		Comentario para Sabastian
-
-1- este es el encabezado qeu vas a a copiar en todos los diseños de pdf.
-
-2- intenta mantener en código CSS lo más limpio posible, osea que lo que coloques en el CSS lo uses en realidad
-
-3- intenta tener semantica HTML, ejmplo cuando uses una <table> hay etiquetas de semantica para esa etiqueta (<thead>, <tbody>)
-*/
 ?>
 <!DOCTYPE html>	
-	<html lang="es">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Nómina General</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #1a1a1a; }
 
-		<title>Document</title>
-		<style type="text/css">
-			table,th{
-				border:1px solid black;
-				border-collapse: collapse; 
-			}
-			th#dir{
-				padding: 0px;
-				text-align: right;
-			}
-			div#texto{
-				text-align: center;
-			}
-			th#datos{
-				padding: 0px;
-			}
-			.row {
-				display: flex;
-				justify-content: space-between;
-			}
+        /* ── Encabezado corporativo ── */
+        .header-wrap {
+            width: 100%;
+            border-bottom: 3px solid #1a1a2e;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+        .header-table { width: 100%; border: none; border-collapse: collapse; }
+        .header-table td { border: none; vertical-align: middle; }
+        .logo { width: 70px; height: 70px; }
+        .company-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1a1a2e;
+            letter-spacing: 0.5px;
+        }
+        .doc-title {
+            font-size: 11px;
+            color: #4b5563;
+            margin-top: 3px;
+        }
+        .header-right {
+            text-align: right;
+            font-size: 10px;
+            color: #6b7280;
+        }
 
-			table#tablados, th, td { 
-				border: 1px solid black;
-				text-align: center;
-			}
-			td{
-				text-align: left;
-				padding: .7rem;
-				font-size: .7rem;
-			}
-			td#sueldo{
-				text-align: right;
-			}
+        /* ── Título de sección ── */
+        .section-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #1a1a2e;
+            border-left: 4px solid #c0392b;
+            padding-left: 8px;
+            margin: 14px 0 8px 0;
+        }
 
-	.left-image {
-	    float: left;
-	    margin-right: 10px; 
-	  }
+        /* ── Tabla principal ── */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5px;
+        }
+        .main-table thead tr {
+            background-color: #c0392b;
+            color: #ffffff;
+        }
+        .main-table th {
+            padding: 6px 5px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+            border: none;
+        }
+        .main-table td {
+            padding: 5px 5px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            color: #374151;
+        }
+        .main-table td.right { text-align: right; }
+        .main-table td.center { text-align: center; }
+        .main-table tbody tr:nth-child(even) td { background-color: #fafafa; }
 
-	  div#RIF {
-	  	text-align: left;
-	  }
+        /* ── Footer ── */
+        .footer {
+            margin-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 8px;
+            font-size: 9px;
+            color: #9ca3af;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
 
+    <!-- ══ ENCABEZADO CORPORATIVO ══ -->
+    <div class="header-wrap">
+        <table class="header-table">
+            <tr>
+                <td style="width: 80px;">
+                    <img src="http://<?php echo $_SERVER['HTTP_HOST']; ?>/PIUT_V1/IMG/Logo_Comple_Black.png"
+                         class="logo">
+                </td>
+                <td>
+                    <span class="company-name">DISORIENT, C.A.</span>
+                    <div class="doc-title">
+                        Relación de Personal &mdash; Nómina General
+                    </div>
+                    <div style="font-size:9px; color:#9ca3af; margin-top:2px;">RIF: J-080199936</div>
+                </td>
+                <td class="header-right">
+                    Fecha de emisión:<br>
+                    <strong><?php echo date('d-m-Y'); ?></strong>
+                </td>
+            </tr>
+        </table>
+    </div>
 
+    <!-- ══ TABLA DE PERSONAL ══ -->
+    <div class="section-title">Listado de empleados</div>
 
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th>Nombre y Apellido</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Teléfono 2</th>
+                <th>Correo</th>
+                <th>Dirección</th>
+                <th>F. Ingreso</th>
+                <th>Cargo</th>
+                <th>Departamento</th>
+                <th>Sueldo $</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $datos = $Empleado->View();
+            foreach ($datos as $dato):
+            ?>
+            <tr>
+                <td><?php echo htmlspecialchars($dato['nombre'] . ' ' . $dato['apellido']); ?></td>
+                <td class="center"><?php echo htmlspecialchars($dato['cedula']); ?></td>
+                <td class="center"><?php echo htmlspecialchars($dato['tlf']); ?></td>
+                <td class="center"><?php echo htmlspecialchars($dato['second_tlf']); ?></td>
+                <td><?php echo htmlspecialchars($dato['correo']); ?></td>
+                <td><?php echo htmlspecialchars($dato['direccion']); ?></td>
+                <td class="center"><?php echo htmlspecialchars($dato['f_ingreso']); ?></td>
+                <td><?php echo htmlspecialchars($dato['cargo']); ?></td>
+                <td><?php echo htmlspecialchars($dato['departamento']); ?></td>
+                <td class="right"><?php echo htmlspecialchars($dato['sueldo']); ?> $</td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
+    <!-- ══ FOOTER ══ -->
+    <div class="footer">
+        Generado el <?php echo date('d/m/Y'); ?> a las <?php echo date('H:i'); ?> &nbsp;|&nbsp; DISORIENT, C.A. &nbsp;|&nbsp; Sistema de Nómina
+    </div>
 
-		</style>
-	</head>
-	<body>
-		<table style="width: 100%;">
-			<tr>
-				<th id="dir">
-					<img src="http://<?php echo $_SERVER['HTTP_HOST']; ?>/PIUT_V1/IMG/Logo_Comple_Black.png" style="width: 70px;" class="left-image">
-						<br>
-						<br>
-						<br>
-						<br>
-					<div>
-						<br>
-						<div id="RIF" style="float: left;"> RIF: J-080199936 </div>
-					<div id="texto">
-						<div style="float: right;">Fecha: <?php echo date("Y/m/d"); ?></div> 
-						<div > RELACIÓN DE PERSONAL </div>
-					</div>
-					<br>
-					</div>
-
-					
-		
-
-
-		</table>
-
-		<table style="width: 100%;" id="tablados">
-
-			<tr>
-
-			<th>Nombre</th>
-			<th>Cedula</th>			
-			<th colspan="2">Teléfono</th>
-			<th>Correo</th>
-			<th>Dirección</th>
-			<th>Fecha de ingreso</th>
-			<th>Cargo</th>
-			<th>Departamento</th>
-			<th>Sueldo</th>
-
-			</tr>
-
-			<tbody>
-				<?php 
-					$datos = $Empleado->View();
-					foreach ($datos as $dato) {
-							echo '<tr>';
-							echo '<td scope="col">'	.$dato['nombre']. ' ' .$dato['apellido'].'</td>';
-							echo '<td scope="col">'	.$dato['cedula']. '</td>';
-							echo '<td scope="col">'	.$dato['tlf']. '</td>';
-							echo '<td scope="col">'	.$dato['second_tlf']. '</td>';
-							echo '<td scope="col">'	.$dato['correo']. '</td>';
-							echo '<td scope="col">'	.$dato['direccion']. '</td>';
-							echo '<td scope="col">'	.$dato['f_ingreso']. '</td>';
-							echo '<td scope="col">'	.$dato['cargo']. '</td>';
-							echo '<td scope="col">'	.$dato['departamento']. '</td>';
-							echo '<td scope="col" id="sueldo">'	.$dato['sueldo']. ' $</td>';
-							echo '</tr>';
-							}
-							
-						 ?>
-			</tbody>
-
-		</table>
-	</body>
-	</html>
-<?php /* Este es el pie de pagina que tienes que copiar */
-
+</body>
+</html>
+<?php
 $html = ob_get_clean();
-
 
 require_once '../../PHP/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
 
 $dompdf = new Dompdf();
-
 $options = $dompdf->getOptions();
-$options->set(array('isRemoteEnabled' => true));
+$options->set(['isRemoteEnabled' => true]);
 $dompdf->setOptions($options);
-
 $dompdf->loadHtml($html);
-
-// $dompdf->setPaper('letter');
-$dompdf->setPaper('A4','landscape');
-
+$dompdf->setPaper('A4', 'landscape');
 $dompdf->render();
-$dompdf->stream("Nomin_General.pdf", array("Attachment" => false));
- ?>
+$dompdf->stream("Nomin_General.pdf", ['Attachment' => false]);
