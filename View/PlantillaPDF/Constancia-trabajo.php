@@ -168,11 +168,11 @@ ob_start();
         .expedicion { font-size: 12px; line-height: 2; margin-bottom: 70px; }
 
         /* ── Firma ── */
-        .firma-block { margin-top: 10px; }
+        .firma-block { margin-top: 10px; margin-left: 30%;}
         .firma-linea { width: 260px; border-top: 1px solid #000; margin-bottom: 4px; }
-        .firma-nombre  { font-size: 11px; font-weight: bold; }
-        .firma-cargo   { font-size: 11px; }
-        .firma-empresa { font-size: 11px; font-weight: bold; }
+        .firma-nombre  { font-size: 11px; font-weight: bold; margin-left: 8%}
+        .firma-cargo   { font-size: 11px; margin-left: 19%;}
+        .firma-empresa { font-size: 11px; font-weight: bold; margin-left: 18%;}
 
         /* ── Footer ── */
         .footer {
