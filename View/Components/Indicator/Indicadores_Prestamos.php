@@ -72,25 +72,28 @@ else                           $ind_frec = 'danger';
 ══════════════════════════════════════════════════════════════ -->
 
 <!-- TASA DE USO -->
-<div class="indicator__content <?php echo $ind_uso; ?>"
-     style="cursor:pointer; min-width:17rem;"
-     onclick="openPrestamosModal(0)" title="Ver detalle de Tasa de Uso">
-    <div class="indicator__header">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="24" height="24"
-             stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
+<div class="kpi-s kf3">
+    <div class="indicator__content <?php echo $ind_uso; ?>"
+    style="cursor:pointer; min-width:17rem;"
+    onclick="openPrestamosModal(0)" title="Ver detalle de Tasa de Uso">
+        <div class="indicator__header">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="24" height="24"
+            stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
             <path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12"/>
             <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4"/>
         </svg>
-        <span class="badge bg-secondary">Uso</span>
+        
         <span class="ms-auto" style="opacity:.55; font-size:.7rem;">↗ Ver más</span>
-    </div>
-    <div class="indicator__body">
-        <small class="text-body-secondary">Tasa de uso de préstamos</small>
-        <h5 class="text-body-primary"><?php echo $promedio_uso_fmt . '% han usado préstamos'; ?></h5>
+        </div>
+        <div class="indicator__body">
+            <small class="text-body-secondary">Tasa de uso de préstamos</small>
+            <h5 class="text-body-primary"><?php echo $promedio_uso_fmt . '% han usado préstamos'; ?></h5>
+        </div>
     </div>
 </div>
 
 <!-- PROMEDIO DE PRÉSTAMOS -->
+<div class="kpi-s kf4">
 <div class="indicator__content"
      style="cursor:pointer; min-width:17rem;"
      onclick="openPrestamosModal(1)" title="Ver detalle de Promedio de Préstamos">
@@ -108,8 +111,10 @@ else                           $ind_frec = 'danger';
         <h5 class="text-body-primary"><?php echo $mes_promedio . '$ Mes / ' . $semana_promedio . '$ Sem'; ?></h5>
     </div>
 </div>
+</div>
 
 <!-- TASA DE REEMBOLSO -->
+<div class=" kpi-s kf5">
 <div class="indicator__content <?php echo $ind_bal; ?>"
      style="cursor:pointer; min-width:17rem;"
      onclick="openPrestamosModal(2)" title="Ver detalle de Tasa de Reembolso">
@@ -119,7 +124,7 @@ else                           $ind_frec = 'danger';
             <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/>
             <path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"/>
         </svg>
-        <span class="badge bg-secondary">Reembolso</span>
+        
         <span class="ms-auto" style="opacity:.55; font-size:.7rem;">↗ Ver más</span>
     </div>
     <div class="indicator__body">
@@ -127,8 +132,10 @@ else                           $ind_frec = 'danger';
         <h5 class="text-body-primary"><?php echo $balance . '% han sido pagados'; ?></h5>
     </div>
 </div>
+</div>
 
 <!-- FRECUENCIA DE RENOVACIÓN -->
+<div class="kpi-s kf6">
 <div class="indicator__content <?php echo $ind_frec; ?>"
      style="cursor:pointer; min-width:17rem;"
      onclick="openPrestamosModal(3)" title="Ver detalle de Frecuencia de Renovación">
@@ -138,11 +145,11 @@ else                           $ind_frec = 'danger';
             <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/>
             <path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"/>
         </svg>
-        <span class="badge bg-secondary">Renovación</span>
         <span class="ms-auto" style="opacity:.55; font-size:.7rem;">↗ Ver más</span>
     </div>
     <div class="indicator__body">
         <small class="text-body-secondary">Tasa de renovación de préstamos</small>
         <h5 class="text-body-primary"><?php echo $frecuency . '%'; ?></h5>
     </div>
+</div>
 </div>

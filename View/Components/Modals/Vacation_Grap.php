@@ -1,5 +1,5 @@
 <?php
-$data = [];
+$data = '';
 // ── Datos para el gráfico principal (todos los años) ──────────────────────────
 $labels = array_reverse(array_column($data, 'anio'));
 $values = array_reverse(array_column($data, 'monto'));
