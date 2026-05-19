@@ -362,6 +362,10 @@ function agg_aporte() {
                     $('#alerts .notification').one('animationend', function () {
                         $('#alerts').empty();
                     });
+                    // Recarga la tabla si el aporte fue exitoso
+                    if (!data.html.includes('notification--failure')) {
+                        recargarTablaPrestamos();
+                    }
                 } else {
                     alert(data.message);
                 }

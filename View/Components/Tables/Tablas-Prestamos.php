@@ -30,7 +30,7 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                     data: {id: id},
                     success: function(response){
                         alert(response);
-                        location.reload();
+                        recargarTablaPrestamos();
                     },
                     error: function(){
                         alert('Error al eliminar el prestamo, intente de nuevo');
@@ -42,21 +42,29 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
     }
     </script> 
 
-<div class="table__information">
-		<h4> Prestamos activos
+<!-- *** WRAPPER: recargarTablaPrestamos() inyecta aquí *** -->
+<div class="table__information" id="wrapperTablaPrestamos" style="display: flex; flex-direction: column;">
 
-				<!-- Navegación de Páginas -->
-			<nav aria-label="Page navigation">
-			<ul class="pagination">
-				<li class="page-item <?php if ($paginaActual == 1) echo 'disabled'; ?>">
-					<a class="page-link" href="?pagina=<?php echo max(1, $paginaActual - 1); ?>" tabindex="-1">Anterior</a>
-				</li>
-				<li class="page-item <?php if ($paginaActual == $totalPaginas) echo 'disabled'; ?>">
-					<a class="page-link" href="?pagina=<?php echo min($totalPaginas, $paginaActual + 1); ?>">Siguiente</a>
-				</li>
-			</ul>
-			</nav>
-		</h4>
+    <h4> Prestamos activos
+
+        <!-- Navegación de Páginas -->
+        <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item <?php if ($paginaActual == 1) echo 'disabled'; ?>">
+                <a class="page-link"
+                   href="#"
+                   onclick="recargarTablaPrestamos(<?php echo max(1, $paginaActual - 1); ?>); return false;"
+                   tabindex="-1">Anterior</a>
+            </li>
+            <li class="page-item <?php if ($paginaActual == $totalPaginas) echo 'disabled'; ?>">
+                <a class="page-link"
+                   href="#"
+                   onclick="recargarTablaPrestamos(<?php echo min($totalPaginas, $paginaActual + 1); ?>); return false;">Siguiente</a>
+            </li>
+        </ul>
+        </nav>
+    </h4>
+
     <table class="table" id="tablaPrestamos">
         <thead class="table-primary" style="text-align: center;">
             <tr>
@@ -80,7 +88,7 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                 echo '<tr class="' . $clase . '">';
                 echo '<th scope="col">' . $dato['cedula'] . '</th>';
                 echo '<th scope="col">' . $dato['nombre'] .' '. $dato['apellido']  . '</th>';
-                echo '<th scope="col" style="text-align: rigth;">' . $dato['monto'] . ' $</th>';
+                echo '<th scope="col" style="text-align: right;">' . $dato['monto'] . ' $</th>';
                 echo '<th scope="col">' . $dato['cuotas'] . '</th>';
                 echo '<th scope="col">' . $dato['monto_desc'] . ' $</th>';
                 echo '<th scope="col">' . $dato['fecha'] . '</th>';
@@ -90,7 +98,7 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                         <a name="btn2" class="btn btn-outline-danger" onclick="return confirmar(\'' . $dato['id_prestamos'] . '\')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4.059L11.882 4zM2.5 3h11V2h-11z"/>
                             </svg>
                         </a>
                     </th>';
@@ -98,11 +106,10 @@ $datosPagina = array_slice($datos, $inicio, $elementosPorPagina);
                 echo '</tr>';
             }
             ?>
+        </tbody>
+    </table>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script src="../JS/Get-Empleado.js"></script>
-
-        </tbody>
-    </table>
-</div>

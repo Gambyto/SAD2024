@@ -588,6 +588,8 @@ function aprobarSolicitud(id) {
                     if (!response.message) {
                         removerFila(id, function() {
                             $('#alerts').html(response.html);
+                            // Actualiza la tabla de préstamos activos
+                            recargarTablaPrestamos();
                         });
                     } else {
                         alert('Error: Algo salió mal');
@@ -659,16 +661,11 @@ $(document).ready(function() {
         cargarSolicitudes(1);
     });
 
-    // Recargar la página en background cuando se cierra por quedarse sin registros
+    // Cuando el modal se cierra tras quedarse sin registros,
+    // la tabla ya fue actualizada por recargarTablaPrestamos() en el callback.
+    // Solo limpiamos el flag para evitar recargas innecesarias.
     $('#solicitudesPrestamos').on('hidden.bs.modal', function() {
-        if (_recargarAlCerrar) {
-            _recargarAlCerrar = false;
-            // fetch silencioso: recarga el PHP del dashboard sin recargar el navegador
-            // Si el dashboard no expone un endpoint parcial, hacemos location.reload()
-            // con replaceState para que no aparezca en el historial y no se note
-            history.replaceState(null, '', location.href);
-            location.reload();
-        }
+        _recargarAlCerrar = false;
     });
 
 });

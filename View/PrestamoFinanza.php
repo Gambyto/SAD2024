@@ -346,9 +346,10 @@ function Guardar(){
                         $('#alerts').empty();
                     });
 
-                    // Reset solo si NO es un error
+                    // Reset y recarga de tabla solo si NO es un error
                     if (!data.html.includes('notification--failure')) {
                         $('#form')[0].reset();
+                        recargarTablaPrestamos();
                     }
 
                 } else {
@@ -363,4 +364,28 @@ function Guardar(){
         }
     });
 };
+
+    // ── Recarga silenciosa de la tabla de préstamos ──────────────────────
+    function recargarTablaPrestamos(pagina) {
+        pagina = pagina || 1;
+        $.ajax({
+            url : '../PHP/CTR/Tabla_Prestamos_CTR.php',
+            type: 'GET',
+            data: { pagina: pagina },
+            success: function(response) {
+                try {
+                    var data = JSON.parse(response);
+                    if (data.html) {
+                        // Reemplaza el contenido completo del wrapper (nav + tabla)
+                        $('#wrapperTablaPrestamos').html(data.html);
+                    }
+                } catch(e) {
+                    console.error('Error al recargar la tabla de préstamos:', e);
+                }
+            },
+            error: function() {
+                console.error('No se pudo actualizar la tabla de préstamos.');
+            }
+        });
+    }
     </script>
